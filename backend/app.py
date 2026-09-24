@@ -223,19 +223,18 @@ def _ensure_demo_users_auto_seed(app):
     """
     with app.app_context():
         try:
-            from backend.schema_sync import sync_missing_columns
-            sync_missing_columns()
-
             from backend.models.user import User
             admin_user = User.query.filter_by(email="admin@college.edu").first()
             recruiter_user = User.query.filter_by(email="recruiter@company.com").first()
             student_user = User.query.filter_by(email="rahul@college.edu").first()
 
             if not (admin_user and recruiter_user and student_user):
+                from backend.schema_sync import sync_missing_columns
+                sync_missing_columns()
                 from backend.seed_sih_demo import seed_database
                 seed_database(app)
         except Exception as exc:
-            app.logger.warning(f"Auto demo seeding check: {exc}")
+            app.logger.info(f"Auto demo seeding note: {exc}")
 
 
 def register_error_handlers(app):

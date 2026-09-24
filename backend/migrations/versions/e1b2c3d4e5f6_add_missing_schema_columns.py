@@ -17,38 +17,63 @@ depends_on = None
 
 
 def upgrade():
+    conn = op.get_bind()
+    inspector = sa.inspect(conn)
+    existing_tables = set(inspector.get_table_names())
+
+    def col_exists(table, column):
+        if table not in existing_tables:
+            return False
+        cols = {c['name'].lower() for c in inspector.get_columns(table)}
+        return column.lower() in cols
+
     # 1. companies
     with op.batch_alter_table('companies', schema=None) as batch_op:
-        batch_op.add_column(sa.Column('domains', sa.String(length=255), nullable=True))
-        batch_op.add_column(sa.Column('recruitment_process', sa.Text(), nullable=True))
-        batch_op.add_column(sa.Column('videos_json', sa.Text(), nullable=True))
+        if not col_exists('companies', 'domains'):
+            batch_op.add_column(sa.Column('domains', sa.String(length=255), nullable=True))
+        if not col_exists('companies', 'recruitment_process'):
+            batch_op.add_column(sa.Column('recruitment_process', sa.Text(), nullable=True))
+        if not col_exists('companies', 'videos_json'):
+            batch_op.add_column(sa.Column('videos_json', sa.Text(), nullable=True))
 
     # 2. jobs
     with op.batch_alter_table('jobs', schema=None) as batch_op:
-        batch_op.add_column(sa.Column('domain', sa.String(length=100), server_default='Software Engineering', nullable=False))
-        batch_op.add_column(sa.Column('ctc', sa.String(length=100), nullable=True))
-        batch_op.add_column(sa.Column('eligible_batch_years', sa.String(length=100), nullable=True))
-        batch_op.add_column(sa.Column('rejection_reason', sa.Text(), nullable=True))
+        if not col_exists('jobs', 'domain'):
+            batch_op.add_column(sa.Column('domain', sa.String(length=100), server_default='Software Engineering', nullable=False))
+        if not col_exists('jobs', 'ctc'):
+            batch_op.add_column(sa.Column('ctc', sa.String(length=100), nullable=True))
+        if not col_exists('jobs', 'eligible_batch_years'):
+            batch_op.add_column(sa.Column('eligible_batch_years', sa.String(length=100), nullable=True))
+        if not col_exists('jobs', 'rejection_reason'):
+            batch_op.add_column(sa.Column('rejection_reason', sa.Text(), nullable=True))
 
     # 3. job_skills
     with op.batch_alter_table('job_skills', schema=None) as batch_op:
-        batch_op.add_column(sa.Column('priority', sa.String(length=50), server_default='Important', nullable=False))
+        if not col_exists('job_skills', 'priority'):
+            batch_op.add_column(sa.Column('priority', sa.String(length=50), server_default='Important', nullable=False))
 
     # 4. assessments
     with op.batch_alter_table('assessments', schema=None) as batch_op:
-        batch_op.add_column(sa.Column('job_id', sa.Integer(), nullable=True))
+        if not col_exists('assessments', 'job_id'):
+            batch_op.add_column(sa.Column('job_id', sa.Integer(), nullable=True))
 
     # 5. assessment_attempts
     with op.batch_alter_table('assessment_attempts', schema=None) as batch_op:
-        batch_op.add_column(sa.Column('answers_json', sa.Text(), nullable=True))
+        if not col_exists('assessment_attempts', 'answers_json'):
+            batch_op.add_column(sa.Column('answers_json', sa.Text(), nullable=True))
 
     # 6. feedback
     with op.batch_alter_table('feedback', schema=None) as batch_op:
-        batch_op.add_column(sa.Column('technical_rating', sa.Integer(), nullable=True))
-        batch_op.add_column(sa.Column('problem_solving_rating', sa.Integer(), nullable=True))
-        batch_op.add_column(sa.Column('communication_rating', sa.Integer(), nullable=True))
-        batch_op.add_column(sa.Column('recommendation', sa.String(length=50), nullable=True))
-        batch_op.add_column(sa.Column('is_visible_to_student', sa.Boolean(), server_default='0', nullable=False))
+        if not col_exists('feedback', 'technical_rating'):
+            batch_op.add_column(sa.Column('technical_rating', sa.Integer(), nullable=True))
+        if not col_exists('feedback', 'problem_solving_rating'):
+            batch_op.add_column(sa.Column('problem_solving_rating', sa.Integer(), nullable=True))
+        if not col_exists('feedback', 'communication_rating'):
+            batch_op.add_column(sa.Column('communication_rating', sa.Integer(), nullable=True))
+        if not col_exists('feedback', 'recommendation'):
+            batch_op.add_column(sa.Column('recommendation', sa.String(length=50), nullable=True))
+        if not col_exists('feedback', 'is_visible_to_student'):
+            batch_op.add_column(sa.Column('is_visible_to_student', sa.Boolean(), server_default='0', nullable=False))
 
 
 def downgrade():
