@@ -252,6 +252,8 @@ def seed_database(app=None):
                 db.session.add(u)
                 db.session.flush()
 
+            exp = u.industry_profile
+            if not exp:
                 exp = IndustryExpert(
                     user_id=u.id,
                     company_id=rdata["company"].id,
@@ -265,10 +267,9 @@ def seed_database(app=None):
                 db.session.add(exp)
                 db.session.flush()
                 print(f" Created Recruiter: {rdata['email']} ({rdata['status']})")
-                industry_experts[rdata["email"]] = exp
             else:
                 u.set_password(recruiter_password)
-                industry_experts[rdata["email"]] = u.industry_profile
+            industry_experts[rdata["email"]] = exp
 
         # --------------------------------------------------------------------
         # 5. CORE SKILLS CATALOGUE
@@ -411,6 +412,8 @@ def seed_database(app=None):
                 db.session.add(u)
                 db.session.flush()
 
+            stud = u.student_profile
+            if not stud:
                 stud = Student(
                     user_id=u.id,
                     roll_number=sdata["roll"],
@@ -472,10 +475,10 @@ def seed_database(app=None):
                 ))
 
                 print(f" Created Student: {sdata['email']} (Roll: {sdata['roll']})")
-                students_dict[sdata["email"]] = stud
             else:
                 u.set_password(student_password)
-                students_dict[sdata["email"]] = u.student_profile
+
+            students_dict[sdata["email"]] = stud
 
         # --------------------------------------------------------------------
         # 7. PROACTIVE INTERVENTION FOR AT-RISK STUDENT (Rahul Gupta)

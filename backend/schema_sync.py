@@ -13,6 +13,9 @@ def sync_missing_columns():
     Safe and idempotent on all supported SQL dialects.
     """
     try:
+        # 0. Ensure all models are registered in metadata
+        import backend.models  # noqa: F401
+
         # 1. First ensure all base tables exist
         db.create_all()
 
@@ -22,6 +25,35 @@ def sync_missing_columns():
 
         # Table -> list of (column_name, column_type_definition)
         columns_to_ensure = {
+            "students": [
+                ("backlogs", "INTEGER DEFAULT 0"),
+                ("certifications", "TEXT"),
+                ("experience", "TEXT")
+            ],
+            "alumni": [
+                ("phone", "VARCHAR(50)"),
+                ("is_verified", "BOOLEAN DEFAULT 1"),
+                ("consent_share_contact", "BOOLEAN DEFAULT 0")
+            ],
+            "placement_drives": [
+                ("max_backlogs", "INTEGER DEFAULT 0"),
+                ("job_role", "VARCHAR(150)"),
+                ("package_ctc", "VARCHAR(100)"),
+                ("required_skills", "TEXT"),
+                ("current_stage", "VARCHAR(50) DEFAULT 'Registration'")
+            ],
+            "placement_drive_students": [
+                ("stage", "VARCHAR(50) DEFAULT 'Registration'"),
+                ("offered_ctc", "NUMERIC(12, 2)"),
+                ("notes", "TEXT")
+            ],
+            "student_preferences": [
+                ("preferred_domain", "VARCHAR(150)"),
+                ("job_type_preference", "VARCHAR(50) DEFAULT 'Both'")
+            ],
+            "notifications": [
+                ("channel", "VARCHAR(50) DEFAULT 'in_app'")
+            ],
             "companies": [
                 ("domains", "VARCHAR(255)"),
                 ("recruitment_process", "TEXT"),
@@ -61,10 +93,10 @@ def sync_missing_columns():
                 for col_name, col_def in columns:
                     if col_name.lower() not in existing_cols:
                         try:
-                            db.session.execute(text(f"ALTER TABLE {table} ADD COLUMN {col_name} {col_def}"))
-                            db.session.commit()
-                        except Exception:
-                            db.session.rollback()
-    except Exception:
-        # Suppress and gracefully continue if database is still connecting
-        pass
+                            with db.engine.begin() as conn:
+                                conn.execute(text(f"ALTER TABLE {table} ADD COLUMN {col_name} {col_def}"))
+                            print(f" [SCHEMA] Added column '{col_name}' to table '{table}'")
+                        except Exception as err:
+                            print(f" [SCHEMA] Note adding '{col_name}' to '{table}': {err}")
+    except Exception as e:
+        print(f" [SCHEMA] Warning during schema synchronization: {e}")
