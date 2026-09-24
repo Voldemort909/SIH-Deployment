@@ -68,7 +68,7 @@
     <!-- Top Navigation Bar -->
     <nav class="navbar navbar-expand-lg navbar-dark bg-primary shadow-sm sticky-top">
         <div class="container-fluid px-lg-5">
-            <a class="navbar-brand fw-bold" href="../../index.html">
+            <a class="navbar-brand fw-bold" href="/">
                 <i class="bi bi-mortarboard-fill me-2"></i>CareerPath AI <span class="badge bg-white text-primary ms-1 small">Student</span>
             </a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navContent">
@@ -302,14 +302,14 @@
         const token = getToken();
         const user = getUser();
         if (!token || !user || user.role !== "student") {
-            window.location.href = "../login.html";
+            window.location.href = "/login";
         } else {
             navStudentName.textContent = user.name || user.email;
         }
 
         logoutBtn.addEventListener("click", () => {
             removeToken();
-            window.location.href = "../login.html";
+            window.location.href = "/login";
         });
 
         function showAlert(msg, type = "success") {

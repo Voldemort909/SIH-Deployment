@@ -89,7 +89,7 @@
                         <a class="nav-link" href="jobs.html"><i class="bi bi-check2-square me-1"></i> Job Moderation</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link text-white-50" href="../../index.html"><i class="bi bi-house me-1"></i> Portal Home</a>
+                        <a class="nav-link text-white-50" href="/"><i class="bi bi-house me-1"></i> Portal Home</a>
                     </li>
                 </ul>
 
@@ -1349,13 +1349,13 @@
             const user = getUser();
 
             if (!token || !user) {
-                window.location.href = "../login.html";
+                window.location.href = "/login";
                 return;
             }
 
             if (user.role.toLowerCase() !== "admin") {
                 alert("Access Denied. This Command Center is restricted to College Administrators and Placement Officers.");
-                window.location.href = "../../index.html";
+                window.location.href = "/";
                 return;
             }
 
@@ -2574,7 +2574,7 @@
             // Sign Out
             document.getElementById("btn-logout").addEventListener("click", () => {
                 removeToken();
-                window.location.href = "../login.html";
+                window.location.href = "/login";
             });
 
             // Refresh Button

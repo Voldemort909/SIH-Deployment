@@ -212,10 +212,10 @@
 
     <script>
         const API_BASE = '/api';
-        const token = localStorage.getItem('token');
+        const token = localStorage.getItem('token') || localStorage.getItem('sih_placement_jwt_token');
 
         if (!token) {
-            window.location.href = '../auth/login.html';
+            window.location.href = '/login';
         }
 
         let allAlumni = [];
@@ -230,7 +230,9 @@
             const response = await fetch(url, { ...options, headers });
             if (response.status === 401) {
                 localStorage.removeItem('token');
-                window.location.href = '../auth/login.html';
+                localStorage.removeItem('sih_placement_jwt_token');
+                localStorage.removeItem('sih_placement_user_info');
+                window.location.href = '/login';
                 return null;
             }
             return response;
@@ -244,7 +246,7 @@
 
             document.getElementById('logout-btn').addEventListener('click', () => {
                 localStorage.clear();
-                window.location.href = '../auth/login.html';
+                window.location.href = '/login';
             });
 
             document.getElementById('refresh-btn').addEventListener('click', loadAlumniDirectory);

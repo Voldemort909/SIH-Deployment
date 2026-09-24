@@ -62,7 +62,7 @@
     <!-- Top Navigation Bar -->
     <nav class="navbar navbar-expand-lg navbar-dark bg-primary shadow-sm sticky-top">
         <div class="container-fluid px-lg-5">
-            <a class="navbar-brand fw-bold" href="../../index.html">
+            <a class="navbar-brand fw-bold" href="/">
                 <i class="bi bi-mortarboard-fill me-2"></i>CareerPath AI <span class="badge bg-white text-primary ms-1 small">Student</span>
             </a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navContent">
@@ -417,11 +417,11 @@
     <!-- Placement Intelligence Dashboard Script -->
     <script>
         const API_BASE = '/api';
-        const token = localStorage.getItem('token');
+        const token = localStorage.getItem('token') || localStorage.getItem('sih_placement_jwt_token');
 
         // Security check
         if (!token) {
-            window.location.href = '../../pages/auth/login.html';
+            window.location.href = '/login';
         }
 
         const authHeaders = {
@@ -441,18 +441,20 @@
 
             document.getElementById('logout-btn').addEventListener('click', () => {
                 localStorage.removeItem('token');
+                localStorage.removeItem('sih_placement_jwt_token');
+                localStorage.removeItem('sih_placement_user_info');
                 localStorage.removeItem('user');
-                window.location.href = '../../pages/auth/login.html';
+                window.location.href = '/login';
             });
         });
 
         // 1. Load Student Profile Header
         async function loadStudentProfile() {
             try {
-                const res = await fetch(`${API_BASE}/students/profile`, { headers: authHeaders });
+                const res = await fetch(`${API_BASE}/api/students/profile`, { headers: authHeaders });
                 if (res.status === 401) {
                     localStorage.clear();
-                    window.location.href = '../../pages/auth/login.html';
+                    window.location.href = '/login';
                     return;
                 }
                 const json = await res.json();

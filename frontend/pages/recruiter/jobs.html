@@ -59,7 +59,7 @@
     <!-- Top Navigation Bar -->
     <nav class="navbar navbar-expand-lg navbar-dark bg-success shadow-sm sticky-top">
         <div class="container-fluid px-lg-5">
-            <a class="navbar-brand fw-bold" href="../../index.html">
+            <a class="navbar-brand fw-bold" href="/">
                 <i class="bi bi-building-check me-2"></i>CareerPath AI <span class="badge bg-white text-success ms-1 small">Industry Hub</span>
             </a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navContent">
@@ -69,10 +69,10 @@
             <div class="collapse navbar-collapse" id="navContent">
                 <ul class="navbar-nav me-auto mb-2 mb-lg-0">
                     <li class="nav-item">
-                        <a class="nav-link active fw-semibold" href="jobs.html"><i class="bi bi-grid-1x2-fill me-1"></i> Recruiter Portal</a>
+                        <a class="nav-link active fw-semibold" href="/recruiter/jobs"><i class="bi bi-grid-1x2-fill me-1"></i> Recruiter Portal</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link text-white-50" href="../../index.html"><i class="bi bi-house me-1"></i> Portal Home</a>
+                        <a class="nav-link text-white-50" href="/"><i class="bi bi-house me-1"></i> Portal Home</a>
                     </li>
                 </ul>
 
@@ -1028,7 +1028,7 @@
             const token = getToken();
             const user = getUser();
             if (!token || !user) {
-                window.location.href = "../login.html";
+                window.location.href = "/login";
                 return false;
             }
             if (user.role !== "industry_expert") {
@@ -1039,7 +1039,7 @@
                             <strong>Multi-Role Session Conflict:</strong> Your active browser tab/session is currently signed in as <strong>${escapeHtml(user.role.toUpperCase())} (${escapeHtml(user.email)})</strong>.
                             <br>Recruiter actions (posting jobs, creating assessments, scheduling workshops) require an Industry Expert account.
                             <div class="mt-2 d-flex gap-2 flex-wrap align-items-center">
-                                <a href="../login.html" class="btn btn-danger btn-sm text-white fw-semibold">
+                                <a href="/login" class="btn btn-danger btn-sm text-white fw-semibold">
                                     <i class="bi bi-box-arrow-in-right me-1"></i> Switch to Recruiter (recruiter@company.com)
                                 </a>
                                 <span class="small text-muted"><strong>Tip:</strong> Use an <strong>Incognito / Private Window</strong> to test student and recruiter accounts side-by-side without session collisions.</span>
@@ -1073,7 +1073,7 @@
 
         logoutBtn.addEventListener("click", () => {
             removeToken();
-            window.location.href = "../login.html";
+            window.location.href = "/login";
         });
 
         function showAlert(msg, type = "success") {
@@ -1101,7 +1101,7 @@
                                 <strong>Access Forbidden (HTTP 403):</strong> ${escapeHtml(errorText)}
                                 <br>Your active browser session belongs to: <strong>${escapeHtml(currentUser?.role || 'unknown')} (${escapeHtml(currentUser?.email || 'unknown')})</strong>.
                                 <div class="mt-2">
-                                    <a href="../login.html" class="btn btn-warning btn-sm text-dark fw-bold">
+                                    <a href="/login" class="btn btn-warning btn-sm text-dark fw-bold">
                                         <i class="bi bi-box-arrow-in-right me-1"></i> Sign In as Recruiter (recruiter@company.com)
                                     </a>
                                     <span class="ms-2 small text-muted">Or open an Incognito window to test both roles simultaneously.</span>

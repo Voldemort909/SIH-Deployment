@@ -106,16 +106,157 @@ def create_app(config_name=None):
         "resume-intelligence": "pages/student/resume-analysis.html",
         "login": "pages/login.html",
         "register": "pages/register.html",
+        "recruiter": "pages/recruiter/jobs.html",
+        "recruiter/jobs": "pages/recruiter/jobs.html",
+        "recruiter/dashboard": "pages/recruiter/jobs.html",
         "admin": "pages/admin/dashboard.html",
         "admin/dashboard": "pages/admin/dashboard.html",
-        "industry": "pages/industry/jobs.html",
-        "industry/dashboard": "pages/industry/jobs.html"
+        "admin/jobs": "pages/admin/jobs.html",
+        "industry": "pages/recruiter/jobs.html",
+        "industry/jobs": "pages/recruiter/jobs.html",
+        "industry/dashboard": "pages/recruiter/jobs.html"
     }
+
+    def find_frontend_file(req_path):
+        if not req_path:
+            return frontend_dir / "index.html" if (frontend_dir / "index.html").is_file() else None
+
+        clean = req_path.strip("/").replace("\\", "/")
+        while clean.startswith("../"):
+            clean = clean[3:].strip("/")
+
+        # Never serve API endpoints as static files
+        if clean.startswith("api/"):
+            return None
+
+        # 1. Exact file match in frontend_dir (e.g. css/style.css, js/auth.js, index.html)
+        candidate = frontend_dir / clean
+        if candidate.is_file():
+            return candidate
+
+        # 2. Check friendly routes mapping (clean and clean without .html)
+        norm = clean.lower()
+        norm_no_ext = norm.removesuffix(".html")
+        if norm_no_ext in FRIENDLY_ROUTES:
+            candidate = frontend_dir / FRIENDLY_ROUTES[norm_no_ext]
+            if candidate.is_file():
+                return candidate
+
+        # 3. Check directly in frontend/pages/
+        candidate = frontend_dir / "pages" / clean
+        if candidate.is_file():
+            return candidate
+        if (frontend_dir / "pages" / f"{clean}.html").is_file():
+            return frontend_dir / "pages" / f"{clean}.html"
+
+        # 4. Handle "pages/", "auth/", "pages/auth/" prefixes
+        for prefix in ["pages/", "auth/", "pages/auth/"]:
+            if clean.startswith(prefix):
+                sub = clean.removeprefix(prefix)
+                if (frontend_dir / "pages" / sub).is_file():
+                    return frontend_dir / "pages" / sub
+                if (frontend_dir / "pages" / f"{sub}.html").is_file():
+                    return frontend_dir / "pages" / f"{sub}.html"
+
+        # 5. Check subdirectories under pages/ (student/, recruiter/, admin/, industry/)
+        for subfolder in ["student", "recruiter", "admin", "industry"]:
+            if clean.startswith(f"{subfolder}/"):
+                sub = clean.removeprefix(f"{subfolder}/")
+                if (frontend_dir / "pages" / subfolder / sub).is_file():
+                    return frontend_dir / "pages" / subfolder / sub
+                if (frontend_dir / "pages" / subfolder / f"{sub}.html").is_file():
+                    return frontend_dir / "pages" / subfolder / f"{sub}.html"
+            # Also check direct file inside subfolder
+            if (frontend_dir / "pages" / subfolder / clean).is_file():
+                return frontend_dir / "pages" / subfolder / clean
+            if (frontend_dir / "pages" / subfolder / f"{clean}.html").is_file():
+                return frontend_dir / "pages" / subfolder / f"{clean}.html"
+
+        # 6. Check frontend_dir / clean.html
+        if (frontend_dir / f"{clean}.html").is_file():
+            return frontend_dir / f"{clean}.html"
+
+        # 7. Check directory with index.html
+        if (candidate / "index.html").is_file():
+            return candidate / "index.html"
+
+        return None
+
+    # Dedicated top-level routes for primary application views
+    @app.route("/login", methods=["GET"])
+    @app.route("/login.html", methods=["GET"])
+    @app.route("/pages/login.html", methods=["GET"])
+    def login_view():
+        return send_from_directory(frontend_dir / "pages", "login.html")
+
+    @app.route("/register", methods=["GET"])
+    @app.route("/register.html", methods=["GET"])
+    @app.route("/pages/register.html", methods=["GET"])
+    def register_view():
+        return send_from_directory(frontend_dir / "pages", "register.html")
+
+    @app.route("/recruiter", methods=["GET"])
+    @app.route("/recruiter/jobs", methods=["GET"])
+    @app.route("/recruiter/jobs.html", methods=["GET"])
+    @app.route("/pages/recruiter/jobs.html", methods=["GET"])
+    @app.route("/industry", methods=["GET"])
+    @app.route("/industry/jobs", methods=["GET"])
+    @app.route("/industry/jobs.html", methods=["GET"])
+    @app.route("/pages/industry/jobs.html", methods=["GET"])
+    def recruiter_jobs_view():
+        return send_from_directory(frontend_dir / "pages" / "recruiter", "jobs.html")
+
+    @app.route("/admin", methods=["GET"])
+    @app.route("/admin/dashboard", methods=["GET"])
+    @app.route("/admin/dashboard.html", methods=["GET"])
+    @app.route("/pages/admin/dashboard.html", methods=["GET"])
+    def admin_dashboard_view():
+        return send_from_directory(frontend_dir / "pages" / "admin", "dashboard.html")
+
+    @app.route("/admin/jobs", methods=["GET"])
+    @app.route("/admin/jobs.html", methods=["GET"])
+    @app.route("/pages/admin/jobs.html", methods=["GET"])
+    def admin_jobs_view():
+        return send_from_directory(frontend_dir / "pages" / "admin", "jobs.html")
+
+    @app.route("/student/dashboard", methods=["GET"])
+    @app.route("/student/dashboard.html", methods=["GET"])
+    @app.route("/dashboard", methods=["GET"])
+    @app.route("/dashboard.html", methods=["GET"])
+    @app.route("/pages/student/dashboard.html", methods=["GET"])
+    def student_dashboard_view():
+        return send_from_directory(frontend_dir / "pages" / "student", "dashboard.html")
+
+    @app.route("/student/jobs", methods=["GET"])
+    @app.route("/student/jobs.html", methods=["GET"])
+    @app.route("/jobs", methods=["GET"])
+    @app.route("/jobs.html", methods=["GET"])
+    @app.route("/pages/student/jobs.html", methods=["GET"])
+    def student_jobs_view():
+        return send_from_directory(frontend_dir / "pages" / "student", "jobs.html")
+
+    @app.route("/student/applications", methods=["GET"])
+    @app.route("/student/applications.html", methods=["GET"])
+    @app.route("/applications", methods=["GET"])
+    @app.route("/applications.html", methods=["GET"])
+    @app.route("/pages/student/applications.html", methods=["GET"])
+    def student_applications_view():
+        return send_from_directory(frontend_dir / "pages" / "student", "applications.html")
+
+    @app.route("/student/resume", methods=["GET"])
+    @app.route("/student/resume-analysis", methods=["GET"])
+    @app.route("/student/resume-analysis.html", methods=["GET"])
+    @app.route("/resume", methods=["GET"])
+    @app.route("/resume-analysis", methods=["GET"])
+    @app.route("/pages/student/resume-analysis.html", methods=["GET"])
+    def student_resume_view():
+        return send_from_directory(frontend_dir / "pages" / "student", "resume-analysis.html")
 
     @app.route("/why-not-selected", methods=["GET"])
     @app.route("/placement-intelligence", methods=["GET"])
     @app.route("/student/why-not-selected", methods=["GET"])
     @app.route("/pages/student/why-not-selected", methods=["GET"])
+    @app.route("/pages/student/why-not-selected.html", methods=["GET"])
     def why_not_selected_view():
         return send_from_directory(frontend_dir / "pages" / "student", "why-not-selected.html")
 
@@ -123,6 +264,7 @@ def create_app(config_name=None):
     @app.route("/alumni-network", methods=["GET"])
     @app.route("/student/alumni", methods=["GET"])
     @app.route("/pages/student/alumni", methods=["GET"])
+    @app.route("/pages/student/alumni.html", methods=["GET"])
     def alumni_view():
         return send_from_directory(frontend_dir / "pages" / "student", "alumni.html")
 
@@ -133,40 +275,10 @@ def create_app(config_name=None):
             if path.startswith("industry/") or path.startswith("students/") or path.startswith("admin/"):
                 return error_response(message=f"API endpoints must start with /api/ (e.g. /api/{path})", status_code=404)
             return error_response(message="Method Not Allowed", status_code=405)
-        if path.startswith("api/"):
-            return error_response(message="Resource Not Found", status_code=404)
 
-        clean_path = path.strip("/").lower()
-        if clean_path in FRIENDLY_ROUTES:
-            rel_target = FRIENDLY_ROUTES[clean_path]
-            if (frontend_dir / rel_target).exists():
-                return send_from_directory(frontend_dir, rel_target)
-
-        # 1. Exact file match
-        target = frontend_dir / path
-        if target.exists() and not target.is_dir():
-            return send_from_directory(frontend_dir, path)
-
-        # 2. Directory with index.html
-        if (target / "index.html").exists():
-            return send_from_directory(target, "index.html")
-
-        # 3. Path with .html extension added (e.g. /pages/student/alumni -> alumni.html)
-        target_html = frontend_dir / f"{path}.html"
-        if target_html.exists() and not target_html.is_dir():
-            return send_from_directory(frontend_dir, f"{path}.html")
-
-        # 4. Resolve student page paths from clean URLs as well as /pages/student/.
-        # Relative links such as alumni.html from /student/dashboard otherwise
-        # resolve to /student/alumni.html and miss the actual frontend file.
-        student_path = path.removeprefix("student/") if path.startswith("student/") else path
-        student_target = frontend_dir / "pages" / "student" / student_path
-        if student_target.exists() and not student_target.is_dir():
-            return send_from_directory(frontend_dir / "pages" / "student", student_path)
-
-        student_target_html = frontend_dir / "pages" / "student" / f"{student_path}.html"
-        if student_target_html.exists() and not student_target_html.is_dir():
-            return send_from_directory(frontend_dir / "pages" / "student", f"{student_path}.html")
+        found_file = find_frontend_file(path)
+        if found_file and found_file.is_file():
+            return send_from_directory(found_file.parent, found_file.name)
 
         return error_response(message="Resource Not Found", status_code=404)
 
@@ -178,29 +290,9 @@ def create_app(config_name=None):
         if not filename:
             abort(404)
 
-        target = frontend_dir / filename
-        if target.exists() and not target.is_dir():
-            return send_from_directory(frontend_dir, filename)
-        if (frontend_dir / f"{filename}.html").exists():
-            return send_from_directory(frontend_dir, f"{filename}.html")
-        if (target / "index.html").exists():
-            return send_from_directory(target, "index.html")
-
-        clean_name = filename.strip("/").lower()
-        if clean_name in FRIENDLY_ROUTES:
-            rel = FRIENDLY_ROUTES[clean_name]
-            if (frontend_dir / rel).exists():
-                return send_from_directory(frontend_dir, rel)
-
-        # Flask's static route takes precedence for paths ending in .html, so
-        # resolve clean student URLs here as well as in the catch-all route.
-        student_filename = filename.removeprefix("student/") if filename.startswith("student/") else filename
-        student_file = frontend_dir / "pages" / "student" / student_filename
-        if student_file.exists() and not student_file.is_dir():
-            return send_from_directory(frontend_dir / "pages" / "student", student_filename)
-
-        if (frontend_dir / "pages" / "student" / f"{student_filename}.html").exists():
-            return send_from_directory(frontend_dir / "pages" / "student", f"{student_filename}.html")
+        found_file = find_frontend_file(filename)
+        if found_file and found_file.is_file():
+            return send_from_directory(found_file.parent, found_file.name)
 
         abort(404)
 
