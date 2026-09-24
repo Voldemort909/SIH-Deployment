@@ -1,0 +1,100 @@
+# ==============================================================================
+# Git Ignore Configuration - College Placement & Career Development Platform
+# ==============================================================================
+
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# Python Virtual Environments
+venv/
+.venv/
+env/
+ENV/
+env.bak/
+venv.bak/
+
+# Environment Variables & Local Secrets
+.env
+.env.local
+.env.*.local
+.env.development.local
+.env.test.local
+.env.production.local
+# Explicitly track the example template
+!.env.example
+
+# Local SQLite & Runtime Databases
+*.db
+*.db-journal
+*.sqlite
+*.sqlite3
+placement_dev.db
+instance/
+
+# User Uploaded Documents & Media
+uploads/*
+!uploads/.gitignore
+!uploads/.gitkeep
+uploads/resumes/*
+!uploads/resumes/.gitkeep
+
+# Application & Server Logs
+*.log
+logs/
+
+# Testing & Coverage
+.pytest_cache/
+.coverage
+.coverage.*
+htmlcov/
+nosetests.xml
+coverage.xml
+*.cover
+.hypothesis/
+
+# Distribution / Packaging
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# IDE & Code Editor Configurations
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+*.sublime-workspace
+*.sublime-project
+
+# Operating System Cache & Metadata
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+desktop.ini
+
+# Docker Local Overrides
+docker-compose.override.yml
+
+# Scratch & Temporary Verification Scripts
+scratch/

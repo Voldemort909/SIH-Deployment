@@ -1,0 +1,736 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Job Marketplace & AI Matching - CareerPath AI</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+    <link rel="stylesheet" href="../../css/style.css">
+    <style>
+        .job-card {
+            border: 1px solid #e9ecef;
+            border-radius: 1rem;
+            transition: all 0.2s ease-in-out;
+            background: #ffffff;
+        }
+        .job-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 0.5rem 1.25rem rgba(0, 0, 0, 0.08);
+            border-color: #0d6efd40;
+        }
+        .match-ring {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 0.95rem;
+        }
+        .match-high {
+            background-color: #d1e7dd;
+            color: #0f5132;
+            border: 2px solid #198754;
+        }
+        .match-med {
+            background-color: #fff3cd;
+            color: #664d03;
+            border: 2px solid #ffc107;
+        }
+        .match-low {
+            background-color: #f8d7da;
+            color: #842029;
+            border: 2px solid #dc3545;
+        }
+        .priority-critical {
+            background-color: #dc35451a;
+            color: #b02a37;
+            border: 1px solid #f5c2c7;
+        }
+        .priority-important {
+            background-color: #0d6efd1a;
+            color: #084298;
+            border: 1px solid #b6d4fe;
+        }
+        .priority-preferred {
+            background-color: #6c757d1a;
+            color: #495057;
+            border: 1px solid #ced4da;
+        }
+    </style>
+</head>
+<body class="bg-light d-flex flex-column min-vh-100">
+
+    <!-- Top Navigation Bar -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary shadow-sm sticky-top">
+        <div class="container-fluid px-lg-5">
+            <a class="navbar-brand fw-bold" href="../../index.html">
+                <i class="bi bi-mortarboard-fill me-2"></i>CareerPath AI <span class="badge bg-white text-primary ms-1 small">Student</span>
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navContent">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <div class="collapse navbar-collapse" id="navContent">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                    <li class="nav-item">
+                        <a class="nav-link text-white-50" href="dashboard.html"><i class="bi bi-speedometer2 me-1"></i> Dashboard</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active fw-semibold" href="jobs.html"><i class="bi bi-briefcase-fill me-1"></i> Job Marketplace</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-white-50" href="applications.html"><i class="bi bi-card-checklist me-1"></i> My Applications</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-white-50" href="resume-analysis.html"><i class="bi bi-file-earmark-check me-1"></i> Resume Intelligence</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-white-50" href="alumni.html"><i class="bi bi-people me-1"></i> Alumni Network</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-white-50" href="why-not-selected.html"><i class="bi bi-lightbulb-fill me-1 text-warning"></i> Placement Intelligence</a>
+                    </li>
+                </ul>
+
+                <div class="d-flex align-items-center gap-3">
+                    <span id="nav-student-name" class="text-white fw-semibold small">Loading user...</span>
+                    <button id="logout-btn" class="btn btn-outline-light btn-sm">
+                        <i class="bi bi-box-arrow-right me-1"></i> Sign Out
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Container -->
+    <main class="container-fluid px-lg-5 py-4 flex-grow-1">
+
+        <!-- Page Header -->
+        <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 pb-2 border-bottom">
+            <div>
+                <h2 class="fw-bold mb-1">
+                    <i class="bi bi-bullseye text-primary me-2"></i>Job Marketplace & AI Match Engine
+                </h2>
+                <p class="text-muted small mb-0">
+                    Explore approved industry openings with transparent, explainable match scoring tailored to your skills and qualifications.
+                </p>
+            </div>
+            <div class="mt-2 mt-md-0 d-flex gap-2">
+                <a href="applications.html" class="btn btn-outline-primary btn-sm">
+                    <i class="bi bi-card-checklist me-1"></i> View My Applications
+                </a>
+                <button id="refresh-jobs-btn" class="btn btn-outline-secondary btn-sm">
+                    <i class="bi bi-arrow-clockwise me-1"></i> Refresh Jobs
+                </button>
+            </div>
+        </div>
+
+        <!-- Alert Banner -->
+        <div id="alert-banner" class="alert alert-dismissible fade show d-none mb-3" role="alert">
+            <span id="alert-message"></span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+
+        <div class="row g-4">
+            
+            <!-- Left Sidebar: Multi-faceted Filter Panel -->
+            <div class="col-lg-3">
+                <div class="card shadow-sm border-0 sticky-top" style="top: 80px; z-index: 10;">
+                    <div class="card-header bg-white py-3 border-bottom d-flex justify-content-between align-items-center">
+                        <h6 class="fw-bold mb-0 text-dark">
+                            <i class="bi bi-funnel-fill text-primary me-1"></i> Filter Opportunities
+                        </h6>
+                        <button id="reset-filters-btn" class="btn btn-link btn-sm text-decoration-none p-0">Reset</button>
+                    </div>
+                    <div class="card-body p-3">
+                        <form id="filters-form">
+                            <!-- Keyword Search -->
+                            <div class="mb-3">
+                                <label class="form-label small fw-semibold text-muted">Keyword Search</label>
+                                <div class="input-group input-group-sm">
+                                    <span class="input-group-text bg-white"><i class="bi bi-search"></i></span>
+                                    <input type="text" id="filter-search" class="form-control" placeholder="Title, tech, keyword...">
+                                </div>
+                            </div>
+
+                            <!-- Domain -->
+                            <div class="mb-3">
+                                <label class="form-label small fw-semibold text-muted">Domain</label>
+                                <select id="filter-domain" class="form-select form-select-sm">
+                                    <option value="">All Domains</option>
+                                    <option value="Software Engineering">Software Engineering</option>
+                                    <option value="Data Science & Analytics">Data Science & Analytics</option>
+                                    <option value="Artificial Intelligence / ML">Artificial Intelligence / ML</option>
+                                    <option value="Cloud & DevOps">Cloud & DevOps</option>
+                                    <option value="Cyber Security">Cyber Security</option>
+                                    <option value="Embedded / IoT">Embedded / IoT</option>
+                                    <option value="Product & Design">Product & Design</option>
+                                </select>
+                            </div>
+
+                            <!-- Job Type -->
+                            <div class="mb-3">
+                                <label class="form-label small fw-semibold text-muted">Job Type</label>
+                                <select id="filter-type" class="form-select form-select-sm">
+                                    <option value="">All Types</option>
+                                    <option value="Full-time">Full-time</option>
+                                    <option value="Internship">Internship</option>
+                                </select>
+                            </div>
+
+                            <!-- Location -->
+                            <div class="mb-3">
+                                <label class="form-label small fw-semibold text-muted">Location</label>
+                                <input type="text" id="filter-location" class="form-control form-control-sm" placeholder="e.g. Bangalore, Remote">
+                            </div>
+
+                            <!-- Specific Skill -->
+                            <div class="mb-3">
+                                <label class="form-label small fw-semibold text-muted">Required Skill</label>
+                                <input type="text" id="filter-skill" class="form-control form-control-sm" placeholder="e.g. Python, React, SQL">
+                            </div>
+
+                            <!-- Eligibility Toggle -->
+                            <div class="form-check form-switch mb-3">
+                                <input class="form-check-input" type="checkbox" id="filter-eligible" role="switch">
+                                <label class="form-check-label small fw-semibold text-dark" for="filter-eligible">
+                                    Only Show Eligible Jobs
+                                </label>
+                                <div class="text-muted" style="font-size: 0.75rem;">Matches your CGPA, Branch & Batch</div>
+                            </div>
+
+                            <!-- Sort Order -->
+                            <div class="mb-3">
+                                <label class="form-label small fw-semibold text-muted">Sort By</label>
+                                <select id="filter-sort" class="form-select form-select-sm">
+                                    <option value="match">Highest Match Score</option>
+                                    <option value="deadline">Application Deadline (Urgent first)</option>
+                                    <option value="recent">Recently Posted</option>
+                                </select>
+                            </div>
+
+                            <button type="submit" class="btn btn-primary btn-sm w-100 fw-semibold">
+                                <i class="bi bi-check2-circle me-1"></i> Apply Filters
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Area: Jobs Listing Grid -->
+            <div class="col-lg-9">
+                <!-- Summary bar -->
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <span class="text-muted small">
+                        Showing <strong id="jobs-count">0</strong> available positions
+                    </span>
+                    <div class="d-flex align-items-center gap-2">
+                        <span class="badge bg-success-subtle text-success border border-success-subtle">
+                            <i class="bi bi-shield-check me-1"></i> Verified & Admin Approved
+                        </span>
+                    </div>
+                </div>
+
+                <!-- Job Cards Container -->
+                <div id="jobs-container" class="d-flex flex-column gap-3">
+                    <div class="card p-5 text-center text-muted border-0 shadow-sm">
+                        <div class="spinner-border text-primary mx-auto mb-3" role="status"></div>
+                        <p class="mb-0">Loading available job listings and computing AI match scores...</p>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+    </main>
+
+    <!-- Modal: Explainable Match Score Breakdown -->
+    <div class="modal fade" id="matchExplainModal" tabindex="-1" aria-labelledby="matchExplainModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content border-0 shadow">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title fw-bold" id="matchExplainModalLabel">
+                        <i class="bi bi-magic me-2"></i>Explainable AI Match Breakdown
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-4" id="match-modal-body">
+                    <div class="text-center py-4">
+                        <div class="spinner-border text-primary" role="status"></div>
+                    </div>
+                </div>
+                <div class="modal-footer bg-light">
+                    <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="text-center py-3 text-muted small border-top bg-white mt-auto">
+        College Placement & Career Development Platform &bull; Student Job Marketplace
+    </footer>
+
+    <!-- Bootstrap 5 JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Client Page Script -->
+    <script type="module">
+        import { API_BASE, getToken, getUser, removeToken, authFetch } from '../../js/auth.js';
+
+        // State
+        let currentJobs = [];
+        let appliedJobIds = new Set();
+
+        // Elements
+        const navStudentName = document.getElementById("nav-student-name");
+        const logoutBtn = document.getElementById("logout-btn");
+        const jobsContainer = document.getElementById("jobs-container");
+        const jobsCount = document.getElementById("jobs-count");
+        const filtersForm = document.getElementById("filters-form");
+        const resetFiltersBtn = document.getElementById("reset-filters-btn");
+        const refreshJobsBtn = document.getElementById("refresh-jobs-btn");
+        const alertBanner = document.getElementById("alert-banner");
+        const alertMessage = document.getElementById("alert-message");
+
+        // Auth Protection Check
+        const token = getToken();
+        const user = getUser();
+        if (!token || !user || user.role !== "student") {
+            window.location.href = "../login.html";
+        } else {
+            navStudentName.textContent = user.name || user.email;
+        }
+
+        logoutBtn.addEventListener("click", () => {
+            removeToken();
+            window.location.href = "../login.html";
+        });
+
+        function showAlert(msg, type = "success") {
+            alertBanner.className = `alert alert-${type} alert-dismissible fade show mb-3`;
+            alertMessage.innerHTML = msg;
+            alertBanner.classList.remove("d-none");
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // Fetch student's existing applications so we know which jobs are already applied
+        async function fetchAppliedJobIds() {
+            try {
+                const res = await authFetch("/api/students/applications");
+                if (res.ok) {
+                    const json = await res.json();
+                    const apps = json.data || [];
+                    appliedJobIds = new Set(apps.map(a => a.job_id));
+                }
+            } catch (err) {
+                console.error("Error fetching student applications:", err);
+            }
+        }
+
+        // Build query string from filter inputs
+        function getFilterQuery() {
+            const params = new URLSearchParams();
+            const search = document.getElementById("filter-search").value.trim();
+            const domain = document.getElementById("filter-domain").value;
+            const jobType = document.getElementById("filter-type").value;
+            const location = document.getElementById("filter-location").value.trim();
+            const skill = document.getElementById("filter-skill").value.trim();
+            const onlyEligible = document.getElementById("filter-eligible").checked;
+            const sort = document.getElementById("filter-sort").value;
+
+            if (search) params.append("keyword", search);
+            if (domain) params.append("domain", domain);
+            if (jobType) params.append("job_type", jobType);
+            if (location) params.append("location", location);
+            if (skill) params.append("skill", skill);
+            if (onlyEligible) params.append("only_eligible", "true");
+            if (sort) params.append("sort_by", sort);
+
+            return params.toString();
+        }
+
+        // Fetch published jobs with AI match scores
+        async function loadJobs() {
+            jobsContainer.innerHTML = `
+                <div class="card p-5 text-center text-muted border-0 shadow-sm">
+                    <div class="spinner-border text-primary mx-auto mb-3" role="status"></div>
+                    <p class="mb-0">Loading opportunities and computing personalized match scores...</p>
+                </div>
+            `;
+
+            await fetchAppliedJobIds();
+
+            try {
+                const query = getFilterQuery();
+                const res = await authFetch(`/api/jobs${query ? `?${query}` : ''}`);
+                if (!res.ok) {
+                    const errData = await res.json();
+                    throw new Error(errData.message || "Failed to load jobs");
+                }
+
+                const result = await res.json();
+                currentJobs = Array.isArray(result.data) ? result.data : (result.data?.jobs || []);
+                renderJobsList(currentJobs);
+            } catch (err) {
+                jobsContainer.innerHTML = `
+                    <div class="card p-4 text-center border-0 shadow-sm">
+                        <div class="text-danger mb-2"><i class="bi bi-exclamation-triangle-fill fs-2"></i></div>
+                        <h6 class="fw-bold">Unable to load job openings</h6>
+                        <p class="text-muted small mb-3">${err.message}</p>
+                        <button class="btn btn-outline-primary btn-sm mx-auto" onclick="window.location.reload()">Try Again</button>
+                    </div>
+                `;
+            }
+        }
+
+        function renderJobsList(jobs) {
+            jobsCount.textContent = jobs.length;
+            if (jobs.length === 0) {
+                jobsContainer.innerHTML = `
+                    <div class="card p-5 text-center text-muted border-0 shadow-sm">
+                        <i class="bi bi-briefcase fs-1 text-secondary mb-2"></i>
+                        <h5 class="fw-bold text-dark">No job listings found</h5>
+                        <p class="small text-muted mb-3">Try adjusting your filters or search keywords to discover more opportunities.</p>
+                        <button id="clear-filters-btn" class="btn btn-outline-primary btn-sm mx-auto">Clear Filters</button>
+                    </div>
+                `;
+                document.getElementById("clear-filters-btn")?.addEventListener("click", () => {
+                    filtersForm.reset();
+                    loadJobs();
+                });
+                return;
+            }
+
+            jobsContainer.innerHTML = jobs.map(job => {
+                const match = job.match || job.match_analysis || {};
+                const overallScore = Math.round(match.overall_match != null ? match.overall_match : (match.overall_match_score || 0));
+                const isEligible = match.eligibility ? match.eligibility.is_eligible : true;
+                const isApplied = job.has_applied || appliedJobIds.has(job.id);
+                const companyName = typeof job.company === "object" && job.company ? job.company.name : (job.company_name || 'Partner Company');
+
+                // Determine match ring color
+                let ringClass = "match-low";
+                if (overallScore >= 75) ringClass = "match-high";
+                else if (overallScore >= 50) ringClass = "match-med";
+
+                // Format skills whether object {critical, important, preferred} or array [{name, priority}]
+                let skillsHtml = "";
+                if (job.skills && !Array.isArray(job.skills)) {
+                    const c = (job.skills.critical || []).map(s => `<span class="badge priority-critical me-1 mb-1 small">Critical: ${escapeHtml(s)}</span>`).join("");
+                    const i = (job.skills.important || []).map(s => `<span class="badge priority-important me-1 mb-1 small">Important: ${escapeHtml(s)}</span>`).join("");
+                    const p = (job.skills.preferred || []).map(s => `<span class="badge priority-preferred me-1 mb-1 small">Preferred: ${escapeHtml(s)}</span>`).join("");
+                    skillsHtml = c + i + p;
+                } else if (Array.isArray(job.skills)) {
+                    skillsHtml = job.skills.map(s => {
+                        const p = (s.priority || "preferred").toLowerCase();
+                        const badgeClass = p === "critical" ? "priority-critical" : (p === "important" ? "priority-important" : "priority-preferred");
+                        return `<span class="badge ${badgeClass} me-1 mb-1 small">${s.priority}: ${escapeHtml(s.name)}</span>`;
+                    }).join("");
+                }
+
+                // Format Deadline
+                let deadlineBadge = "";
+                const deadlineVal = job.deadline || job.application_deadline;
+                if (deadlineVal) {
+                    deadlineBadge = `<span class="text-muted small"><i class="bi bi-calendar-event me-1"></i>Deadline: ${escapeHtml(deadlineVal)}</span>`;
+                }
+
+                return `
+                    <div class="card job-card shadow-sm p-4" data-job-id="${job.id}">
+                        <div class="d-flex flex-column flex-md-row justify-content-between align-items-start gap-3">
+                            <!-- Left: Job Info -->
+                            <div class="flex-grow-1">
+                                <div class="d-flex align-items-center gap-2 flex-wrap mb-1">
+                                    <h5 class="fw-bold mb-0 text-dark">${escapeHtml(job.title)}</h5>
+                                    <span class="badge bg-primary-subtle text-primary border border-primary-subtle">${escapeHtml(job.job_type || 'Full-time')}</span>
+                                    ${isEligible 
+                                        ? '<span class="badge bg-success-subtle text-success border border-success-subtle"><i class="bi bi-check-circle me-1"></i>Eligible</span>'
+                                        : '<span class="badge bg-warning-subtle text-warning border border-warning-subtle"><i class="bi bi-exclamation-triangle me-1"></i>Ineligible</span>'
+                                    }
+                                    ${isApplied ? '<span class="badge bg-info text-white"><i class="bi bi-send-check me-1"></i>Applied</span>' : ''}
+                                </div>
+                                <p class="text-muted small mb-2">
+                                    <i class="bi bi-building me-1"></i><strong>${escapeHtml(companyName)}</strong>
+                                    &bull; <i class="bi bi-geo-alt me-1"></i>${escapeHtml(job.location || 'Flexible')}
+                                    &bull; <i class="bi bi-cash-stack me-1"></i>${escapeHtml(job.ctc || 'As per norms')}
+                                </p>
+                                
+                                <p class="small text-secondary mb-3 text-truncate" style="max-width: 650px;">
+                                    ${escapeHtml(job.description || '')}
+                                </p>
+
+                                <!-- Skill badges -->
+                                <div class="mb-3">
+                                    ${skillsHtml || '<span class="text-muted small">No specific skills listed</span>'}
+                                </div>
+
+                                <div class="d-flex align-items-center gap-4 flex-wrap">
+                                    ${deadlineBadge}
+                                    <span class="text-muted small"><i class="bi bi-mortarboard me-1"></i>Min CGPA: ${job.min_cgpa ? Number(job.min_cgpa).toFixed(2) : 'Open'}</span>
+                                    <span class="text-muted small"><i class="bi bi-person-lines-fill me-1"></i>Batch: ${escapeHtml(Array.isArray(job.eligible_batch_years) ? job.eligible_batch_years.join(', ') : (job.eligible_batch_years || 'All'))}</span>
+                                </div>
+                            </div>
+
+                            <!-- Right: Match Score Gauge & Actions -->
+                            <div class="d-flex flex-row flex-md-column align-items-center align-items-md-end justify-content-between w-100 w-md-auto gap-3 border-top border-md-top-0 pt-3 pt-md-0">
+                                <div class="text-center">
+                                    <div class="match-ring ${ringClass} mx-auto mb-1">
+                                        ${overallScore}%
+                                    </div>
+                                    <span class="text-muted" style="font-size: 0.72rem; font-weight: 600; text-transform: uppercase;">Match Score</span>
+                                </div>
+
+                                <div class="d-flex flex-column gap-2 w-100" style="min-width: 140px;">
+                                    <button class="btn btn-outline-primary btn-sm explain-btn" data-job-id="${job.id}">
+                                        <i class="bi bi-bar-chart-line me-1"></i> Explain Match
+                                    </button>
+                                    
+                                    ${isApplied ? `
+                                        <button class="btn btn-secondary btn-sm disabled" disabled>
+                                            <i class="bi bi-check2-all me-1"></i> Applied
+                                        </button>
+                                    ` : `
+                                        <button class="btn btn-primary btn-sm apply-btn fw-semibold" data-job-id="${job.id}">
+                                            <i class="bi bi-send me-1"></i> Apply Now
+                                        </button>
+                                    `}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join("");
+
+            // Wire explain match buttons
+            document.querySelectorAll(".explain-btn").forEach(btn => {
+                btn.addEventListener("click", () => {
+                    const jobId = parseInt(btn.getAttribute("data-job-id"), 10);
+                    showMatchExplanationModal(jobId);
+                });
+            });
+
+            // Wire apply buttons
+            document.querySelectorAll(".apply-btn").forEach(btn => {
+                btn.addEventListener("click", () => {
+                    const jobId = parseInt(btn.getAttribute("data-job-id"), 10);
+                    applyToJob(jobId);
+                });
+            });
+        }
+
+        // Show Explainable Match Score Modal
+        function showMatchExplanationModal(jobId) {
+            const job = currentJobs.find(j => j.id === jobId);
+            if (!job) return;
+
+            const match = job.match || job.match_analysis || {};
+            const overallScore = Math.round(match.overall_match != null ? match.overall_match : (match.overall_match_score || 0));
+            const skillScore = Math.round(match.skill_match != null ? match.skill_match : (match.breakdown?.skill_score || 0));
+            const roleScore = Math.round(match.role_match != null ? match.role_match : (match.breakdown?.role_score || 0));
+            const prefScore = Math.round(match.preference_match != null ? match.preference_match : (match.breakdown?.preference_score || 0));
+
+            const skillDetails = match.skill_details || {};
+            const counts = skillDetails.counts || {};
+            const el = match.eligibility || {};
+            const companyName = typeof job.company === "object" && job.company ? job.company.name : (job.company_name || 'Partner Company');
+
+            const modalBody = document.getElementById("match-modal-body");
+            modalBody.innerHTML = `
+                <div class="mb-3">
+                    <h5 class="fw-bold mb-1">${escapeHtml(job.title)} &bull; <span class="text-primary">${escapeHtml(companyName)}</span></h5>
+                    <p class="text-muted small mb-0">Transparent 5-Dimensional AI Matching Evaluation</p>
+                </div>
+
+                <!-- Overall Match Summary Card -->
+                <div class="card bg-light border-0 p-3 mb-4">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <span class="fw-bold">Overall Explainable Match Score</span>
+                        <span class="badge bg-primary fs-6 px-3 py-2">${overallScore}%</span>
+                    </div>
+                    <div class="progress" style="height: 10px;">
+                        <div class="progress-bar bg-primary" role="progressbar" style="width: ${overallScore}%"></div>
+                    </div>
+                    <div class="row g-2 mt-3 text-center small">
+                        <div class="col-4">
+                            <div class="p-2 bg-white rounded border">
+                                <span class="text-muted d-block" style="font-size: 0.75rem;">Skills (50%)</span>
+                                <strong class="text-dark">${skillScore}%</strong>
+                            </div>
+                        </div>
+                        <div class="col-4">
+                            <div class="p-2 bg-white rounded border">
+                                <span class="text-muted d-block" style="font-size: 0.75rem;">Role Fit (25%)</span>
+                                <strong class="text-dark">${roleScore}%</strong>
+                            </div>
+                        </div>
+                        <div class="col-4">
+                            <div class="p-2 bg-white rounded border">
+                                <span class="text-muted d-block" style="font-size: 0.75rem;">Preferences (15%)</span>
+                                <strong class="text-dark">${prefScore}%</strong>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                ${match.explanation ? `
+                    <div class="alert alert-primary small mb-3">
+                        <i class="bi bi-info-circle me-1"></i> <strong>AI Rationale:</strong> ${escapeHtml(match.explanation)}
+                    </div>
+                ` : ''}
+
+                <!-- Section 1: Prioritized Skills Breakdown -->
+                <h6 class="fw-bold mb-2"><i class="bi bi-stars text-warning me-1"></i> Prioritized Skill Matching</h6>
+                <div class="mb-4">
+                    <!-- Critical Skills -->
+                    <div class="p-3 mb-2 rounded border-start border-4 border-danger bg-light">
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                            <strong class="text-danger small text-uppercase">Critical Skills (50% skill weight)</strong>
+                            <span class="badge bg-danger-subtle text-danger">
+                                ${counts.critical_matched || 0} / ${counts.critical_total || 0} Matched
+                            </span>
+                        </div>
+                        ${(skillDetails.missing_critical || []).length > 0 ? `
+                            <div class="small mt-1">
+                                <span class="text-muted">Missing: </span>
+                                ${(skillDetails.missing_critical || []).map(s => `<span class="badge bg-danger me-1"><i class="bi bi-x"></i>${escapeHtml(s)}</span>`).join("")}
+                            </div>
+                        ` : '<div class="small text-success"><i class="bi bi-check-circle me-1"></i>All critical skills matched!</div>'}
+                    </div>
+
+                    <!-- Important Skills -->
+                    <div class="p-3 mb-2 rounded border-start border-4 border-primary bg-light">
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                            <strong class="text-primary small text-uppercase">Important Skills (35% skill weight)</strong>
+                            <span class="badge bg-primary-subtle text-primary">
+                                ${counts.important_matched || 0} / ${counts.important_total || 0} Matched
+                            </span>
+                        </div>
+                        ${(skillDetails.missing_important || []).length > 0 ? `
+                            <div class="small mt-1">
+                                <span class="text-muted">Missing: </span>
+                                ${(skillDetails.missing_important || []).map(s => `<span class="badge bg-warning text-dark me-1"><i class="bi bi-x"></i>${escapeHtml(s)}</span>`).join("")}
+                            </div>
+                        ` : '<div class="small text-success"><i class="bi bi-check-circle me-1"></i>All important skills matched!</div>'}
+                    </div>
+
+                    <!-- Preferred Skills -->
+                    <div class="p-3 rounded border-start border-4 border-secondary bg-light">
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                            <strong class="text-secondary small text-uppercase">Preferred Skills (15% skill weight)</strong>
+                            <span class="badge bg-secondary-subtle text-secondary">
+                                ${counts.preferred_matched || 0} / ${counts.preferred_total || 0} Matched
+                            </span>
+                        </div>
+                        ${(skillDetails.missing_preferred || []).length > 0 ? `
+                            <div class="small mt-1">
+                                <span class="text-muted">Missing: </span>
+                                ${(skillDetails.missing_preferred || []).map(s => `<span class="badge bg-light text-dark border me-1"><i class="bi bi-dash"></i>${escapeHtml(s)}</span>`).join("")}
+                            </div>
+                        ` : '<div class="small text-success"><i class="bi bi-check-circle me-1"></i>All preferred skills matched!</div>'}
+                    </div>
+                </div>
+
+                <!-- Section 2: Eligibility Verification Checklist -->
+                <h6 class="fw-bold mb-2"><i class="bi bi-clipboard-check text-success me-1"></i> Institutional Eligibility Checklist</h6>
+                <div class="card p-3 border-0 bg-light">
+                    <ul class="list-group list-group-flush bg-transparent">
+                        <li class="list-group-item bg-transparent d-flex justify-content-between align-items-center px-0 py-2">
+                            <span>CGPA Requirement (Minimum: ${job.min_cgpa ? Number(job.min_cgpa).toFixed(2) : 'Open'})</span>
+                            ${el.cgpa?.satisfied 
+                                ? '<span class="badge bg-success"><i class="bi bi-check-lg me-1"></i>Satisfied</span>' 
+                                : '<span class="badge bg-danger"><i class="bi bi-x-lg me-1"></i>Below Cutoff</span>'}
+                        </li>
+                        <li class="list-group-item bg-transparent d-flex justify-content-between align-items-center px-0 py-2">
+                            <span>Department / Branch Eligibility (${escapeHtml(Array.isArray(job.eligible_branches) ? job.eligible_branches.join(', ') : (job.eligible_departments || 'All'))})</span>
+                            ${el.branch?.satisfied 
+                                ? '<span class="badge bg-success"><i class="bi bi-check-lg me-1"></i>Eligible</span>' 
+                                : '<span class="badge bg-danger"><i class="bi bi-x-lg me-1"></i>Branch Restricted</span>'}
+                        </li>
+                        <li class="list-group-item bg-transparent d-flex justify-content-between align-items-center px-0 py-2">
+                            <span>Batch Graduation Year (${escapeHtml(Array.isArray(job.eligible_batch_years) ? job.eligible_batch_years.join(', ') : (job.eligible_batch_years || 'All'))})</span>
+                            ${el.batch?.satisfied 
+                                ? '<span class="badge bg-success"><i class="bi bi-check-lg me-1"></i>Eligible</span>' 
+                                : '<span class="badge bg-danger"><i class="bi bi-x-lg me-1"></i>Batch Restricted</span>'}
+                        </li>
+                    </ul>
+                </div>
+            `;
+
+            const modal = new bootstrap.Modal(document.getElementById("matchExplainModal"));
+            modal.show();
+        }
+
+        // Apply to a job
+        async function applyToJob(jobId) {
+            const btn = document.querySelector(`.apply-btn[data-job-id="${jobId}"]`);
+            if (btn) {
+                btn.disabled = true;
+                btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>Submitting...';
+            }
+
+            try {
+                const res = await authFetch(`/api/jobs/${jobId}/apply`, {
+                    method: "POST"
+                });
+                const data = await res.json();
+
+                if (!res.ok) {
+                    throw new Error(data.message || "Failed to submit application");
+                }
+
+                showAlert(`<strong>Application submitted!</strong> Your candidacy has been registered for this position. Status: <strong>APPLIED</strong>.`, "success");
+                appliedJobIds.add(jobId);
+
+                // Update UI button immediately
+                if (btn) {
+                    btn.className = "btn btn-secondary btn-sm disabled";
+                    btn.innerHTML = '<i class="bi bi-check2-all me-1"></i> Applied';
+                }
+            } catch (err) {
+                showAlert(`<strong>Application Error:</strong> ${err.message}`, "danger");
+                if (btn) {
+                    btn.disabled = false;
+                    btn.innerHTML = '<i class="bi bi-send me-1"></i> Apply Now';
+                }
+            }
+        }
+
+        // Utility: Escape HTML
+        function escapeHtml(text) {
+            if (!text) return "";
+            return String(text)
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#039;");
+        }
+
+        // Filter form submission
+        filtersForm.addEventListener("submit", (e) => {
+            e.preventDefault();
+            loadJobs();
+        });
+
+        // Reset filters button
+        resetFiltersBtn.addEventListener("click", () => {
+            filtersForm.reset();
+            loadJobs();
+        });
+
+        // Refresh jobs button
+        refreshJobsBtn.addEventListener("click", () => {
+            loadJobs();
+        });
+
+        // Initial load
+        loadJobs();
+    </script>
+</body>
+</html>

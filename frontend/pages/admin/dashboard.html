@@ -1,0 +1,2945 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Placement Cell Command Center - College Administrator</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="../../css/style.css">
+    <style>
+        .nav-tabs .nav-link {
+            color: #495057;
+            font-weight: 600;
+            border: none;
+            border-bottom: 3px solid transparent;
+            padding: 0.75rem 1.15rem;
+            transition: all 0.2s;
+        }
+        .nav-tabs .nav-link.active {
+            color: #0d6efd;
+            border-bottom: 3px solid #0d6efd;
+            background: transparent;
+        }
+        .kpi-card {
+            border-radius: 12px;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        .kpi-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 0.5rem 1.25rem rgba(0,0,0,0.08) !important;
+        }
+        .stage-badge {
+            font-size: 0.75rem;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+        }
+        .table-hover tbody tr:hover {
+            background-color: rgba(13, 110, 253, 0.04);
+        }
+        .at-risk-indicator {
+            border-left: 4px solid #dc3545 !important;
+        }
+        .pipeline-step {
+            position: relative;
+            padding: 10px 14px;
+            border-radius: 8px;
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            font-size: 0.85rem;
+            font-weight: 600;
+            text-align: center;
+        }
+        .pipeline-step.active {
+            background: #0d6efd;
+            color: #fff;
+            border-color: #0d6efd;
+        }
+        .pipeline-step.completed {
+            background: #d1e7dd;
+            color: #0f5132;
+            border-color: #badbcc;
+        }
+    </style>
+</head>
+<body class="bg-light d-flex flex-column min-vh-100">
+
+    <!-- Top Navigation Bar -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark shadow-sm sticky-top">
+        <div class="container-fluid px-lg-5">
+            <a class="navbar-brand fw-bold d-flex align-items-center" href="dashboard.html">
+                <i class="bi bi-shield-shaded text-primary fs-4 me-2"></i>
+                <span>TPO / Placement Cell</span>
+                <span class="badge bg-primary ms-2 small">Administration</span>
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#adminNavbar">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <div class="collapse navbar-collapse" id="adminNavbar">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                    <li class="nav-item">
+                        <a class="nav-link active" href="dashboard.html"><i class="bi bi-speedometer2 me-1"></i> Command Center</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="jobs.html"><i class="bi bi-check2-square me-1"></i> Job Moderation</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-white-50" href="../../index.html"><i class="bi bi-house me-1"></i> Portal Home</a>
+                    </li>
+                </ul>
+
+                <div class="d-flex align-items-center gap-3">
+                    <div class="text-end text-light small d-none d-md-block">
+                        <div id="admin-user-name" class="fw-bold">Admin User</div>
+                        <div class="text-white-50 small">Placement Director</div>
+                    </div>
+                    <button id="btn-logout" class="btn btn-outline-light btn-sm">
+                        <i class="bi bi-box-arrow-right me-1"></i> Sign Out
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Container -->
+    <main class="container-fluid px-lg-5 py-4 flex-grow-1">
+
+        <!-- Header Bar -->
+        <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 pb-3 border-bottom gap-2">
+            <div>
+                <h2 class="fw-bold mb-1">
+                    <i class="bi bi-building-gear text-primary me-2"></i>Campus Placement & Career Development Cell
+                </h2>
+                <p class="text-muted small mb-0">
+                    Centralized management for students, industry recruiters, campus placement drives, counseling interventions, and accreditation reports.
+                </p>
+            </div>
+            <div class="d-flex gap-2 flex-wrap">
+                <button class="btn btn-outline-primary btn-sm" id="btn-refresh-dashboard">
+                    <i class="bi bi-arrow-clockwise me-1"></i> Refresh Metrics
+                </button>
+                <div class="dropdown">
+                    <button class="btn btn-primary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                        <i class="bi bi-plus-circle me-1"></i> Quick Action
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end shadow">
+                        <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#modal-create-drive"><i class="bi bi-rocket-takeoff me-2 text-primary"></i>Launch Placement Drive</a></li>
+                        <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#modal-add-company"><i class="bi bi-buildings me-2 text-success"></i>Register Partner Company</a></li>
+                        <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#modal-send-announcement"><i class="bi bi-megaphone me-2 text-warning"></i>Broadcast Announcement</a></li>
+                        <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#modal-add-alumni"><i class="bi bi-mortarboard me-2 text-info"></i>Add Alumni Mentor</a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item" href="#" onclick="downloadStudentCsv()"><i class="bi bi-file-earmark-arrow-down me-2 text-dark"></i>Download Student Roster (CSV)</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Global Alert Box -->
+        <div id="alert-container"></div>
+
+        <!-- Top Executive KPI Ribbon -->
+        <div class="row g-3 mb-4" id="kpi-ribbon">
+            <div class="col-xl-2 col-md-4 col-sm-6">
+                <div class="card kpi-card shadow-sm border-0 h-100 bg-white">
+                    <div class="card-body p-3">
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                            <span class="text-muted small fw-semibold">Total Students</span>
+                            <span class="badge bg-primary-subtle text-primary p-2 rounded-circle"><i class="bi bi-people fs-6"></i></span>
+                        </div>
+                        <h3 class="fw-bold mb-0" id="kpi-total-students">-</h3>
+                        <small class="text-muted" id="kpi-dept-count">Across all depts</small>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xl-2 col-md-4 col-sm-6">
+                <div class="card kpi-card shadow-sm border-0 h-100 bg-white">
+                    <div class="card-body p-3">
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                            <span class="text-muted small fw-semibold">Placed Students</span>
+                            <span class="badge bg-success-subtle text-success p-2 rounded-circle"><i class="bi bi-check-circle fs-6"></i></span>
+                        </div>
+                        <h3 class="fw-bold mb-0 text-success" id="kpi-placed-students">-</h3>
+                        <small class="text-success fw-semibold" id="kpi-placement-rate">-% Rate</small>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xl-2 col-md-4 col-sm-6">
+                <div class="card kpi-card shadow-sm border-0 h-100 bg-white">
+                    <div class="card-body p-3">
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                            <span class="text-muted small fw-semibold">Average CTC</span>
+                            <span class="badge bg-info-subtle text-info p-2 rounded-circle"><i class="bi bi-cash-stack fs-6"></i></span>
+                        </div>
+                        <h3 class="fw-bold mb-0" id="kpi-avg-ctc">-</h3>
+                        <small class="text-muted">Highest: <span id="kpi-high-ctc" class="fw-bold text-dark">-</span></small>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xl-2 col-md-4 col-sm-6">
+                <div class="card kpi-card shadow-sm border-0 h-100 bg-white">
+                    <div class="card-body p-3">
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                            <span class="text-muted small fw-semibold">Companies</span>
+                            <span class="badge bg-secondary-subtle text-secondary p-2 rounded-circle"><i class="bi bi-buildings fs-6"></i></span>
+                        </div>
+                        <h3 class="fw-bold mb-0" id="kpi-total-companies">-</h3>
+                        <small class="text-muted"><span id="kpi-active-drives">0</span> Active Drives</small>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xl-2 col-md-4 col-sm-6">
+                <div class="card kpi-card shadow-sm border-0 h-100 bg-white">
+                    <div class="card-body p-3">
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                            <span class="text-muted small fw-semibold">Industry Experts</span>
+                            <span class="badge bg-warning-subtle text-warning p-2 rounded-circle"><i class="bi bi-person-check fs-6"></i></span>
+                        </div>
+                        <h3 class="fw-bold mb-0" id="kpi-total-experts">-</h3>
+                        <small class="text-warning fw-bold" id="kpi-pending-experts">0 Pending Review</small>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xl-2 col-md-4 col-sm-6">
+                <div class="card kpi-card shadow-sm border-0 h-100 bg-white border-start border-danger border-4">
+                    <div class="card-body p-3">
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                            <span class="text-danger small fw-bold">At-Risk Students</span>
+                            <span class="badge bg-danger-subtle text-danger p-2 rounded-circle"><i class="bi bi-exclamation-triangle-fill fs-6"></i></span>
+                        </div>
+                        <h3 class="fw-bold mb-0 text-danger" id="kpi-at-risk-count">-</h3>
+                        <small class="text-muted">Assistance Required</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Navigation Tabs -->
+        <ul class="nav nav-tabs mb-4 bg-white p-2 rounded shadow-sm" id="adminTabs" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link active" id="tab-overview-btn" data-bs-toggle="tab" data-bs-target="#tab-overview" type="button" role="tab">
+                    <i class="bi bi-bar-chart-line me-1"></i> Overview & Analytics
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link position-relative" id="tab-students-btn" data-bs-toggle="tab" data-bs-target="#tab-students" type="button" role="tab">
+                    <i class="bi bi-mortarboard me-1"></i> Students & At-Risk Center
+                    <span id="tab-at-risk-badge" class="badge bg-danger rounded-pill ms-1 d-none">0</span>
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link position-relative" id="tab-experts-btn" data-bs-toggle="tab" data-bs-target="#tab-experts" type="button" role="tab">
+                    <i class="bi bi-person-vcard me-1"></i> Industry Experts
+                    <span id="tab-pending-experts-badge" class="badge bg-warning text-dark rounded-pill ms-1 d-none">0</span>
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="tab-companies-btn" data-bs-toggle="tab" data-bs-target="#tab-companies" type="button" role="tab">
+                    <i class="bi bi-buildings me-1"></i> Partner Companies
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="tab-drives-btn" data-bs-toggle="tab" data-bs-target="#tab-drives" type="button" role="tab">
+                    <i class="bi bi-rocket-takeoff me-1"></i> Placement Drives
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link position-relative" id="tab-jobs-btn" data-bs-toggle="tab" data-bs-target="#tab-jobs" type="button" role="tab">
+                    <i class="bi bi-briefcase me-1"></i> Job Approvals
+                    <span id="tab-pending-jobs-badge" class="badge bg-danger rounded-pill ms-1 d-none">0</span>
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="tab-alumni-btn" data-bs-toggle="tab" data-bs-target="#tab-alumni" type="button" role="tab">
+                    <i class="bi bi-award me-1"></i> Alumni Network
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="tab-announcements-btn" data-bs-toggle="tab" data-bs-target="#tab-announcements" type="button" role="tab">
+                    <i class="bi bi-megaphone me-1"></i> Announcements
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="tab-reports-btn" data-bs-toggle="tab" data-bs-target="#tab-reports" type="button" role="tab">
+                    <i class="bi bi-file-earmark-spreadsheet me-1"></i> Reports & Export Hub
+                </button>
+            </li>
+        </ul>
+
+        <!-- Tab Panes Content -->
+        <div class="tab-content" id="adminTabsContent">
+
+            <!-- ============================================================== -->
+            <!-- 1. OVERVIEW & ANALYTICS TAB -->
+            <!-- ============================================================== -->
+            <div class="tab-pane fade show active" id="tab-overview" role="tabpanel">
+                <div class="row g-4 mb-4">
+                    <!-- Department-wise Placement Chart -->
+                    <div class="col-lg-7">
+                        <div class="card shadow-sm border-0 h-100">
+                            <div class="card-header bg-white py-3 border-bottom d-flex justify-content-between align-items-center">
+                                <h6 class="card-title mb-0 fw-bold">
+                                    <i class="bi bi-bar-chart-fill text-primary me-2"></i>Department-wise Placement Performance
+                                </h6>
+                                <span class="badge bg-primary-subtle text-primary">Live Data</span>
+                            </div>
+                            <div class="card-body p-3">
+                                <div style="height: 300px;">
+                                    <canvas id="chart-department-placement"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Company-wise Recruitment Distribution Chart -->
+                    <div class="col-lg-5">
+                        <div class="card shadow-sm border-0 h-100">
+                            <div class="card-header bg-white py-3 border-bottom d-flex justify-content-between align-items-center">
+                                <h6 class="card-title mb-0 fw-bold">
+                                    <i class="bi bi-pie-chart-fill text-success me-2"></i>Top Recruiting Partners
+                                </h6>
+                                <span class="badge bg-success-subtle text-success">Hire Share</span>
+                            </div>
+                            <div class="card-body p-3">
+                                <div style="height: 300px;">
+                                    <canvas id="chart-company-placement"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Department Breakdown Table -->
+                <div class="card shadow-sm border-0 mb-4">
+                    <div class="card-header bg-white py-3 border-bottom d-flex justify-content-between align-items-center">
+                        <h6 class="card-title mb-0 fw-bold">
+                            <i class="bi bi-table text-dark me-2"></i>Departmental Placement & Package Metrics
+                        </h6>
+                        <button class="btn btn-sm btn-outline-secondary" onclick="downloadDeptCsv()">
+                            <i class="bi bi-download me-1"></i> Export Dept CSV
+                        </button>
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table class="table table-hover align-middle mb-0" id="table-dept-summary">
+                                <thead class="table-light small text-uppercase">
+                                    <tr>
+                                        <th>Department</th>
+                                        <th>Total Students</th>
+                                        <th>Placed Students</th>
+                                        <th>Placement Rate</th>
+                                        <th>Average CTC</th>
+                                        <th>Highest CTC</th>
+                                        <th>Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tbody-dept-summary">
+                                    <tr><td colspan="7" class="text-center py-4 text-muted">Loading department metrics...</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Row: Multi-Year Placement Trends & Skill Demand Analytics -->
+                <div class="row g-4 mb-4">
+                    <!-- Year-wise Placement & Compensation Trends Chart -->
+                    <div class="col-lg-7">
+                        <div class="card shadow-sm border-0 h-100">
+                            <div class="card-header bg-white py-3 border-bottom d-flex justify-content-between align-items-center">
+                                <h6 class="card-title mb-0 fw-bold">
+                                    <i class="bi bi-graph-up-arrow text-success me-2"></i>Multi-Year Placement & CTC Growth Trends
+                                </h6>
+                                <span class="badge bg-success-subtle text-success">Historical & Cohort Analysis</span>
+                            </div>
+                            <div class="card-body p-3">
+                                <div style="height: 320px;">
+                                    <canvas id="chart-year-placement"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Skill Demand vs Student Supply Chart -->
+                    <div class="col-lg-5">
+                        <div class="card shadow-sm border-0 h-100">
+                            <div class="card-header bg-white py-3 border-bottom d-flex justify-content-between align-items-center">
+                                <h6 class="card-title mb-0 fw-bold">
+                                    <i class="bi bi-cpu text-info me-2"></i>Skill Demand vs Student Supply
+                                </h6>
+                                <span class="badge bg-info-subtle text-info">Skill Gap Detection</span>
+                            </div>
+                            <div class="card-body p-3">
+                                <div style="height: 320px;">
+                                    <canvas id="chart-skill-gap"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Company Hiring History & Multi-Year Trends Archive Card -->
+                <div class="card shadow-sm border-0 mb-4">
+                    <div class="card-header bg-white py-3 border-bottom d-flex justify-content-between align-items-center flex-wrap gap-2">
+                        <div class="d-flex align-items-center gap-3">
+                            <h6 class="card-title mb-0 fw-bold">
+                                <i class="bi bi-clock-history text-primary me-2"></i>Corporate Hiring History & Salary Benchmark Archive
+                            </h6>
+                            <select id="select-company-history" class="form-select form-select-sm" style="width: 220px;">
+                                <option value="">Select Company...</option>
+                            </select>
+                        </div>
+                        <button class="btn btn-outline-primary btn-sm" data-bs-toggle="modal" data-bs-target="#modal-add-company-history">
+                            <i class="bi bi-plus-circle me-1"></i> Record Company History
+                        </button>
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table class="table table-hover align-middle mb-0">
+                                <thead class="table-light small text-uppercase">
+                                    <tr>
+                                        <th>Hiring Year</th>
+                                        <th>Company</th>
+                                        <th>Students Selected</th>
+                                        <th>Offers Extended</th>
+                                        <th>Average CTC (LPA)</th>
+                                        <th>Highest CTC (LPA)</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tbody-company-history">
+                                    <tr><td colspan="6" class="text-center py-4 text-muted">Select a company above or add historical hiring records to analyze long-term trends.</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ============================================================== -->
+            <!-- 2. STUDENTS & AT-RISK CENTER TAB -->
+            <!-- ============================================================== -->
+            <div class="tab-pane fade" id="tab-students" role="tabpanel">
+                <!-- Filters & Search Bar -->
+                <div class="card shadow-sm border-0 mb-4">
+                    <div class="card-body p-3">
+                        <div class="row g-3 align-items-center">
+                            <div class="col-md-3">
+                                <label class="small text-muted mb-1">Search Student</label>
+                                <input type="text" id="filter-student-search" class="form-control form-control-sm" placeholder="Name, Roll No, Email...">
+                            </div>
+                            <div class="col-md-2">
+                                <label class="small text-muted mb-1">Department</label>
+                                <select id="filter-student-dept" class="form-select form-select-sm">
+                                    <option value="">All Departments</option>
+                                    <option value="Computer Science">Computer Science</option>
+                                    <option value="Information Technology">Information Technology</option>
+                                    <option value="Electronics">Electronics</option>
+                                    <option value="Mechanical">Mechanical</option>
+                                    <option value="Civil">Civil</option>
+                                    <option value="Electrical">Electrical</option>
+                                </select>
+                            </div>
+                            <div class="col-md-2">
+                                <label class="small text-muted mb-1">Batch Year</label>
+                                <select id="filter-student-batch" class="form-select form-select-sm">
+                                    <option value="">All Batches</option>
+                                    <option value="2025">2025</option>
+                                    <option value="2026">2026</option>
+                                    <option value="2027">2027</option>
+                                </select>
+                            </div>
+                            <div class="col-md-2">
+                                <label class="small text-muted mb-1">Placement Status</label>
+                                <select id="filter-student-status" class="form-select form-select-sm">
+                                    <option value="">All Statuses</option>
+                                    <option value="placed">Placed</option>
+                                    <option value="unplaced">Unplaced</option>
+                                </select>
+                            </div>
+                            <div class="col-md-3 text-end pt-3">
+                                <div class="btn-group" role="group">
+                                    <input type="checkbox" class="btn-check" id="toggle-at-risk-only" autocomplete="off">
+                                    <label class="btn btn-outline-danger btn-sm" for="toggle-at-risk-only">
+                                        <i class="bi bi-exclamation-triangle-fill me-1"></i> At-Risk Only (<span id="count-at-risk-filter">0</span>)
+                                    </label>
+                                </div>
+                                <button class="btn btn-outline-secondary btn-sm ms-2" id="btn-reset-student-filters">Reset</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Students Roster Table -->
+                <div class="card shadow-sm border-0">
+                    <div class="card-header bg-white py-3 border-bottom d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="card-title mb-0 fw-bold">
+                                <i class="bi bi-mortarboard-fill text-primary me-2"></i>Student Placement & Readiness Directory
+                            </h6>
+                            <span class="text-muted small" id="students-roster-count">Showing 0 students</span>
+                        </div>
+                        <div class="d-flex gap-2">
+                            <button class="btn btn-sm btn-outline-danger" onclick="downloadAtRiskCsv()">
+                                <i class="bi bi-file-earmark-arrow-down me-1"></i> At-Risk CSV
+                            </button>
+                            <button class="btn btn-sm btn-outline-success" onclick="downloadStudentCsv()">
+                                <i class="bi bi-file-earmark-arrow-down me-1"></i> Full Student CSV
+                            </button>
+                        </div>
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table class="table table-hover align-middle mb-0" id="table-students">
+                                <thead class="table-light small text-uppercase">
+                                    <tr>
+                                        <th>Student</th>
+                                        <th>Department / Batch</th>
+                                        <th>Academic Performance</th>
+                                        <th>Resume ATS</th>
+                                        <th>Apps / Offers</th>
+                                        <th>Risk Status</th>
+                                        <th>Placement Outcome</th>
+                                        <th class="text-end">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tbody-students">
+                                    <tr><td colspan="8" class="text-center py-4 text-muted">Loading students...</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ============================================================== -->
+            <!-- 3. INDUSTRY EXPERTS & VERIFICATION TAB -->
+            <!-- ============================================================== -->
+            <div class="tab-pane fade" id="tab-experts" role="tabpanel">
+                <div class="card shadow-sm border-0 mb-4">
+                    <div class="card-header bg-white py-3 border-bottom d-flex justify-content-between align-items-center">
+                        <h6 class="card-title mb-0 fw-bold">
+                            <i class="bi bi-person-check-fill text-warning me-2"></i>Industry Expert Verification Pipeline
+                        </h6>
+                        <div class="btn-group btn-group-sm" role="group">
+                            <button class="btn btn-outline-secondary active" id="filter-expert-all">All</button>
+                            <button class="btn btn-outline-warning" id="filter-expert-pending">Pending Verification</button>
+                            <button class="btn btn-outline-success" id="filter-expert-verified">Verified</button>
+                        </div>
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table class="table table-hover align-middle mb-0">
+                                <thead class="table-light small text-uppercase">
+                                    <tr>
+                                        <th>Expert Name & Contact</th>
+                                        <th>Company</th>
+                                        <th>Designation / Domain</th>
+                                        <th>Experience</th>
+                                        <th>Verification Status</th>
+                                        <th>Registered Date</th>
+                                        <th class="text-end">Verification Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tbody-experts">
+                                    <tr><td colspan="7" class="text-center py-4 text-muted">Loading industry experts...</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ============================================================== -->
+            <!-- 4. PARTNER COMPANIES TAB -->
+            <!-- ============================================================== -->
+            <div class="tab-pane fade" id="tab-companies" role="tabpanel">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h5 class="fw-bold mb-0"><i class="bi bi-buildings-fill text-success me-2"></i>Corporate Partners & Recruiters</h5>
+                    <button class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#modal-add-company">
+                        <i class="bi bi-plus-circle me-1"></i> Add Partner Company
+                    </button>
+                </div>
+
+                <div class="card shadow-sm border-0">
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table class="table table-hover align-middle mb-0">
+                                <thead class="table-light small text-uppercase">
+                                    <tr>
+                                        <th>Company</th>
+                                        <th>Industry Sector</th>
+                                        <th>Location</th>
+                                        <th>Tier</th>
+                                        <th>Placement Drives</th>
+                                        <th>Campus Hires</th>
+                                        <th class="text-end">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tbody-companies">
+                                    <tr><td colspan="7" class="text-center py-4 text-muted">Loading partner companies...</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ============================================================== -->
+            <!-- 5. PLACEMENT DRIVES TAB -->
+            <!-- ============================================================== -->
+            <div class="tab-pane fade" id="tab-drives" role="tabpanel">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <div>
+                        <h5 class="fw-bold mb-0"><i class="bi bi-rocket-takeoff-fill text-primary me-2"></i>On-Campus & Virtual Recruitment Drives</h5>
+                        <small class="text-muted">Manage the 8-stage placement drive workflow from eligibility matching to offer release.</small>
+                    </div>
+                    <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#modal-create-drive">
+                        <i class="bi bi-plus-circle me-1"></i> New Placement Drive
+                    </button>
+                </div>
+
+                <div class="card shadow-sm border-0 mb-4">
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table class="table table-hover align-middle mb-0">
+                                <thead class="table-light small text-uppercase">
+                                    <tr>
+                                        <th>Drive Title & Role</th>
+                                        <th>Company</th>
+                                        <th>Package (CTC)</th>
+                                        <th>Eligibility Criteria</th>
+                                        <th>Current Stage</th>
+                                        <th>Candidates</th>
+                                        <th>Date</th>
+                                        <th class="text-end">Manage Workflow</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tbody-drives">
+                                    <tr><td colspan="8" class="text-center py-4 text-muted">Loading placement drives...</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ============================================================== -->
+            <!-- 6. JOB MODERATION & COMPLIANCE TAB -->
+            <!-- ============================================================== -->
+            <div class="tab-pane fade" id="tab-jobs" role="tabpanel">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <div>
+                        <h5 class="fw-bold mb-0"><i class="bi bi-check2-square text-dark me-2"></i>Recruiter Job Postings Approval Queue</h5>
+                        <small class="text-muted">Institutional compliance check: review recruiter salary, skill priorities, and eligibility criteria.</small>
+                    </div>
+                    <a href="jobs.html" class="btn btn-outline-dark btn-sm">
+                        <i class="bi bi-arrows-fullscreen me-1"></i> Dedicated Moderation View
+                    </a>
+                </div>
+
+                <div class="card shadow-sm border-0">
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table class="table table-hover align-middle mb-0">
+                                <thead class="table-light small text-uppercase">
+                                    <tr>
+                                        <th>Job Title & Company</th>
+                                        <th>Type & Location</th>
+                                        <th>CTC</th>
+                                        <th>Required / Preferred Skills</th>
+                                        <th>Eligibility Rules</th>
+                                        <th>Approval Status</th>
+                                        <th class="text-end">Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tbody-jobs-approval">
+                                    <tr><td colspan="7" class="text-center py-4 text-muted">Loading pending jobs...</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ============================================================== -->
+            <!-- 7. ALUMNI NETWORK TAB -->
+            <!-- ============================================================== -->
+            <div class="tab-pane fade" id="tab-alumni" role="tabpanel">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h5 class="fw-bold mb-0"><i class="bi bi-mortarboard text-info me-2"></i>Alumni Mentorship Network</h5>
+                    <button class="btn btn-info text-white btn-sm" data-bs-toggle="modal" data-bs-target="#modal-add-alumni">
+                        <i class="bi bi-plus-circle me-1"></i> Add Alumni
+                    </button>
+                </div>
+
+                <div class="card shadow-sm border-0">
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table class="table table-hover align-middle mb-0">
+                                <thead class="table-light small text-uppercase">
+                                    <tr>
+                                        <th>Alumni Name</th>
+                                        <th>Batch Year</th>
+                                        <th>Department</th>
+                                        <th>Current Company & Role</th>
+                                        <th>Mentorship</th>
+                                        <th>Contact / LinkedIn</th>
+                                        <th class="text-end">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tbody-alumni">
+                                    <tr><td colspan="7" class="text-center py-4 text-muted">Loading alumni roster...</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ============================================================== -->
+            <!-- 8. BROADCAST ANNOUNCEMENTS TAB -->
+            <!-- ============================================================== -->
+            <div class="tab-pane fade" id="tab-announcements" role="tabpanel">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h5 class="fw-bold mb-0"><i class="bi bi-megaphone-fill text-warning me-2"></i>Broadcast Announcements</h5>
+                    <button class="btn btn-warning text-dark fw-semibold btn-sm" data-bs-toggle="modal" data-bs-target="#modal-send-announcement">
+                        <i class="bi bi-send me-1"></i> Send Announcement
+                    </button>
+                </div>
+
+                <div class="card shadow-sm border-0 mb-4">
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table class="table table-hover align-middle mb-0">
+                                <thead class="table-light small text-uppercase">
+                                    <tr>
+                                        <th>Title & Details</th>
+                                        <th>Target Audience</th>
+                                        <th>Priority</th>
+                                        <th>Sent Date</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tbody-announcements">
+                                    <tr><td colspan="4" class="text-center py-4 text-muted">Loading announcements...</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ============================================================== -->
+            <!-- 9. REPORTS & EXPORT HUB TAB -->
+            <!-- ============================================================== -->
+            <div class="tab-pane fade" id="tab-reports" role="tabpanel">
+                <div class="row g-4 mb-4">
+                    <div class="col-md-4">
+                        <div class="card shadow-sm border-0 h-100 p-3">
+                            <div class="card-body text-center">
+                                <div class="display-5 text-primary mb-2"><i class="bi bi-file-earmark-person"></i></div>
+                                <h5 class="fw-bold">Student Placement Roster</h5>
+                                <p class="text-muted small">
+                                    Comprehensive export of all registered students with roll numbers, CGPA, backlogs, ATS scores, application counts, and final recruitment CTC outcomes.
+                                </p>
+                                <button class="btn btn-primary btn-sm w-100" onclick="downloadStudentCsv()">
+                                    <i class="bi bi-download me-1"></i> Download Student CSV
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-4">
+                        <div class="card shadow-sm border-0 h-100 p-3">
+                            <div class="card-body text-center">
+                                <div class="display-5 text-success mb-2"><i class="bi bi-diagram-3"></i></div>
+                                <h5 class="fw-bold">Department Analytics Report</h5>
+                                <p class="text-muted small">
+                                    Department-by-department placement statistics including total students, placed percentage, unplaced count, average package, and highest campus CTC.
+                                </p>
+                                <button class="btn btn-success btn-sm w-100" onclick="downloadDeptCsv()">
+                                    <i class="bi bi-download me-1"></i> Download Department CSV
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-4">
+                        <div class="card shadow-sm border-0 h-100 p-3">
+                            <div class="card-body text-center">
+                                <div class="display-5 text-danger mb-2"><i class="bi bi-shield-exclamation"></i></div>
+                                <h5 class="fw-bold">At-Risk Assistance Roster</h5>
+                                <p class="text-muted small">
+                                    Targeted roster of students requiring urgent placement cell counseling interventions based on resume score, low job activity, or interview rejections.
+                                </p>
+                                <button class="btn btn-danger btn-sm w-100" onclick="downloadAtRiskCsv()">
+                                    <i class="bi bi-download me-1"></i> Download At-Risk CSV
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div> <!-- /tab-content -->
+
+    </main>
+
+    <!-- ============================================================== -->
+    <!-- MODALS -->
+    <!-- ============================================================== -->
+
+    <!-- Modal: Student Details & Counseling Intervention -->
+    <div class="modal fade" id="modal-student-details" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title fw-bold" id="modal-student-title">
+                        <i class="bi bi-person-lines-fill me-2"></i>Student Profile & Intervention Center
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <!-- Student Summary Card -->
+                    <div class="card border-0 bg-light p-3 mb-4 rounded-3">
+                        <div class="row g-2 align-items-center">
+                            <div class="col-md-8">
+                                <h5 class="fw-bold mb-1" id="m-student-name">-</h5>
+                                <p class="text-muted small mb-1" id="m-student-meta">-</p>
+                                <div class="d-flex gap-2 align-items-center flex-wrap" id="m-student-badges">
+                                    <!-- Badges -->
+                                </div>
+                            </div>
+                            <div class="col-md-4 text-md-end">
+                                <div class="small text-muted">Placement Status</div>
+                                <div class="fw-bold fs-5" id="m-student-status">-</div>
+                                <div class="small text-muted" id="m-student-company">-</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Risk Analysis Section (if at-risk) -->
+                    <div id="m-student-risk-section" class="alert alert-danger d-none">
+                        <h6 class="fw-bold mb-2"><i class="bi bi-exclamation-triangle-fill me-1"></i> Identified Risk Indicators</h6>
+                        <ul class="mb-0 small" id="m-student-risk-list">
+                            <!-- Risk reasons -->
+                        </ul>
+                    </div>
+
+                    <!-- Academic & Application History -->
+                    <div class="row g-3 mb-4">
+                        <div class="col-md-4">
+                            <div class="p-3 bg-white border rounded text-center">
+                                <div class="small text-muted">CGPA / Backlogs</div>
+                                <div class="fw-bold fs-5 text-dark" id="m-student-cgpa">-</div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="p-3 bg-white border rounded text-center">
+                                <div class="small text-muted">Resume ATS Score</div>
+                                <div class="fw-bold fs-5 text-primary" id="m-student-ats">-</div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="p-3 bg-white border rounded text-center">
+                                <div class="small text-muted">Total Applications</div>
+                                <div class="fw-bold fs-5 text-success" id="m-student-apps">-</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Skills & Gaps -->
+                    <div class="mb-4">
+                        <h6 class="fw-bold mb-2">Verified Skills & Proficiency</h6>
+                        <div id="m-student-skills" class="d-flex gap-1 flex-wrap">
+                            <span class="text-muted small">No verified skills recorded</span>
+                        </div>
+                    </div>
+
+                    <!-- Counseling Interventions History -->
+                    <div class="mb-4">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <h6 class="fw-bold mb-0">Placement Cell Interventions</h6>
+                            <button class="btn btn-sm btn-outline-primary" type="button" data-bs-toggle="collapse" data-bs-target="#collapseAddIntervention">
+                                <i class="bi bi-plus me-1"></i> Log Intervention
+                            </button>
+                        </div>
+
+                        <!-- Collapse Add Intervention Form -->
+                        <div class="collapse mb-3" id="collapseAddIntervention">
+                            <div class="card card-body bg-light border">
+                                <form id="form-add-intervention">
+                                    <input type="hidden" id="interv-student-id">
+                                    <div class="row g-2 mb-2">
+                                        <div class="col-md-6">
+                                            <label class="small fw-semibold">Intervention Type</label>
+                                            <select class="form-select form-select-sm" id="interv-type" required>
+                                                <option value="Counseling">Counseling Session</option>
+                                                <option value="Resume Review">Resume Clinic / Review</option>
+                                                <option value="Mock Interview">Mock Interview Prep</option>
+                                                <option value="Skill Upskilling">Skill Upskilling Assignment</option>
+                                                <option value="Mentor Allocation">Alumni Mentor Allocation</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label class="small fw-semibold">Intervention Status</label>
+                                            <select class="form-select form-select-sm" id="interv-status">
+                                                <option value="Scheduled">Scheduled</option>
+                                                <option value="Active">Active</option>
+                                                <option value="In Progress">In Progress</option>
+                                                <option value="Completed">Completed</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="mb-2">
+                                        <label class="small fw-semibold">Counselor Notes / Diagnostic Feedback</label>
+                                        <textarea class="form-control form-control-sm" id="interv-notes" rows="2" placeholder="Describe candidate gaps and planned assistance..." required></textarea>
+                                    </div>
+                                    <div class="mb-2">
+                                        <label class="small fw-semibold">Action Items for Student</label>
+                                        <input type="text" class="form-control form-control-sm" id="interv-action" placeholder="e.g., Retake Data Structures assessment, revise ATS resume bullets">
+                                    </div>
+                                    <div class="text-end">
+                                        <button type="submit" class="btn btn-primary btn-sm">Save Intervention</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+
+                        <!-- Interventions List -->
+                        <div id="m-student-interventions" class="list-group list-group-flush border rounded">
+                            <div class="p-3 text-center text-muted small">No prior interventions logged for this student.</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Manage Placement Drive & Stage Advancement -->
+    <div class="modal fade" id="modal-manage-drive" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-xl modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header bg-dark text-white">
+                    <h5 class="modal-title fw-bold" id="m-drive-title">
+                        <i class="bi bi-rocket-takeoff-fill me-2 text-primary"></i>Placement Drive Management
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <!-- Drive Info Ribbon -->
+                    <div class="card border-0 bg-light p-3 mb-4 rounded-3">
+                        <div class="row g-2 align-items-center">
+                            <div class="col-md-8">
+                                <h5 class="fw-bold mb-1" id="m-drive-company-role">-</h5>
+                                <p class="text-muted small mb-0" id="m-drive-details">-</p>
+                            </div>
+                            <div class="col-md-4 text-md-end">
+                                <span class="badge bg-primary fs-6" id="m-drive-stage-badge">Company</span>
+                                <div class="mt-2">
+                                    <button class="btn btn-outline-primary btn-sm" id="btn-advance-drive-stage">
+                                        <i class="bi bi-arrow-right-circle me-1"></i> Advance Drive Stage
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 8-Stage Pipeline Visualizer -->
+                    <div class="mb-4">
+                        <label class="small text-muted fw-bold text-uppercase mb-2">Recruitment Stage Pipeline</label>
+                        <div class="row g-2 text-center" id="m-drive-pipeline-steps">
+                            <div class="col"><div class="pipeline-step" data-step="Company">1. Company</div></div>
+                            <div class="col"><div class="pipeline-step" data-step="Eligibility">2. Eligibility</div></div>
+                            <div class="col"><div class="pipeline-step" data-step="Registration">3. Registration</div></div>
+                            <div class="col"><div class="pipeline-step" data-step="Shortlisting">4. Shortlist</div></div>
+                            <div class="col"><div class="pipeline-step" data-step="Assessment">5. Test</div></div>
+                            <div class="col"><div class="pipeline-step" data-step="Interview">6. Interview</div></div>
+                            <div class="col"><div class="pipeline-step" data-step="Selection">7. Selection</div></div>
+                            <div class="col"><div class="pipeline-step" data-step="Offer">8. Offer</div></div>
+                        </div>
+                    </div>
+
+                    <!-- Registered Candidates Table -->
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <h6 class="fw-bold mb-0">Participating Candidates & Progress</h6>
+                        <button class="btn btn-sm btn-outline-success" id="btn-view-eligible-students">
+                            <i class="bi bi-person-plus me-1"></i> Register Eligible Students
+                        </button>
+                    </div>
+
+                    <div class="table-responsive border rounded mb-3">
+                        <table class="table table-hover align-middle mb-0">
+                            <thead class="table-light small text-uppercase">
+                                <tr>
+                                    <th>Student</th>
+                                    <th>Department</th>
+                                    <th>CGPA</th>
+                                    <th>Candidate Stage</th>
+                                    <th>Offered CTC</th>
+                                    <th class="text-end">Advance Stage</th>
+                                </tr>
+                            </thead>
+                            <tbody id="m-drive-candidates-tbody">
+                                <tr><td colspan="6" class="text-center py-4 text-muted">No students currently registered for this drive.</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Collapsible Eligible Students Panel -->
+                    <div class="collapse" id="collapseEligibleStudents">
+                        <div class="card card-body bg-light border">
+                            <h6 class="fw-bold text-success mb-2">
+                                <i class="bi bi-check2-all me-1"></i> Eligible Students for this Drive
+                            </h6>
+                            <div class="table-responsive">
+                                <table class="table table-sm table-hover align-middle mb-0">
+                                    <thead class="table-white small text-uppercase">
+                                        <tr>
+                                            <th>Roll No & Name</th>
+                                            <th>Department</th>
+                                            <th>CGPA</th>
+                                            <th>Backlogs</th>
+                                            <th>Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="tbody-eligible-candidates">
+                                        <!-- Dynamically injected -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Create Placement Drive -->
+    <div class="modal fade" id="modal-create-drive" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <form id="form-create-drive">
+                    <div class="modal-header bg-primary text-white">
+                        <h5 class="modal-title fw-bold"><i class="bi bi-rocket-takeoff me-2"></i>Launch New Placement Drive</h5>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="form-label small fw-semibold">Partner Company</label>
+                                <select class="form-select form-select-sm" id="drive-company-id" required>
+                                    <option value="">Select partner company...</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label small fw-semibold">Job Role Title</label>
+                                <input type="text" class="form-control form-control-sm" id="drive-role" placeholder="e.g. Graduate Software Engineer" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label small fw-semibold">Package CTC (LPA)</label>
+                                <input type="number" step="0.1" class="form-control form-control-sm" id="drive-ctc" placeholder="e.g. 12.5" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label small fw-semibold">Batch Year</label>
+                                <input type="number" class="form-control form-control-sm" id="drive-batch" value="2025" required>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label small fw-semibold">Minimum CGPA</label>
+                                <input type="number" step="0.1" class="form-control form-control-sm" id="drive-min-cgpa" value="7.0">
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label small fw-semibold">Maximum Backlogs</label>
+                                <input type="number" class="form-control form-control-sm" id="drive-max-backlogs" value="0">
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label small fw-semibold">Drive Date</label>
+                                <input type="date" class="form-control form-control-sm" id="drive-date" required>
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label small fw-semibold">Eligible Branches (comma separated)</label>
+                                <input type="text" class="form-control form-control-sm" id="drive-branches" placeholder="Computer Science, Information Technology, Electronics">
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label small fw-semibold">Required Skills (comma separated)</label>
+                                <input type="text" class="form-control form-control-sm" id="drive-skills" placeholder="Python, SQL, Data Structures, Git">
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label small fw-semibold">Drive Description & Instructions</label>
+                                <textarea class="form-control form-control-sm" id="drive-desc" rows="3" placeholder="Recruitment rounds, schedule, and reporting details..."></textarea>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-primary btn-sm">Launch Drive</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Register Partner Company -->
+    <div class="modal fade" id="modal-add-company" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <form id="form-add-company">
+                    <div class="modal-header bg-success text-white">
+                        <h5 class="modal-title fw-bold"><i class="bi bi-buildings me-2"></i>Register Corporate Partner</h5>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="row g-3">
+                            <div class="col-12">
+                                <label class="form-label small fw-semibold">Company Name</label>
+                                <input type="text" class="form-control form-control-sm" id="company-name" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label small fw-semibold">Industry Sector</label>
+                                <input type="text" class="form-control form-control-sm" id="company-industry" placeholder="Technology, Finance, Healthcare...">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label small fw-semibold">Location / Headquarters</label>
+                                <input type="text" class="form-control form-control-sm" id="company-location" placeholder="Bengaluru, Hyderabad...">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label small fw-semibold">Tier</label>
+                                <select class="form-select form-select-sm" id="company-tier">
+                                    <option value="Tier 1">Tier 1 (Dream / Super Dream)</option>
+                                    <option value="Tier 2">Tier 2 (Core / IT Services)</option>
+                                    <option value="Tier 3">Tier 3 (Startup / Regional)</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label small fw-semibold">Website URL</label>
+                                <input type="url" class="form-control form-control-sm" id="company-website" placeholder="https://company.com">
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label small fw-semibold">Description</label>
+                                <textarea class="form-control form-control-sm" id="company-description" rows="2"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-success btn-sm">Save Partner</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Targeted Broadcast Communication & Multi-Channel Dispatch -->
+    <div class="modal fade" id="modal-send-announcement" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <form id="form-send-announcement">
+                    <div class="modal-header bg-warning text-dark">
+                        <h5 class="modal-title fw-bold">
+                            <i class="bi bi-megaphone-fill me-2"></i>Targeted Student Broadcast & Multi-Channel Dispatch
+                        </h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="alert alert-light border small text-muted mb-3">
+                            <i class="bi bi-info-circle text-primary me-1"></i>
+                            Dispatches official announcements with cohort targeting across in-app notifications and email.
+                        </div>
+                        <div class="row g-3">
+                            <div class="col-md-8">
+                                <label class="form-label small fw-semibold">Announcement Title *</label>
+                                <input type="text" class="form-control form-control-sm" id="ann-title" placeholder="e.g. On-Campus Recruitment Drive: Amazon Technical Assessment" required>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label small fw-semibold">Priority Level</label>
+                                <select class="form-select form-select-sm" id="ann-priority">
+                                    <option value="Normal">Normal Notice</option>
+                                    <option value="Important">Important Alert</option>
+                                    <option value="Urgent">Urgent / High Priority</option>
+                                </select>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label class="form-label small fw-semibold">Target Cohort Audience *</label>
+                                <select class="form-select form-select-sm" id="ann-target-type" required>
+                                    <option value="all">All Students (Campus-wide)</option>
+                                    <option value="branch">Specific Engineering Branch</option>
+                                    <option value="year">Specific Graduation Batch Year</option>
+                                    <option value="eligible_drive">Eligible Candidates for Placement Drive</option>
+                                    <option value="domain">Domain / Technical Interest</option>
+                                    <option value="registered_drive">Students Registered for Drive</option>
+                                    <option value="registered_workshop">Students Registered for Workshop</option>
+                                </select>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label class="form-label small fw-semibold">Target Value / Parameter</label>
+                                <input type="text" class="form-control form-control-sm" id="ann-target-value" placeholder="e.g. Computer Science, 2025, Drive ID, or AI/ML">
+                                <div class="form-text small" style="font-size: 0.75rem;">Leave blank if cohort is 'All Students'. Otherwise specify branch, year, ID, or domain.</div>
+                            </div>
+
+                            <div class="col-12">
+                                <label class="form-label small fw-semibold">Delivery Channels *</label>
+                                <select class="form-select form-select-sm" id="ann-channel">
+                                    <option value="both">Both: In-App Notification & Email (Recommended)</option>
+                                    <option value="in_app">In-App Notification Only</option>
+                                    <option value="email">Email Only</option>
+                                </select>
+                            </div>
+
+                            <div class="col-12">
+                                <label class="form-label small fw-semibold">Announcement Message Body *</label>
+                                <textarea class="form-control form-control-sm" id="ann-message" rows="4" placeholder="Enter complete notification content, deadlines, and instructions..." required></textarea>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-warning text-dark fw-bold btn-sm">
+                            <i class="bi bi-send-fill me-1"></i> Dispatch Broadcast
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Record Historical Company Hiring -->
+    <div class="modal fade" id="modal-add-company-history" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <form id="form-add-company-history">
+                    <div class="modal-header bg-primary text-white">
+                        <h5 class="modal-title fw-bold">
+                            <i class="bi bi-clock-history me-2"></i>Record Historical Company Hiring
+                        </h5>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="row g-3">
+                            <div class="col-12">
+                                <label class="form-label small fw-semibold">Select Company *</label>
+                                <select class="form-select form-select-sm" id="history-company-id" required>
+                                    <option value="">Choose partner company...</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label small fw-semibold">Hiring Year *</label>
+                                <input type="number" class="form-control form-control-sm" id="history-year" value="2024" min="2015" max="2035" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label small fw-semibold">Students Selected *</label>
+                                <input type="number" class="form-control form-control-sm" id="history-selected" value="10" min="0" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label small fw-semibold">Offers Count</label>
+                                <input type="number" class="form-control form-control-sm" id="history-offers" value="10" min="0">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label small fw-semibold">Average CTC (LPA) *</label>
+                                <input type="number" step="0.1" class="form-control form-control-sm" id="history-avg-ctc" value="8.5" required>
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label small fw-semibold">Highest CTC (LPA) *</label>
+                                <input type="number" step="0.1" class="form-control form-control-sm" id="history-high-ctc" value="14.0" required>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-primary btn-sm">Save Historical Record</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Add Alumni Mentor -->
+    <div class="modal fade" id="modal-add-alumni" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <form id="form-add-alumni">
+                    <div class="modal-header bg-info text-white">
+                        <h5 class="modal-title fw-bold"><i class="bi bi-mortarboard me-2"></i>Register Alumni Mentor</h5>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="row g-3">
+                            <div class="col-12">
+                                <label class="form-label small fw-semibold">Full Name</label>
+                                <input type="text" class="form-control form-control-sm" id="alumni-name" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label small fw-semibold">Email</label>
+                                <input type="email" class="form-control form-control-sm" id="alumni-email" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label small fw-semibold">Graduation Batch</label>
+                                <input type="number" class="form-control form-control-sm" id="alumni-batch" value="2022" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label small fw-semibold">Department</label>
+                                <input type="text" class="form-control form-control-sm" id="alumni-dept" value="Computer Science" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label small fw-semibold">Current Company</label>
+                                <input type="text" class="form-control form-control-sm" id="alumni-company" placeholder="e.g. Microsoft" required>
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label small fw-semibold">Current Role</label>
+                                <input type="text" class="form-control form-control-sm" id="alumni-role" placeholder="Senior SDE">
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label small fw-semibold">LinkedIn Profile URL</label>
+                                <input type="url" class="form-control form-control-sm" id="alumni-linkedin" placeholder="https://linkedin.com/in/...">
+                            </div>
+                            <div class="col-12">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="alumni-mentor" checked>
+                                    <label class="form-check-label small" for="alumni-mentor">
+                                        Available as Student Mentor for Mock Interviews & Counseling
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-info text-white btn-sm">Save Alumni</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap 5 JS Bundle -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Admin Command Center Controller Script -->
+    <script type="module">
+        import { getToken, getUser, removeToken, authFetch, API_BASE } from '../../js/auth.js';
+
+        // State variables
+        let currentAdminUser = null;
+        let globalDashboardData = null;
+        let allStudents = [];
+        let allExperts = [];
+        let allCompanies = [];
+        let allDrives = [];
+        let activeDriveObj = null;
+
+        // Charts
+        let deptChart = null;
+        let companyChart = null;
+        let yearPlacementChart = null;
+        let skillGapChart = null;
+
+        // Ensure Admin Authentication
+        document.addEventListener("DOMContentLoaded", async () => {
+            const token = getToken();
+            const user = getUser();
+
+            if (!token || !user) {
+                window.location.href = "../login.html";
+                return;
+            }
+
+            if (user.role.toLowerCase() !== "admin") {
+                alert("Access Denied. This Command Center is restricted to College Administrators and Placement Officers.");
+                window.location.href = "../../index.html";
+                return;
+            }
+
+            currentAdminUser = user;
+            document.getElementById("admin-user-name").textContent = user.email;
+
+            // Initialize UI and load initial metrics
+            initEventListeners();
+            await loadDashboardMetrics();
+            await loadStudents();
+            await loadExperts();
+            await loadCompanies();
+            await loadPlacementDrives();
+            await loadPendingJobs();
+            await loadAlumni();
+            await loadAnnouncements();
+        });
+
+        function showAlert(message, type = "success") {
+            const container = document.getElementById("alert-container");
+            container.innerHTML = `
+                <div class="alert alert-${type} alert-dismissible fade show shadow-sm" role="alert">
+                    <i class="bi bi-${type === 'success' ? 'check-circle' : 'exclamation-triangle'}-fill me-2"></i>
+                    ${message}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            `;
+            setTimeout(() => {
+                const el = container.querySelector(".alert");
+                if (el) {
+                    const bsAlert = bootstrap.Alert.getOrCreateInstance(el);
+                    bsAlert.close();
+                }
+            }, 6000);
+        }
+
+        // ==============================================================
+        // 1. DASHBOARD METRICS & CHARTS
+        // ==============================================================
+        async function loadDashboardMetrics() {
+            try {
+                const res = await authFetch("/api/admin/dashboard");
+                const result = await res.json();
+                if (!res.ok || result.status !== "success") {
+                    throw new Error(result.message || "Failed to load dashboard metrics");
+                }
+
+                globalDashboardData = result.data;
+                const d = globalDashboardData;
+                const kpis = d.summary_kpis || d.high_level_kpis || {};
+
+                // Populate KPI Ribbon
+                document.getElementById("kpi-total-students").textContent = kpis.total_students || 0;
+                document.getElementById("kpi-placed-students").textContent = kpis.students_placed !== undefined ? kpis.students_placed : (kpis.placed_students || 0);
+                document.getElementById("kpi-placement-rate").textContent = `${kpis.placement_rate || 0}% Rate`;
+                document.getElementById("kpi-avg-ctc").textContent = `₹${kpis.average_ctc !== undefined ? kpis.average_ctc : (kpis.average_ctc_lpa || 0)} LPA`;
+                document.getElementById("kpi-high-ctc").textContent = `₹${kpis.highest_ctc !== undefined ? kpis.highest_ctc : (kpis.highest_ctc_lpa || 0)} LPA`;
+                document.getElementById("kpi-total-companies").textContent = kpis.total_companies || 0;
+                document.getElementById("kpi-active-drives").textContent = kpis.ongoing_drives !== undefined ? kpis.ongoing_drives : (kpis.placement_drives || 0);
+                document.getElementById("kpi-total-experts").textContent = kpis.total_industry_experts !== undefined ? kpis.total_industry_experts : (kpis.industry_experts || 0);
+                document.getElementById("kpi-pending-experts").textContent = `${kpis.pending_experts_verification || 0} Pending Review`;
+                document.getElementById("kpi-at-risk-count").textContent = kpis.students_requiring_assistance || 0;
+
+                // Update tab badges
+                const atRiskBadge = document.getElementById("tab-at-risk-badge");
+                if (kpis.students_requiring_assistance > 0) {
+                    atRiskBadge.textContent = kpis.students_requiring_assistance;
+                    atRiskBadge.classList.remove("d-none");
+                }
+                const expertBadge = document.getElementById("tab-pending-experts-badge");
+                if (kpis.pending_experts_verification > 0) {
+                    expertBadge.textContent = kpis.pending_experts_verification;
+                    expertBadge.classList.remove("d-none");
+                }
+                const jobBadge = document.getElementById("tab-pending-jobs-badge");
+                if (kpis.pending_jobs_moderation > 0) {
+                    jobBadge.textContent = kpis.pending_jobs_moderation;
+                    jobBadge.classList.remove("d-none");
+                }
+
+                // Render Department Table
+                const depts = d.department_wise || d.department_wise_placement || [];
+                renderDeptTable(depts);
+
+                // Render Charts
+                renderDeptChart(depts);
+                const companies = d.company_wise || d.company_wise_placement || [];
+                renderCompanyChart(companies);
+
+                // Extended Placement & Skill Intelligence
+                await loadYearWiseAnalytics();
+                await loadSkillDemandAnalytics();
+                await populateCompanyHistoryDropdown();
+
+            } catch (err) {
+                console.error("Dashboard metrics error:", err);
+                showAlert(err.message, "danger");
+            }
+        }
+
+        function renderDeptTable(depts) {
+            const tbody = document.getElementById("tbody-dept-summary");
+            if (!depts || depts.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="7" class="text-center py-3 text-muted">No department records available.</td></tr>`;
+                return;
+            }
+
+            tbody.innerHTML = depts.map(item => `
+                <tr>
+                    <td class="fw-bold">${item.department}</td>
+                    <td>${item.total_students}</td>
+                    <td class="text-success fw-semibold">${item.placed_students}</td>
+                    <td>
+                        <div class="d-flex align-items-center gap-2">
+                            <div class="progress flex-grow-1" style="height: 6px;">
+                                <div class="progress-bar ${item.placement_rate >= 75 ? 'bg-success' : item.placement_rate >= 50 ? 'bg-primary' : 'bg-warning'}" 
+                                     style="width: ${item.placement_rate}%;"></div>
+                            </div>
+                            <span class="small fw-bold">${item.placement_rate}%</span>
+                        </div>
+                    </td>
+                    <td>₹${item.avg_ctc !== undefined ? item.avg_ctc : (item.average_ctc || 0)} LPA</td>
+                    <td class="fw-bold">₹${item.highest_ctc !== undefined ? item.highest_ctc : 0} LPA</td>
+                    <td>
+                        <span class="badge ${item.placement_rate >= 70 ? 'bg-success-subtle text-success' : 'bg-warning-subtle text-warning'}">
+                            ${item.placement_rate >= 70 ? 'Strong' : 'Focus Needed'}
+                        </span>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function renderDeptChart(depts) {
+            const ctx = document.getElementById("chart-department-placement");
+            if (!ctx) return;
+
+            const labels = depts.map(d => d.department);
+            const total = depts.map(d => d.total_students);
+            const placed = depts.map(d => d.placed_students);
+
+            if (deptChart) deptChart.destroy();
+
+            deptChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        {
+                            label: 'Total Students',
+                            data: total,
+                            backgroundColor: '#e2e8f0',
+                            borderRadius: 4
+                        },
+                        {
+                            label: 'Placed Students',
+                            data: placed,
+                            backgroundColor: '#0d6efd',
+                            borderRadius: 4
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'top' }
+                    },
+                    scales: {
+                        y: { beginAtZero: true }
+                    }
+                }
+            });
+        }
+
+        function renderCompanyChart(companies) {
+            const ctx = document.getElementById("chart-company-placement");
+            if (!ctx) return;
+
+            if (companyChart) companyChart.destroy();
+
+            if (!companies || companies.length === 0) {
+                companies = [{ company: "No Placement Data Yet", hires: 1 }];
+            }
+
+            const labels = companies.map(c => c.company || c.name || "Company");
+            const hires = companies.map(c => c.hires !== undefined ? c.hires : (c.hires_count || c.drives_count || 1));
+
+            companyChart = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        data: hires,
+                        backgroundColor: [
+                            '#0d6efd', '#198754', '#ffc107', '#0dcaf0',
+                            '#6f42c1', '#d63384', '#fd7e14', '#20c997'
+                        ]
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'right' }
+                    }
+                }
+            });
+        }
+
+        async function loadYearWiseAnalytics() {
+            const ctx = document.getElementById("chart-year-placement");
+            if (!ctx) return;
+
+            try {
+                const res = await authFetch("/api/analytics/year-wise");
+                if (!res.ok) return;
+                const json = await res.json();
+                const yearsData = json.data.years || [];
+                if (yearsData.length === 0) return;
+
+                const labels = yearsData.map(y => `Class of ${y.year}`);
+                const placementRates = yearsData.map(y => y.placement_rate);
+                const avgCtcs = yearsData.map(y => y.average_ctc);
+                const highCtcs = yearsData.map(y => y.highest_ctc);
+
+                if (yearPlacementChart) yearPlacementChart.destroy();
+
+                yearPlacementChart = new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: labels,
+                        datasets: [
+                            {
+                                type: 'bar',
+                                label: 'Placement Rate (%)',
+                                data: placementRates,
+                                backgroundColor: '#198754',
+                                yAxisID: 'yRate',
+                                borderRadius: 4
+                            },
+                            {
+                                type: 'line',
+                                label: 'Average CTC (₹ LPA)',
+                                data: avgCtcs,
+                                borderColor: '#0d6efd',
+                                backgroundColor: '#0d6efd',
+                                tension: 0.3,
+                                yAxisID: 'yCtc'
+                            },
+                            {
+                                type: 'line',
+                                label: 'Highest CTC (₹ LPA)',
+                                data: highCtcs,
+                                borderColor: '#fd7e14',
+                                backgroundColor: '#fd7e14',
+                                borderDash: [5, 5],
+                                tension: 0.3,
+                                yAxisID: 'yCtc'
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { position: 'top' },
+                            tooltip: { mode: 'index', intersect: false }
+                        },
+                        scales: {
+                            yRate: {
+                                type: 'linear',
+                                position: 'left',
+                                beginAtZero: true,
+                                max: 100,
+                                title: { display: true, text: 'Placement Rate %' }
+                            },
+                            yCtc: {
+                                type: 'linear',
+                                position: 'right',
+                                beginAtZero: true,
+                                grid: { drawOnChartArea: false },
+                                title: { display: true, text: 'Package CTC (LPA)' }
+                            }
+                        }
+                    }
+                });
+            } catch (e) {
+                console.error("Year wise analytics error:", e);
+            }
+        }
+
+        async function loadSkillDemandAnalytics() {
+            const ctx = document.getElementById("chart-skill-gap");
+            if (!ctx) return;
+
+            try {
+                const res = await authFetch("/api/analytics/skills");
+                if (!res.ok) return;
+                const json = await res.json();
+                const gaps = json.data.skill_gaps || [];
+                if (gaps.length === 0) return;
+
+                const top = gaps.slice(0, 7);
+                const labels = top.map(g => g.skill);
+                const demand = top.map(g => g.demand_pct);
+                const supply = top.map(g => g.supply_pct);
+
+                if (skillGapChart) skillGapChart.destroy();
+
+                skillGapChart = new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: labels,
+                        datasets: [
+                            {
+                                label: 'Industry Demand (%)',
+                                data: demand,
+                                backgroundColor: '#0d6efd',
+                                borderRadius: 4
+                            },
+                            {
+                                label: 'Student Supply (%)',
+                                data: supply,
+                                backgroundColor: '#20c997',
+                                borderRadius: 4
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { position: 'top' }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                max: 100,
+                                title: { display: true, text: 'Percentage (%)' }
+                            }
+                        }
+                    }
+                });
+            } catch (e) {
+                console.error("Skill demand error:", e);
+            }
+        }
+
+        async function populateCompanyHistoryDropdown() {
+            const select = document.getElementById("select-company-history");
+            const historyModalSelect = document.getElementById("history-company-id");
+            if (!select) return;
+
+            try {
+                const res = await authFetch("/api/admin/companies");
+                if (!res.ok) return;
+                const json = await res.json();
+                const companies = json.data.companies || [];
+
+                let optionsHtml = '<option value="">Select Company to View History...</option>';
+                let modalOptionsHtml = '<option value="">Choose partner company...</option>';
+                companies.forEach(c => {
+                    optionsHtml += `<option value="${c.id}">${c.name} (${c.industry_type || 'Corporate'})</option>`;
+                    modalOptionsHtml += `<option value="${c.id}">${c.name}</option>`;
+                });
+
+                select.innerHTML = optionsHtml;
+                if (historyModalSelect) historyModalSelect.innerHTML = modalOptionsHtml;
+            } catch (e) {
+                console.error("Companies dropdown error:", e);
+            }
+        }
+
+        async function loadCompanyHistory(companyId) {
+            const tbody = document.getElementById("tbody-company-history");
+            if (!tbody || !companyId) return;
+
+            tbody.innerHTML = '<tr><td colspan="6" class="text-center py-3 text-muted"><div class="spinner-border spinner-border-sm text-primary me-2"></div>Loading company historical hiring...</td></tr>';
+
+            try {
+                const res = await authFetch(`/api/analytics/companies/${companyId}/history`);
+                if (!res.ok) {
+                    tbody.innerHTML = '<tr><td colspan="6" class="text-center py-3 text-danger">Failed to load company history.</td></tr>';
+                    return;
+                }
+
+                const json = await res.json();
+                const data = json.data;
+                const timeline = data.timeline || [];
+
+                if (timeline.length === 0) {
+                    tbody.innerHTML = `<tr><td colspan="6" class="text-center py-3 text-muted">No historical hiring records saved for ${data.company_name} yet. Click "Record Company History" above to add previous hiring batches.</td></tr>`;
+                    return;
+                }
+
+                tbody.innerHTML = timeline.map(t => `
+                    <tr>
+                        <td class="fw-bold"><span class="badge bg-light text-dark border px-2 py-1">${t.hiring_year}</span></td>
+                        <td class="fw-semibold text-primary">${data.company_name}</td>
+                        <td><span class="badge bg-success-subtle text-success">${t.students_selected} Students</span></td>
+                        <td>${t.offers_count} Offers</td>
+                        <td class="fw-bold text-dark">₹${t.average_ctc} LPA</td>
+                        <td class="fw-bold text-success">₹${t.highest_ctc} LPA</td>
+                    </tr>
+                `).join('');
+            } catch (e) {
+                console.error("History fetch error:", e);
+                tbody.innerHTML = '<tr><td colspan="6" class="text-center py-3 text-danger">Error retrieving historical records.</td></tr>';
+            }
+        }
+
+        // ==============================================================
+        // 2. STUDENTS & AT-RISK DIRECTORY
+        // ==============================================================
+        async function loadStudents() {
+            try {
+                const res = await authFetch("/api/admin/students");
+                const result = await res.json();
+                if (!res.ok) throw new Error(result.message || "Failed to load students");
+
+                allStudents = result.data.students;
+                applyStudentFilters();
+            } catch (err) {
+                console.error("Students error:", err);
+            }
+        }
+
+        function applyStudentFilters() {
+            const search = document.getElementById("filter-student-search").value.toLowerCase();
+            const dept = document.getElementById("filter-student-dept").value;
+            const batch = document.getElementById("filter-student-batch").value;
+            const status = document.getElementById("filter-student-status").value;
+            const atRiskOnly = document.getElementById("toggle-at-risk-only").checked;
+
+            let filtered = allStudents.filter(s => {
+                const fullName = `${s.first_name} ${s.last_name}`.toLowerCase();
+                const roll = (s.roll_number || "").toLowerCase();
+                const email = (s.email || "").toLowerCase();
+
+                if (search && !fullName.includes(search) && !roll.includes(search) && !email.includes(search)) {
+                    return false;
+                }
+                if (dept && s.department !== dept) return false;
+                if (batch && String(s.batch_year) !== batch) return false;
+                if (status === "placed" && !s.placement_status.placed) return false;
+                if (status === "unplaced" && s.placement_status.placed) return false;
+                if (atRiskOnly && !s.at_risk) return false;
+
+                return true;
+            });
+
+            // Update at-risk filter count
+            const totalAtRisk = allStudents.filter(s => s.at_risk).length;
+            document.getElementById("count-at-risk-filter").textContent = totalAtRisk;
+
+            renderStudentsTable(filtered);
+        }
+
+        function renderStudentsTable(students) {
+            const tbody = document.getElementById("tbody-students");
+            document.getElementById("students-roster-count").textContent = `Showing ${students.length} student${students.length === 1 ? '' : 's'}`;
+
+            if (students.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="8" class="text-center py-4 text-muted">No students match current filter criteria.</td></tr>`;
+                return;
+            }
+
+            tbody.innerHTML = students.map(s => {
+                const placed = s.placement_status.placed;
+                const company = s.placement_status.company || "-";
+                const ctc = s.placement_status.package_ctc ? `₹${s.placement_status.package_ctc} LPA` : "";
+                const atsScore = s.resume_ats_score !== null ? `${s.resume_ats_score}%` : "No Resume";
+                const isAtRisk = s.at_risk;
+
+                return `
+                    <tr class="${isAtRisk ? 'at-risk-indicator table-danger-subtle' : ''}">
+                        <td>
+                            <div class="fw-bold">${s.first_name} ${s.last_name}</div>
+                            <div class="small text-muted">${s.roll_number || 'No Roll'} &bull; ${s.email}</div>
+                        </td>
+                        <td>
+                            <div>${s.department}</div>
+                            <div class="small text-muted">Class of ${s.batch_year || 'N/A'}</div>
+                        </td>
+                        <td>
+                            <div class="fw-semibold">CGPA: ${s.cgpa || 'N/A'}</div>
+                            <div class="small ${s.backlogs > 0 ? 'text-danger fw-bold' : 'text-muted'}">${s.backlogs || 0} Backlog(s)</div>
+                        </td>
+                        <td>
+                            <span class="badge ${s.resume_ats_score >= 70 ? 'bg-success-subtle text-success' : s.resume_ats_score >= 50 ? 'bg-warning-subtle text-warning' : 'bg-danger-subtle text-danger'}">
+                                ${atsScore}
+                            </span>
+                        </td>
+                        <td>
+                            <div class="small">Apps: <strong>${s.total_applications}</strong></div>
+                        </td>
+                        <td>
+                            ${isAtRisk ? `
+                                <span class="badge bg-danger">
+                                    <i class="bi bi-exclamation-triangle-fill me-1"></i> At-Risk
+                                </span>
+                            ` : `
+                                <span class="badge bg-success-subtle text-success">
+                                    <i class="bi bi-check me-1"></i> On Track
+                                </span>
+                            `}
+                        </td>
+                        <td>
+                            ${placed ? `
+                                <span class="badge bg-success"><i class="bi bi-check2-circle me-1"></i> Placed</span>
+                                <div class="small fw-semibold text-dark mt-1">${company} (${ctc})</div>
+                            ` : `
+                                <span class="badge bg-secondary-subtle text-secondary">Unplaced</span>
+                            `}
+                        </td>
+                        <td class="text-end">
+                            <button class="btn btn-sm btn-outline-primary" onclick="openStudentModal(${s.id})">
+                                <i class="bi bi-person-lines-fill me-1"></i> Details
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        window.openStudentModal = async function(studentId) {
+            try {
+                const s = allStudents.find(item => item.id === studentId);
+                if (!s) return;
+
+                document.getElementById("interv-student-id").value = s.id;
+                document.getElementById("m-student-name").textContent = `${s.first_name} ${s.last_name}`;
+                document.getElementById("m-student-meta").textContent = `Roll: ${s.roll_number || 'N/A'} &bull; ${s.department} (${s.degree || 'B.Tech'}) &bull; Batch ${s.batch_year} &bull; ${s.email}`;
+                
+                // Badges
+                const badgesDiv = document.getElementById("m-student-badges");
+                badgesDiv.innerHTML = `
+                    <span class="badge bg-primary-subtle text-primary">${s.department}</span>
+                    <span class="badge bg-secondary-subtle text-secondary">Batch ${s.batch_year}</span>
+                    ${s.at_risk ? '<span class="badge bg-danger"><i class="bi bi-exclamation-circle me-1"></i> At-Risk Candidate</span>' : '<span class="badge bg-success-subtle text-success">On Track</span>'}
+                `;
+
+                // Placement Info
+                document.getElementById("m-student-status").textContent = s.placement_status.placed ? "Placed" : "Seeking Placement";
+                document.getElementById("m-student-status").className = s.placement_status.placed ? "fw-bold fs-5 text-success" : "fw-bold fs-5 text-secondary";
+                document.getElementById("m-student-company").textContent = s.placement_status.placed ? `${s.placement_status.company} (₹${s.placement_status.package_ctc} LPA)` : "-";
+
+                // Metrics
+                document.getElementById("m-student-cgpa").textContent = `${s.cgpa || 'N/A'} (${s.backlogs || 0} Backlogs)`;
+                document.getElementById("m-student-ats").textContent = s.resume_ats_score !== null ? `${s.resume_ats_score}%` : "Not Available";
+                document.getElementById("m-student-apps").textContent = s.total_applications;
+
+                // Risk list
+                const riskSec = document.getElementById("m-student-risk-section");
+                const riskList = document.getElementById("m-student-risk-list");
+                if (s.at_risk && s.risk_reasons && s.risk_reasons.length > 0) {
+                    riskSec.classList.remove("d-none");
+                    riskList.innerHTML = s.risk_reasons.map(r => `<li>${r}</li>`).join('');
+                } else {
+                    riskSec.classList.add("d-none");
+                    riskList.innerHTML = "";
+                }
+
+                // Skills
+                const skillsDiv = document.getElementById("m-student-skills");
+                if (s.skills && s.skills.length > 0) {
+                    skillsDiv.innerHTML = s.skills.map(sk => `
+                        <span class="badge bg-light text-dark border">${sk.name} <small class="text-primary">(${sk.proficiency_level})</small></span>
+                    `).join('');
+                } else {
+                    skillsDiv.innerHTML = `<span class="text-muted small">No verified skills recorded</span>`;
+                }
+
+                // Load interventions
+                await loadStudentInterventions(s.id);
+
+                const modal = new bootstrap.Modal(document.getElementById("modal-student-details"));
+                modal.show();
+
+            } catch (err) {
+                console.error("Open student modal error:", err);
+            }
+        };
+
+        async function loadStudentInterventions(studentId) {
+            const listDiv = document.getElementById("m-student-interventions");
+            try {
+                const res = await authFetch(`/api/admin/students/${studentId}/interventions`);
+                const result = await res.json();
+                if (!res.ok) throw new Error(result.message || "Failed to load interventions");
+
+                const interventions = result.data.interventions;
+                if (!interventions || interventions.length === 0) {
+                    listDiv.innerHTML = `<div class="p-3 text-center text-muted small">No prior interventions logged for this student.</div>`;
+                    return;
+                }
+
+                listDiv.innerHTML = interventions.map(iv => `
+                    <div class="list-group-item">
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                            <span class="fw-bold text-primary">${iv.intervention_type}</span>
+                            <div class="d-flex align-items-center gap-2">
+                                <span class="badge ${iv.status === 'Completed' ? 'bg-success' : iv.status === 'In Progress' ? 'bg-info' : 'bg-warning text-dark'}">${iv.status}</span>
+                                <select class="form-select form-select-sm py-0" style="font-size: 0.75rem; width: auto;" onchange="updateInterventionStatus(${iv.id}, this.value)">
+                                    <option value="Active" ${iv.status === 'Active' ? 'selected' : ''}>Active</option>
+                                    <option value="Scheduled" ${iv.status === 'Scheduled' ? 'selected' : ''}>Scheduled</option>
+                                    <option value="In Progress" ${iv.status === 'In Progress' ? 'selected' : ''}>In Progress</option>
+                                    <option value="Completed" ${iv.status === 'Completed' ? 'selected' : ''}>Completed</option>
+                                </select>
+                            </div>
+                        </div>
+                        <p class="small text-dark mb-1">${iv.notes}</p>
+                        ${iv.recommended_action ? `<div class="small text-muted"><i class="bi bi-arrow-right-short text-primary"></i> Action: ${iv.recommended_action}</div>` : ''}
+                        <div class="small text-muted mt-1" style="font-size: 0.75rem;">Created: ${new Date(iv.created_at).toLocaleDateString()}</div>
+                    </div>
+                `).join('');
+
+            } catch (err) {
+                console.error("Interventions error:", err);
+                listDiv.innerHTML = `<div class="p-3 text-center text-danger small">Error loading interventions: ${err.message}</div>`;
+            }
+        }
+
+        window.updateInterventionStatus = async function(interventionId, newStatus) {
+            try {
+                const res = await authFetch(`/api/admin/interventions/${interventionId}/status`, {
+                    method: "PUT",
+                    body: JSON.stringify({ status: newStatus })
+                });
+                const result = await res.json();
+                if (!res.ok) throw new Error(result.message || "Failed to update status");
+                showAlert("Intervention status updated successfully.", "success");
+            } catch (err) {
+                showAlert(err.message, "danger");
+            }
+        };
+
+        // ==============================================================
+        // 3. INDUSTRY EXPERTS & VERIFICATION
+        // ==============================================================
+        async function loadExperts() {
+            try {
+                const res = await authFetch("/api/admin/experts");
+                const result = await res.json();
+                if (!res.ok) throw new Error(result.message || "Failed to load experts");
+
+                allExperts = result.data.experts;
+                renderExpertsTable(allExperts);
+            } catch (err) {
+                console.error("Experts error:", err);
+            }
+        }
+
+        function renderExpertsTable(experts) {
+            const tbody = document.getElementById("tbody-experts");
+            if (!experts || experts.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="7" class="text-center py-4 text-muted">No industry experts found.</td></tr>`;
+                return;
+            }
+
+            tbody.innerHTML = experts.map(exp => {
+                const isPending = exp.verification_status === "PENDING";
+                const isVerified = exp.verification_status === "VERIFIED";
+
+                return `
+                    <tr>
+                        <td>
+                            <div class="fw-bold">${exp.user ? exp.user.email : 'Expert'}</div>
+                            <div class="small text-muted">Phone: ${exp.phone || 'N/A'}</div>
+                        </td>
+                        <td>
+                            <span class="fw-semibold text-dark">${exp.company ? exp.company.name : (exp.company_name || 'Independent')}</span>
+                        </td>
+                        <td>
+                            <div>${exp.designation || 'Consultant'}</div>
+                            <div class="small text-muted">${exp.industry_domain || 'General'}</div>
+                        </td>
+                        <td>${exp.years_of_experience || 0} Years</td>
+                        <td>
+                            <span class="badge ${isVerified ? 'bg-success' : isPending ? 'bg-warning text-dark' : 'bg-danger'}">
+                                ${exp.verification_status}
+                            </span>
+                        </td>
+                        <td class="small text-muted">${new Date(exp.created_at).toLocaleDateString()}</td>
+                        <td class="text-end">
+                            ${isPending ? `
+                                <div class="btn-group btn-group-sm">
+                                    <button class="btn btn-success" onclick="verifyExpert(${exp.id}, 'VERIFIED')">
+                                        <i class="bi bi-check-lg me-1"></i> Approve
+                                    </button>
+                                    <button class="btn btn-outline-danger" onclick="verifyExpert(${exp.id}, 'REJECTED')">
+                                        <i class="bi bi-x-lg me-1"></i> Reject
+                                    </button>
+                                </div>
+                            ` : isVerified ? `
+                                <button class="btn btn-outline-danger btn-sm" onclick="verifyExpert(${exp.id}, 'REJECTED')">
+                                    Revoke
+                                </button>
+                            ` : `
+                                <button class="btn btn-outline-success btn-sm" onclick="verifyExpert(${exp.id}, 'VERIFIED')">
+                                    Re-Approve
+                                </button>
+                            `}
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        window.verifyExpert = async function(expertId, newStatus) {
+            let reason = "";
+            if (newStatus === "REJECTED") {
+                reason = prompt("Please provide reason for rejecting/revoking expert credentials:") || "Profile verification criteria not satisfied";
+            }
+
+            try {
+                const res = await authFetch(`/api/admin/experts/${expertId}/verify`, {
+                    method: "PUT",
+                    body: JSON.stringify({
+                        status: newStatus,
+                        verification_notes: reason
+                    })
+                });
+                const result = await res.json();
+                if (!res.ok) throw new Error(result.message || "Failed to update verification");
+
+                showAlert(`Industry Expert ${newStatus.toLowerCase()} successfully.`, "success");
+                await loadExperts();
+                await loadDashboardMetrics();
+            } catch (err) {
+                showAlert(err.message, "danger");
+            }
+        };
+
+        // ==============================================================
+        // 4. CORPORATE PARTNER COMPANIES
+        // ==============================================================
+        async function loadCompanies() {
+            try {
+                const res = await authFetch("/api/admin/companies");
+                const result = await res.json();
+                if (!res.ok) throw new Error(result.message || "Failed to load companies");
+
+                allCompanies = result.data.companies;
+                renderCompaniesTable(allCompanies);
+
+                // Populate company select dropdown in Create Drive Modal
+                const select = document.getElementById("drive-company-id");
+                select.innerHTML = `<option value="">Select partner company...</option>` + allCompanies.map(c => `
+                    <option value="${c.id}">${c.name} (${c.tier || 'General'})</option>
+                `).join('');
+
+            } catch (err) {
+                console.error("Companies error:", err);
+            }
+        }
+
+        function renderCompaniesTable(companies) {
+            const tbody = document.getElementById("tbody-companies");
+            if (!companies || companies.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="7" class="text-center py-4 text-muted">No corporate partner companies registered.</td></tr>`;
+                return;
+            }
+
+            tbody.innerHTML = companies.map(c => `
+                <tr>
+                    <td>
+                        <div class="fw-bold">${c.name}</div>
+                        ${c.website ? `<a href="${c.website}" target="_blank" class="small text-primary">${c.website}</a>` : ''}
+                    </td>
+                    <td>${c.industry || 'Technology'}</td>
+                    <td>${c.location || 'Pan India'}</td>
+                    <td>
+                        <span class="badge ${c.tier === 'Tier 1' ? 'bg-primary' : 'bg-secondary'}">${c.tier || 'Tier 2'}</span>
+                    </td>
+                    <td><strong>${c.drives_count || 0}</strong> Drives</td>
+                    <td class="fw-bold text-success">${c.total_hires || 0} Hires</td>
+                    <td class="text-end">
+                        <button class="btn btn-outline-primary btn-sm" onclick="editCompanyPrompt(${c.id}, '${c.name.replace(/'/g, "\\'")}', '${c.tier || 'Tier 1'}')">
+                            <i class="bi bi-pencil me-1"></i> Edit
+                        </button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        window.editCompanyPrompt = async function(companyId, currentName, currentTier) {
+            const newTier = prompt(`Update Tier for ${currentName} (Tier 1, Tier 2, Tier 3):`, currentTier);
+            if (!newTier) return;
+
+            try {
+                const res = await authFetch(`/api/admin/companies/${companyId}`, {
+                    method: "PUT",
+                    body: JSON.stringify({ tier: newTier })
+                });
+                const result = await res.json();
+                if (!res.ok) throw new Error(result.message || "Failed to update company");
+                showAlert("Company tier updated.", "success");
+                await loadCompanies();
+            } catch (err) {
+                showAlert(err.message, "danger");
+            }
+        };
+
+        // ==============================================================
+        // 5. PLACEMENT DRIVES WORKFLOW & ELIGIBILITY
+        // ==============================================================
+        async function loadPlacementDrives() {
+            try {
+                const res = await authFetch("/api/admin/drives");
+                const result = await res.json();
+                if (!res.ok) throw new Error(result.message || "Failed to load placement drives");
+
+                allDrives = result.data.drives;
+                renderDrivesTable(allDrives);
+            } catch (err) {
+                console.error("Drives error:", err);
+            }
+        }
+
+        function renderDrivesTable(drives) {
+            const tbody = document.getElementById("tbody-drives");
+            if (!drives || drives.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="8" class="text-center py-4 text-muted">No placement drives registered. Click "New Placement Drive" to launch one.</td></tr>`;
+                return;
+            }
+
+            tbody.innerHTML = drives.map(d => `
+                <tr>
+                    <td>
+                        <div class="fw-bold text-primary">${d.title}</div>
+                        <div class="small text-muted">${d.job_role || 'Graduate Trainee'}</div>
+                    </td>
+                    <td class="fw-semibold">${d.company_name}</td>
+                    <td class="fw-bold text-success">₹${d.package_ctc} LPA</td>
+                    <td>
+                        <div class="small">Min CGPA: <strong>${d.min_cgpa}</strong> &bull; Backlogs: <strong>&le; ${d.max_backlogs}</strong></div>
+                        <div class="small text-muted">Batch ${d.batch_year} &bull; ${d.branches ? d.branches.join(', ') : 'All Branches'}</div>
+                    </td>
+                    <td>
+                        <span class="badge bg-primary stage-badge">${d.current_stage || d.status}</span>
+                    </td>
+                    <td>
+                        <strong>${d.participating_students_count || 0}</strong> Registered
+                    </td>
+                    <td class="small text-muted">${d.drive_date || 'TBD'}</td>
+                    <td class="text-end">
+                        <button class="btn btn-sm btn-primary" onclick="openManageDriveModal(${d.id})">
+                            <i class="bi bi-kanban me-1"></i> Workflow
+                        </button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        window.openManageDriveModal = async function(driveId) {
+            try {
+                const res = await authFetch(`/api/admin/drives/${driveId}`);
+                const result = await res.json();
+                if (!res.ok) throw new Error(result.message || "Failed to load drive details");
+
+                activeDriveObj = result.data;
+                const d = activeDriveObj;
+
+                document.getElementById("m-drive-company-role").textContent = `${d.company_name} &bull; ${d.job_role || 'Graduate Role'} (₹${d.package_ctc} LPA)`;
+                document.getElementById("m-drive-details").textContent = `Min CGPA: ${d.min_cgpa} &bull; Max Backlogs: ${d.max_backlogs} &bull; Branches: ${d.branches ? d.branches.join(', ') : 'All'} &bull; Batch ${d.batch_year}`;
+                document.getElementById("m-drive-stage-badge").textContent = d.current_stage;
+
+                // Update 8-Stage Pipeline Visualizer
+                updatePipelineVisualizer(d.current_stage);
+
+                // Render Candidates
+                renderDriveCandidates(d.participating_students);
+
+                // Reset Eligible Candidates Panel
+                document.getElementById("tbody-eligible-candidates").innerHTML = "";
+                const coll = document.getElementById("collapseEligibleStudents");
+                coll.classList.remove("show");
+
+                const modal = new bootstrap.Modal(document.getElementById("modal-manage-drive"));
+                modal.show();
+
+            } catch (err) {
+                console.error("Manage drive modal error:", err);
+                showAlert(err.message, "danger");
+            }
+        };
+
+        function updatePipelineVisualizer(currentStage) {
+            const stages = ["Company", "Eligibility", "Registration", "Shortlisting", "Assessment", "Interview", "Selection", "Offer"];
+            const currentIndex = stages.indexOf(currentStage);
+
+            document.querySelectorAll("#m-drive-pipeline-steps .pipeline-step").forEach(el => {
+                const step = el.getAttribute("data-step");
+                const stepIndex = stages.indexOf(step);
+
+                el.classList.remove("active", "completed");
+                if (stepIndex < currentIndex) {
+                    el.classList.add("completed");
+                } else if (stepIndex === currentIndex) {
+                    el.classList.add("active");
+                }
+            });
+        }
+
+        function renderDriveCandidates(candidates) {
+            const tbody = document.getElementById("m-drive-candidates-tbody");
+            if (!candidates || candidates.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="6" class="text-center py-4 text-muted">No students currently registered for this drive. Click "Register Eligible Students" below to enroll candidates.</td></tr>`;
+                return;
+            }
+
+            tbody.innerHTML = candidates.map(c => `
+                <tr>
+                    <td>
+                        <div class="fw-bold">${c.student_name}</div>
+                        <div class="small text-muted">${c.roll_number || ''} &bull; ${c.email}</div>
+                    </td>
+                    <td>${c.department}</td>
+                    <td class="fw-semibold">${c.cgpa || 'N/A'}</td>
+                    <td>
+                        <span class="badge ${c.stage === 'Offered' || c.stage === 'Selected' ? 'bg-success' : 'bg-primary'}">${c.stage}</span>
+                    </td>
+                    <td class="fw-bold text-success">${c.offered_ctc ? `₹${c.offered_ctc} LPA` : '-'}</td>
+                    <td class="text-end">
+                        <div class="dropdown">
+                            <button class="btn btn-outline-secondary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                                Move Stage
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-end shadow">
+                                <li><a class="dropdown-item" href="#" onclick="advanceCandidateStage(${c.student_id}, 'Shortlisted')">Shortlisted</a></li>
+                                <li><a class="dropdown-item" href="#" onclick="advanceCandidateStage(${c.student_id}, 'Assessment')">Assessment</a></li>
+                                <li><a class="dropdown-item" href="#" onclick="advanceCandidateStage(${c.student_id}, 'Interview')">Interview</a></li>
+                                <li><a class="dropdown-item" href="#" onclick="advanceCandidateStage(${c.student_id}, 'Selected')">Selected</a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item text-success fw-bold" href="#" onclick="offerCandidatePlacement(${c.student_id})">🎉 Release Offer</a></li>
+                                <li><a class="dropdown-item text-danger" href="#" onclick="advanceCandidateStage(${c.student_id}, 'Rejected')">Reject</a></li>
+                            </ul>
+                        </div>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        window.advanceCandidateStage = async function(studentId, stage) {
+            if (!activeDriveObj) return;
+
+            try {
+                const res = await authFetch(`/api/admin/drives/${activeDriveObj.id}/students/${studentId}/stage`, {
+                    method: "PUT",
+                    body: JSON.stringify({ stage: stage })
+                });
+                const result = await res.json();
+                if (!res.ok) throw new Error(result.message || "Failed to advance stage");
+
+                showAlert(`Candidate moved to ${stage}.`, "success");
+                await window.openManageDriveModal(activeDriveObj.id);
+            } catch (err) {
+                showAlert(err.message, "danger");
+            }
+        };
+
+        window.offerCandidatePlacement = async function(studentId) {
+            if (!activeDriveObj) return;
+
+            const ctcInput = prompt(`Enter Offered CTC package (in LPA) for this candidate:`, activeDriveObj.package_ctc || 10.0);
+            if (!ctcInput) return;
+
+            const ctc = parseFloat(ctcInput);
+            if (isNaN(ctc) || ctc <= 0) {
+                alert("Please enter a valid CTC package.");
+                return;
+            }
+
+            try {
+                const res = await authFetch(`/api/admin/drives/${activeDriveObj.id}/students/${studentId}/stage`, {
+                    method: "PUT",
+                    body: JSON.stringify({
+                        stage: "Offered",
+                        offered_ctc: ctc,
+                        notes: "Official placement drive offer granted"
+                    })
+                });
+                const result = await res.json();
+                if (!res.ok) throw new Error(result.message || "Failed to release offer");
+
+                showAlert(`Placement offer released successfully at ₹${ctc} LPA! Official placement record created.`, "success");
+                await window.openManageDriveModal(activeDriveObj.id);
+                await loadDashboardMetrics();
+                await loadStudents();
+            } catch (err) {
+                showAlert(err.message, "danger");
+            }
+        };
+
+        // ==============================================================
+        // 6. JOB MODERATION & APPROVAL QUEUE
+        // ==============================================================
+        async function loadPendingJobs() {
+            try {
+                const res = await authFetch("/api/admin/jobs/pending");
+                const result = await res.json();
+                if (!res.ok) throw new Error(result.message || "Failed to load pending jobs");
+
+                const pendingJobs = result.data.pending_jobs;
+                renderJobsApprovalTable(pendingJobs);
+            } catch (err) {
+                console.error("Pending jobs error:", err);
+            }
+        }
+
+        function renderJobsApprovalTable(jobs) {
+            const tbody = document.getElementById("tbody-jobs-approval");
+            if (!jobs || jobs.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="7" class="text-center py-4 text-muted">No pending job postings awaiting moderation. All jobs are currently compliant.</td></tr>`;
+                return;
+            }
+
+            tbody.innerHTML = jobs.map(j => {
+                const skillsBadges = (j.skills || []).map(sk => {
+                    const cls = sk.priority === 'CRITICAL' ? 'bg-danger-subtle text-danger' : sk.priority === 'IMPORTANT' ? 'bg-primary-subtle text-primary' : 'bg-secondary-subtle text-secondary';
+                    return `<span class="badge ${cls} me-1 mb-1">${sk.skill_name} (${sk.priority})</span>`;
+                }).join('');
+
+                return `
+                    <tr>
+                        <td>
+                            <div class="fw-bold text-dark">${j.title}</div>
+                            <div class="small text-muted">${j.company ? j.company.name : 'Recruiter Company'}</div>
+                        </td>
+                        <td>
+                            <div>${j.job_type}</div>
+                            <div class="small text-muted">${j.location || 'Remote'}</div>
+                        </td>
+                        <td class="fw-bold text-success">${j.ctc ? `₹${j.ctc}` : 'Not Specified'}</td>
+                        <td style="max-width: 250px;">
+                            <div class="d-flex flex-wrap">${skillsBadges || '<span class="text-muted small">None specified</span>'}</div>
+                        </td>
+                        <td class="small">
+                            <div>Min CGPA: <strong>${j.min_cgpa || 'None'}</strong></div>
+                            <div>Grad Year: <strong>${j.graduation_year || 'Any'}</strong></div>
+                            <div>Branch: <strong>${j.branch || 'All'}</strong></div>
+                        </td>
+                        <td>
+                            <span class="badge bg-warning text-dark">${j.status}</span>
+                        </td>
+                        <td class="text-end">
+                            <div class="btn-group btn-group-sm">
+                                <button class="btn btn-success" onclick="approveJob(${j.id})">
+                                    <i class="bi bi-check-lg me-1"></i> Approve
+                                </button>
+                                <button class="btn btn-outline-danger" onclick="rejectJobPrompt(${j.id})">
+                                    <i class="bi bi-x-lg me-1"></i> Reject
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        window.approveJob = async function(jobId) {
+            try {
+                const res = await authFetch(`/api/admin/jobs/${jobId}/approve`, {
+                    method: "PUT",
+                    body: JSON.stringify({ admin_notes: "Approved by placement cell for student applications." })
+                });
+                const result = await res.json();
+                if (!res.ok) throw new Error(result.message || "Failed to approve job");
+
+                showAlert("Job approved and published to students.", "success");
+                await loadPendingJobs();
+                await loadDashboardMetrics();
+            } catch (err) {
+                showAlert(err.message, "danger");
+            }
+        };
+
+        window.rejectJobPrompt = async function(jobId) {
+            const reason = prompt("Please provide feedback / reason for job rejection:");
+            if (!reason) return;
+
+            try {
+                const res = await authFetch(`/api/admin/jobs/${jobId}/reject`, {
+                    method: "PUT",
+                    body: JSON.stringify({ admin_notes: reason })
+                });
+                const result = await res.json();
+                if (!res.ok) throw new Error(result.message || "Failed to reject job");
+
+                showAlert("Job rejected with feedback.", "info");
+                await loadPendingJobs();
+                await loadDashboardMetrics();
+            } catch (err) {
+                showAlert(err.message, "danger");
+            }
+        };
+
+        // ==============================================================
+        // 7. ALUMNI NETWORK
+        // ==============================================================
+        async function loadAlumni() {
+            try {
+                const res = await authFetch("/api/admin/alumni");
+                const result = await res.json();
+                if (!res.ok) throw new Error(result.message || "Failed to load alumni");
+
+                const alumniList = result.data.alumni;
+                renderAlumniTable(alumniList);
+            } catch (err) {
+                console.error("Alumni error:", err);
+            }
+        }
+
+        function renderAlumniTable(alumni) {
+            const tbody = document.getElementById("tbody-alumni");
+            if (!alumni || alumni.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="7" class="text-center py-4 text-muted">No alumni registered yet. Click "Add Alumni" to start building your alumni mentorship network.</td></tr>`;
+                return;
+            }
+
+            tbody.innerHTML = alumni.map(a => `
+                <tr>
+                    <td class="fw-bold">${a.name}</td>
+                    <td>Class of ${a.graduation_year}</td>
+                    <td>${a.department}</td>
+                    <td>
+                        <div class="fw-semibold">${a.current_company}</div>
+                        <div class="small text-muted">${a.current_role || ''}</div>
+                    </td>
+                    <td>
+                        ${a.is_willing_to_mentor ? `
+                            <span class="badge bg-success-subtle text-success"><i class="bi bi-person-check me-1"></i> Available Mentor</span>
+                        ` : `
+                            <span class="badge bg-secondary-subtle text-secondary">Alumni Only</span>
+                        `}
+                    </td>
+                    <td>
+                        <div class="small">${a.email}</div>
+                        ${a.linkedin_url ? `<a href="${a.linkedin_url}" target="_blank" class="small text-primary"><i class="bi bi-linkedin me-1"></i>LinkedIn</a>` : ''}
+                    </td>
+                    <td class="text-end">
+                        <button class="btn btn-outline-secondary btn-sm" onclick="toggleMentorStatus(${a.id}, ${!a.is_willing_to_mentor})">
+                            ${a.is_willing_to_mentor ? 'Deactivate Mentor' : 'Activate Mentor'}
+                        </button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        window.toggleMentorStatus = async function(alumniId, newStatus) {
+            try {
+                const res = await authFetch(`/api/admin/alumni/${alumniId}`, {
+                    method: "PUT",
+                    body: JSON.stringify({ is_willing_to_mentor: newStatus })
+                });
+                const result = await res.json();
+                if (!res.ok) throw new Error(result.message || "Failed to update alumni");
+
+                showAlert("Alumni mentorship status updated.", "success");
+                await loadAlumni();
+            } catch (err) {
+                showAlert(err.message, "danger");
+            }
+        };
+
+        // ==============================================================
+        // 8. BROADCAST ANNOUNCEMENTS
+        // ==============================================================
+        async function loadAnnouncements() {
+            try {
+                const res = await authFetch("/api/admin/announcements");
+                const result = await res.json();
+                if (!res.ok) throw new Error(result.message || "Failed to load announcements");
+
+                const announcements = result.data.announcements;
+                renderAnnouncementsTable(announcements);
+            } catch (err) {
+                console.error("Announcements error:", err);
+            }
+        }
+
+        function renderAnnouncementsTable(announcements) {
+            const tbody = document.getElementById("tbody-announcements");
+            if (!announcements || announcements.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="4" class="text-center py-4 text-muted">No announcements broadcasted yet.</td></tr>`;
+                return;
+            }
+
+            tbody.innerHTML = announcements.map(a => `
+                <tr>
+                    <td>
+                        <div class="fw-bold text-dark">${a.title}</div>
+                        <div class="small text-muted">${a.message}</div>
+                    </td>
+                    <td>
+                        <span class="badge bg-light text-dark border">
+                            ${a.target_department || 'All Departments'}
+                            ${a.target_batch_year ? ` &bull; Batch ${a.target_batch_year}` : ''}
+                        </span>
+                    </td>
+                    <td>
+                        <span class="badge ${a.priority === 'Urgent' ? 'bg-danger' : a.priority === 'Important' ? 'bg-warning text-dark' : 'bg-primary-subtle text-primary'}">
+                            ${a.priority}
+                        </span>
+                    </td>
+                    <td class="small text-muted">${new Date(a.created_at).toLocaleString()}</td>
+                </tr>
+            `).join('');
+        }
+
+        // ==============================================================
+        // 9. EVENT LISTENERS & FORM SUBMISSIONS
+        // ==============================================================
+        function initEventListeners() {
+            // Sign Out
+            document.getElementById("btn-logout").addEventListener("click", () => {
+                removeToken();
+                window.location.href = "../login.html";
+            });
+
+            // Refresh Button
+            document.getElementById("btn-refresh-dashboard").addEventListener("click", async () => {
+                await loadDashboardMetrics();
+                await loadStudents();
+                showAlert("Dashboard metrics refreshed.", "info");
+            });
+
+            // Student Filters
+            document.getElementById("filter-student-search").addEventListener("input", applyStudentFilters);
+            document.getElementById("filter-student-dept").addEventListener("change", applyStudentFilters);
+            document.getElementById("filter-student-batch").addEventListener("change", applyStudentFilters);
+            document.getElementById("filter-student-status").addEventListener("change", applyStudentFilters);
+            document.getElementById("toggle-at-risk-only").addEventListener("change", applyStudentFilters);
+            document.getElementById("btn-reset-student-filters").addEventListener("click", () => {
+                document.getElementById("filter-student-search").value = "";
+                document.getElementById("filter-student-dept").value = "";
+                document.getElementById("filter-student-batch").value = "";
+                document.getElementById("filter-student-status").value = "";
+                document.getElementById("toggle-at-risk-only").checked = false;
+                applyStudentFilters();
+            });
+
+            // Form: Add Intervention
+            document.getElementById("form-add-intervention").addEventListener("submit", async (e) => {
+                e.preventDefault();
+                const studentId = document.getElementById("interv-student-id").value;
+                const type = document.getElementById("interv-type").value;
+                const status = document.getElementById("interv-status").value;
+                const notes = document.getElementById("interv-notes").value;
+                const action = document.getElementById("interv-action").value;
+
+                try {
+                    const res = await authFetch(`/api/admin/students/${studentId}/interventions`, {
+                        method: "POST",
+                        body: JSON.stringify({
+                            intervention_type: type,
+                            status: status,
+                            notes: notes,
+                            recommended_action: action
+                        })
+                    });
+                    const result = await res.json();
+                    if (!res.ok) throw new Error(result.message || "Failed to log intervention");
+
+                    showAlert("Intervention logged successfully.", "success");
+                    document.getElementById("form-add-intervention").reset();
+                    const collapseEl = document.getElementById("collapseAddIntervention");
+                    bootstrap.Collapse.getInstance(collapseEl).hide();
+                    await loadStudentInterventions(studentId);
+                } catch (err) {
+                    showAlert(err.message, "danger");
+                }
+            });
+
+            // Form: Create Placement Drive
+            document.getElementById("form-create-drive").addEventListener("submit", async (e) => {
+                e.preventDefault();
+                const companyId = document.getElementById("drive-company-id").value;
+                const role = document.getElementById("drive-role").value;
+                const ctc = parseFloat(document.getElementById("drive-ctc").value);
+                const batch = parseInt(document.getElementById("drive-batch").value);
+                const minCgpa = parseFloat(document.getElementById("drive-min-cgpa").value);
+                const maxBacklogs = parseInt(document.getElementById("drive-max-backlogs").value);
+                const date = document.getElementById("drive-date").value;
+                const branches = document.getElementById("drive-branches").value.split(",").map(s => s.trim()).filter(Boolean);
+                const skills = document.getElementById("drive-skills").value.split(",").map(s => s.trim()).filter(Boolean);
+                const desc = document.getElementById("drive-desc").value;
+
+                try {
+                    const res = await authFetch("/api/admin/drives", {
+                        method: "POST",
+                        body: JSON.stringify({
+                            company_id: parseInt(companyId),
+                            title: `${role} Campus Recruitment Drive`,
+                            job_role: role,
+                            package_ctc: ctc,
+                            batch_year: batch,
+                            min_cgpa: minCgpa,
+                            max_backlogs: maxBacklogs,
+                            drive_date: date,
+                            branches: branches,
+                            required_skills: skills,
+                            description: desc
+                        })
+                    });
+                    const result = await res.json();
+                    if (!res.ok) throw new Error(result.message || "Failed to create placement drive");
+
+                    showAlert("Placement Drive created successfully!", "success");
+                    bootstrap.Modal.getInstance(document.getElementById("modal-create-drive")).hide();
+                    document.getElementById("form-create-drive").reset();
+                    await loadPlacementDrives();
+                    await loadDashboardMetrics();
+                } catch (err) {
+                    showAlert(err.message, "danger");
+                }
+            });
+
+            // Advance Drive Stage Button
+            document.getElementById("btn-advance-drive-stage").addEventListener("click", async () => {
+                if (!activeDriveObj) return;
+                const stages = ["Company", "Eligibility", "Registration", "Shortlisting", "Assessment", "Interview", "Selection", "Offer"];
+                const currIdx = stages.indexOf(activeDriveObj.current_stage);
+                if (currIdx === -1 || currIdx >= stages.length - 1) {
+                    alert("Drive is already at the final stage (Offer).");
+                    return;
+                }
+                const nextStage = stages[currIdx + 1];
+
+                try {
+                    const res = await authFetch(`/api/admin/drives/${activeDriveObj.id}/stage`, {
+                        method: "PUT",
+                        body: JSON.stringify({ stage: nextStage })
+                    });
+                    const result = await res.json();
+                    if (!res.ok) throw new Error(result.message || "Failed to advance stage");
+
+                    showAlert(`Drive advanced to stage: ${nextStage}`, "success");
+                    await window.openManageDriveModal(activeDriveObj.id);
+                    await loadPlacementDrives();
+                } catch (err) {
+                    showAlert(err.message, "danger");
+                }
+            });
+
+            // View Eligible Students for Drive
+            document.getElementById("btn-view-eligible-students").addEventListener("click", async () => {
+                if (!activeDriveObj) return;
+
+                const coll = document.getElementById("collapseEligibleStudents");
+                const bsCollapse = bootstrap.Collapse.getOrCreateInstance(coll);
+                bsCollapse.toggle();
+
+                const tbody = document.getElementById("tbody-eligible-candidates");
+                tbody.innerHTML = `<tr><td colspan="5" class="text-center py-2 text-muted">Calculating eligibility...</td></tr>`;
+
+                try {
+                    const res = await authFetch(`/api/admin/drives/${activeDriveObj.id}/eligible-students`);
+                    const result = await res.json();
+                    if (!res.ok) throw new Error(result.message || "Failed to load eligible students");
+
+                    const eligible = result.data.eligible_students;
+                    if (eligible.length === 0) {
+                        tbody.innerHTML = `<tr><td colspan="5" class="text-center py-2 text-muted">No eligible students found matching drive criteria.</td></tr>`;
+                        return;
+                    }
+
+                    tbody.innerHTML = eligible.map(el => `
+                        <tr>
+                            <td>
+                                <strong>${el.first_name} ${el.last_name}</strong>
+                                <div class="small text-muted">${el.roll_number}</div>
+                            </td>
+                            <td>${el.department}</td>
+                            <td>${el.cgpa}</td>
+                            <td>${el.backlogs}</td>
+                            <td>
+                                <button class="btn btn-xs btn-primary btn-sm" onclick="registerStudentToDrive(${activeDriveObj.id}, ${el.id})">
+                                    Register
+                                </button>
+                            </td>
+                        </tr>
+                    `).join('');
+
+                } catch (err) {
+                    tbody.innerHTML = `<tr><td colspan="5" class="text-center py-2 text-danger">Error: ${err.message}</td></tr>`;
+                }
+            });
+
+            // Form: Register Company
+            document.getElementById("form-add-company").addEventListener("submit", async (e) => {
+                e.preventDefault();
+                const name = document.getElementById("company-name").value;
+                const industry = document.getElementById("company-industry").value;
+                const location = document.getElementById("company-location").value;
+                const tier = document.getElementById("company-tier").value;
+                const website = document.getElementById("company-website").value;
+                const desc = document.getElementById("company-description").value;
+
+                try {
+                    const res = await authFetch("/api/admin/companies", {
+                        method: "POST",
+                        body: JSON.stringify({
+                            name: name,
+                            industry: industry,
+                            location: location,
+                            tier: tier,
+                            website: website,
+                            description: desc
+                        })
+                    });
+                    const result = await res.json();
+                    if (!res.ok) throw new Error(result.message || "Failed to register company");
+
+                    showAlert("Partner company added successfully!", "success");
+                    bootstrap.Modal.getInstance(document.getElementById("modal-add-company")).hide();
+                    document.getElementById("form-add-company").reset();
+                    await loadCompanies();
+                    await loadDashboardMetrics();
+                } catch (err) {
+                    showAlert(err.message, "danger");
+                }
+            });
+
+            // Form: Broadcast Announcement (Multi-Channel Targeted Dispatch)
+            document.getElementById("form-send-announcement").addEventListener("submit", async (e) => {
+                e.preventDefault();
+                const title = document.getElementById("ann-title").value.trim();
+                const priority = document.getElementById("ann-priority").value;
+                const targetType = document.getElementById("ann-target-type").value;
+                const targetVal = document.getElementById("ann-target-value").value.trim();
+                const channel = document.getElementById("ann-channel").value;
+                const message = document.getElementById("ann-message").value.trim();
+
+                try {
+                    const res = await authFetch("/api/admin/communications/broadcast", {
+                        method: "POST",
+                        body: JSON.stringify({
+                            title: title,
+                            message: message,
+                            target_type: targetType,
+                            target_value: targetVal || null,
+                            channel: channel,
+                            priority: priority
+                        })
+                    });
+                    const result = await res.json();
+                    if (!res.ok) throw new Error(result.message || "Failed to broadcast announcement");
+
+                    showAlert(`Broadcast dispatched to ${result.data.total_targeted_students} students (${result.data.in_app_notifications_created} in-app, ${result.data.emails_dispatched} emails).`, "success");
+                    bootstrap.Modal.getInstance(document.getElementById("modal-send-announcement")).hide();
+                    document.getElementById("form-send-announcement").reset();
+                    await loadAnnouncements();
+                } catch (err) {
+                    showAlert(err.message, "danger");
+                }
+            });
+
+            // Company History Selection Change
+            document.getElementById("select-company-history").addEventListener("change", (e) => {
+                const compId = e.target.value;
+                if (compId) {
+                    loadCompanyHistory(compId);
+                } else {
+                    document.getElementById("tbody-company-history").innerHTML = '<tr><td colspan="6" class="text-center py-4 text-muted">Select a company above or add historical hiring records to analyze long-term trends.</td></tr>';
+                }
+            });
+
+            // Form: Add Company Historical Record
+            document.getElementById("form-add-company-history").addEventListener("submit", async (e) => {
+                e.preventDefault();
+                const companyId = document.getElementById("history-company-id").value;
+                const year = document.getElementById("history-year").value;
+                const selected = document.getElementById("history-selected").value;
+                const offers = document.getElementById("history-offers").value;
+                const avgCtc = document.getElementById("history-avg-ctc").value;
+                const highCtc = document.getElementById("history-high-ctc").value;
+
+                if (!companyId) {
+                    showAlert("Please select a company.", "warning");
+                    return;
+                }
+
+                try {
+                    const res = await authFetch(`/api/analytics/companies/${companyId}/history`, {
+                        method: "POST",
+                        body: JSON.stringify({
+                            hiring_year: parseInt(year),
+                            students_selected: parseInt(selected),
+                            offers_count: parseInt(offers || selected),
+                            average_ctc: parseFloat(avgCtc),
+                            highest_ctc: parseFloat(highCtc)
+                        })
+                    });
+                    const result = await res.json();
+                    if (!res.ok) throw new Error(result.message || "Failed to record company history");
+
+                    showAlert("Historical hiring record saved successfully!", "success");
+                    bootstrap.Modal.getInstance(document.getElementById("modal-add-company-history")).hide();
+                    document.getElementById("form-add-company-history").reset();
+
+                    // Refresh history view and charts
+                    document.getElementById("select-company-history").value = companyId;
+                    await loadCompanyHistory(companyId);
+                    await loadYearWiseAnalytics();
+                } catch (err) {
+                    showAlert(err.message, "danger");
+                }
+            });
+
+            // Form: Add Alumni
+            document.getElementById("form-add-alumni").addEventListener("submit", async (e) => {
+                e.preventDefault();
+                const name = document.getElementById("alumni-name").value;
+                const email = document.getElementById("alumni-email").value;
+                const batch = parseInt(document.getElementById("alumni-batch").value);
+                const dept = document.getElementById("alumni-dept").value;
+                const comp = document.getElementById("alumni-company").value;
+                const role = document.getElementById("alumni-role").value;
+                const linkedin = document.getElementById("alumni-linkedin").value;
+                const mentor = document.getElementById("alumni-mentor").checked;
+
+                try {
+                    const res = await authFetch("/api/admin/alumni", {
+                        method: "POST",
+                        body: JSON.stringify({
+                            name: name,
+                            email: email,
+                            graduation_year: batch,
+                            department: dept,
+                            current_company: comp,
+                            current_role: role,
+                            linkedin_url: linkedin,
+                            is_willing_to_mentor: mentor
+                        })
+                    });
+                    const result = await res.json();
+                    if (!res.ok) throw new Error(result.message || "Failed to add alumni");
+
+                    showAlert("Alumni mentor registered successfully.", "success");
+                    bootstrap.Modal.getInstance(document.getElementById("modal-add-alumni")).hide();
+                    document.getElementById("form-add-alumni").reset();
+                    await loadAlumni();
+                } catch (err) {
+                    showAlert(err.message, "danger");
+                }
+            });
+        }
+
+        window.registerStudentToDrive = async function(driveId, studentId) {
+            try {
+                const res = await authFetch(`/api/admin/drives/${driveId}/register-student`, {
+                    method: "POST",
+                    body: JSON.stringify({ student_id: studentId })
+                });
+                const result = await res.json();
+                if (!res.ok) throw new Error(result.message || "Failed to register student");
+
+                showAlert("Candidate registered for drive.", "success");
+                await window.openManageDriveModal(driveId);
+            } catch (err) {
+                showAlert(err.message, "danger");
+            }
+        };
+
+        // ==============================================================
+        // 10. CSV EXPORT DOWNLOAD HELPERS
+        // ==============================================================
+        window.downloadStudentCsv = function() {
+            const token = getToken();
+            window.location.href = `${API_BASE}/api/admin/reports/export/students-csv?token=${token}`;
+        };
+
+        window.downloadDeptCsv = function() {
+            const token = getToken();
+            window.location.href = `${API_BASE}/api/admin/reports/export/departments-csv?token=${token}`;
+        };
+
+        window.downloadAtRiskCsv = function() {
+            const token = getToken();
+            window.location.href = `${API_BASE}/api/admin/reports/export/at-risk-csv?token=${token}`;
+        };
+
+    </script>
+</body>
+</html>

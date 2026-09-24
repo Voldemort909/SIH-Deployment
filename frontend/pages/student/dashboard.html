@@ -1,0 +1,1016 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Dashboard - College Placement & Career Development</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+    <link rel="stylesheet" href="../../css/style.css">
+    <style>
+        .metric-card {
+            border: 0;
+            border-radius: 1rem;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        .metric-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 0.75rem 1.5rem rgba(0, 0, 0, 0.08) !important;
+        }
+        .nav-pills .nav-link.active {
+            background-color: #0d6efd;
+        }
+        .skill-badge {
+            font-size: 0.85rem;
+            padding: 0.4rem 0.75rem;
+            border-radius: 2rem;
+        }
+    </style>
+</head>
+<body class="bg-light">
+
+    <!-- Top Navigation Bar -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary shadow-sm sticky-top">
+        <div class="container-fluid px-lg-5">
+            <a class="navbar-brand fw-bold" href="../../index.html">
+                <i class="bi bi-mortarboard-fill me-2"></i>CareerPath AI <span class="badge bg-white text-primary ms-1 small">Student</span>
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navContent">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <div class="collapse navbar-collapse" id="navContent">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                    <li class="nav-item">
+                        <a class="nav-link active fw-semibold" href="dashboard.html"><i class="bi bi-speedometer2 me-1"></i> Dashboard</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-white-50" href="jobs.html"><i class="bi bi-briefcase me-1"></i> Job Marketplace</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-white-50" href="applications.html"><i class="bi bi-card-checklist me-1"></i> My Applications</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-white-50" href="resume-analysis.html"><i class="bi bi-file-earmark-check me-1"></i> Resume Intelligence</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-white-50" href="alumni.html"><i class="bi bi-people me-1"></i> Alumni Network</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-white-50" href="why-not-selected.html"><i class="bi bi-lightbulb-fill me-1 text-warning"></i> Placement Intelligence</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-white-50" href="../../index.html"><i class="bi bi-house me-1"></i> Portal Home</a>
+                    </li>
+                </ul>
+
+                <div class="d-flex align-items-center gap-3">
+                    <!-- Notification Bell Dropdown -->
+                    <div class="dropdown">
+                        <button class="btn btn-outline-light btn-sm position-relative dropdown-toggle" type="button" id="notifDropdownBtn" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="bi bi-bell-fill"></i>
+                            <span id="notif-badge" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger d-none">
+                                0
+                            </span>
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end shadow p-2" aria-labelledby="notifDropdownBtn" style="width: 320px; max-height: 400px; overflow-y: auto;" id="notif-dropdown-list">
+                            <li class="d-flex justify-content-between align-items-center px-2 py-1 border-bottom">
+                                <span class="fw-bold small">Notifications</span>
+                                <button class="btn btn-link btn-sm p-0 text-decoration-none small" id="mark-all-read-btn">Mark all as read</button>
+                            </li>
+                            <li class="text-center text-muted small py-3" id="notif-empty-msg">No notifications</li>
+                        </ul>
+                    </div>
+
+                    <span id="nav-student-name" class="text-white fw-semibold small">Loading student...</span>
+                    <button id="logout-btn" class="btn btn-outline-light btn-sm">
+                        <i class="bi bi-box-arrow-right me-1"></i> Sign Out
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Container -->
+    <main class="container-fluid px-lg-5 py-4">
+        
+        <!-- Welcome Banner -->
+        <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 pb-2 border-bottom">
+            <div>
+                <h2 class="fw-bold mb-1" id="banner-greeting">Welcome back!</h2>
+                <p class="text-muted small mb-0" id="banner-subtitle">Roll No: <span id="banner-roll">--</span> | Dept: <span id="banner-dept">--</span> | Batch of <span id="banner-year">--</span></p>
+            </div>
+            <div class="mt-2 mt-md-0 d-flex gap-2">
+                <button class="btn btn-primary btn-sm px-3" data-bs-toggle="modal" data-bs-target="#editProfileModal">
+                    <i class="bi bi-pencil-square me-1"></i> Edit Profile & Preferences
+                </button>
+                <button class="btn btn-outline-secondary btn-sm" id="refresh-btn">
+                    <i class="bi bi-arrow-clockwise me-1"></i> Refresh
+                </button>
+            </div>
+        </div>
+
+        <!-- 4 Key Metric Cards (Top KPIs) -->
+        <div class="row g-3 mb-4">
+            <!-- 1. Profile Completion -->
+            <div class="col-md-6 col-xl-3">
+                <div class="card metric-card shadow-sm h-100 p-3 bg-white">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <span class="text-muted small fw-semibold text-uppercase">Profile Completion</span>
+                            <h3 class="fw-bold mt-1 mb-0" id="metric-completion">0%</h3>
+                        </div>
+                        <div class="p-2 rounded-circle bg-primary-subtle text-primary">
+                            <i class="bi bi-person-check fs-4"></i>
+                        </div>
+                    </div>
+                    <div class="progress mt-3" style="height: 6px;">
+                        <div id="metric-completion-bar" class="progress-bar bg-primary" role="progressbar" style="width: 0%"></div>
+                    </div>
+                    <span class="text-muted small mt-2 d-block" id="metric-completion-hint">Complete your skills & projects to reach 100%</span>
+                </div>
+            </div>
+
+            <!-- 2. Resume Score -->
+            <div class="col-md-6 col-xl-3">
+                <div class="card metric-card shadow-sm h-100 p-3 bg-white">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <span class="text-muted small fw-semibold text-uppercase">ATS Resume Score</span>
+                            <h3 class="fw-bold mt-1 mb-0" id="metric-resume-score">--/100</h3>
+                        </div>
+                        <div class="p-2 rounded-circle bg-success-subtle text-success">
+                            <i class="bi bi-file-earmark-text fs-4"></i>
+                        </div>
+                    </div>
+                    <div class="progress mt-3" style="height: 6px;">
+                        <div id="metric-resume-bar" class="progress-bar bg-success" role="progressbar" style="width: 0%"></div>
+                    </div>
+                    <span class="text-muted small mt-2 d-block" id="metric-resume-hint">Resume analysis module active</span>
+                    <a href="resume-analysis.html" class="btn btn-outline-success btn-sm w-100 mt-2 py-1 small fw-semibold">
+                        <i class="bi bi-file-earmark-pdf me-1"></i> Analyze / Upload Resume
+                    </a>
+                </div>
+            </div>
+
+            <!-- 3. Placement Readiness -->
+            <div class="col-md-6 col-xl-3">
+                <div class="card metric-card shadow-sm h-100 p-3 bg-white">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <span class="text-muted small fw-semibold text-uppercase">Placement Readiness</span>
+                            <h3 class="fw-bold mt-1 mb-0" id="metric-readiness">0%</h3>
+                        </div>
+                        <div class="p-2 rounded-circle bg-info-subtle text-info">
+                            <i class="bi bi-graph-up-arrow fs-4"></i>
+                        </div>
+                    </div>
+                    <div class="progress mt-3" style="height: 6px;">
+                        <div id="metric-readiness-bar" class="progress-bar bg-info" role="progressbar" style="width: 0%"></div>
+                    </div>
+                    <span class="text-muted small mt-2 d-block" id="metric-readiness-hint">Weighted: Academics + Skills + Projects</span>
+                </div>
+            </div>
+
+            <!-- 4. Applications Active -->
+            <div class="col-md-6 col-xl-3">
+                <div class="card metric-card shadow-sm h-100 p-3 bg-white">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <span class="text-muted small fw-semibold text-uppercase">Active Applications</span>
+                            <h3 class="fw-bold mt-1 mb-0" id="metric-applications">0</h3>
+                        </div>
+                        <div class="p-2 rounded-circle bg-warning-subtle text-warning">
+                            <i class="bi bi-send-check fs-4"></i>
+                        </div>
+                    </div>
+                    <div class="d-flex gap-2 mt-3 small">
+                        <span class="badge bg-secondary-subtle text-secondary" id="app-count-applied">0 Applied</span>
+                        <span class="badge bg-success-subtle text-success" id="app-count-shortlisted">0 Shortlisted</span>
+                    </div>
+                    <span class="text-muted small mt-2 d-block">Track status in the applications panel</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Dashboard Section -->
+        <div class="row g-4">
+            <div class="col-12">
+                <!-- Signature Placement Intelligence Diagnosis Banner -->
+                <div class="card shadow-sm border-0 mb-4 text-white rounded-3 p-4" style="background: linear-gradient(135deg, #0f2027 0%, #203a43 50%, #2c5364 100%);">
+                    <div class="d-flex flex-wrap justify-content-between align-items-center gap-3">
+                        <div>
+                            <span class="badge bg-warning text-dark fw-bold mb-2"><i class="bi bi-lightbulb-fill me-1"></i> Signature Placement Intelligence</span>
+                            <h4 class="fw-bold mb-1">"Why Am I Not Getting Selected?"</h4>
+                            <p class="mb-0 text-white-50 small" style="max-width: 700px;">
+                                Unlock evidence-based recruitment funnel analytics: Discover your screening vs interview conversion drop-offs, recurring skill gaps across applied jobs, employer feedback insights, and personalized upskilling roadmaps.
+                            </p>
+                        </div>
+                        <div>
+                            <a href="why-not-selected.html" class="btn btn-warning fw-bold px-4 py-2 shadow-sm text-dark">
+                                <i class="bi bi-activity me-1"></i> Run Placement Diagnosis &rarr;
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Industry Skill Demand & Gap Insights Card -->
+                <div class="card shadow-sm border-0 mb-4">
+                    <div class="card-header bg-white py-3 border-bottom d-flex justify-content-between align-items-center">
+                        <div>
+                            <h5 class="card-title fw-bold mb-0 text-dark">
+                                <i class="bi bi-graph-up-arrow text-primary me-2"></i>Industry Skill Demand & Market Gap Insights
+                            </h5>
+                            <small class="text-muted">Live job market demand vs your current skill portfolio</small>
+                        </div>
+                        <span class="badge bg-primary-subtle text-primary border border-primary-subtle px-2 py-1">
+                            <i class="bi bi-cpu me-1"></i> Market Intelligence
+                        </span>
+                    </div>
+                    <div class="card-body p-4">
+                        <div class="row g-3" id="skill-demand-container">
+                            <div class="col-12 text-center text-muted small py-3">
+                                <div class="spinner-border spinner-border-sm text-primary me-2" role="status"></div>
+                                Calculating live industry skill demand & student availability...
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Skills Portfolio Card -->
+                <div class="card shadow-sm border-0 mb-4">
+                    <div class="card-header bg-white py-3 border-bottom d-flex justify-content-between align-items-center">
+                        <h5 class="card-title fw-bold mb-0">
+                            <i class="bi bi-award text-primary me-2"></i>My Skills Portfolio
+                        </h5>
+                        <button class="btn btn-outline-primary btn-sm" data-bs-toggle="modal" data-bs-target="#addSkillModal">
+                            <i class="bi bi-plus-circle me-1"></i> Add Skill
+                        </button>
+                    </div>
+                    <div class="card-body p-4">
+                        <div id="skills-container" class="d-flex flex-wrap gap-2">
+                            <span class="text-muted small">Loading skills...</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Projects Portfolio Card -->
+                <div class="card shadow-sm border-0 mb-4">
+                    <div class="card-header bg-white py-3 border-bottom d-flex justify-content-between align-items-center">
+                        <h5 class="card-title fw-bold mb-0">
+                            <i class="bi bi-code-slash text-success me-2"></i>Portfolio Projects
+                        </h5>
+                        <button class="btn btn-outline-success btn-sm" data-bs-toggle="modal" data-bs-target="#addProjectModal">
+                            <i class="bi bi-plus-circle me-1"></i> Add Project
+                        </button>
+                    </div>
+                    <div class="card-body p-4">
+                        <div id="projects-list" class="row g-3">
+                            <span class="text-muted small">Loading projects...</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Applications Status Tracker -->
+                <div class="card shadow-sm border-0 mb-4">
+                    <div class="card-header bg-white py-3 border-bottom d-flex justify-content-between align-items-center">
+                        <h5 class="card-title fw-bold mb-0">
+                            <i class="bi bi-briefcase text-dark me-2"></i>Recent Application Statuses
+                        </h5>
+                        <a href="applications.html" class="btn btn-outline-primary btn-sm py-0 px-2 small">View All &rarr;</a>
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table class="table table-hover align-middle mb-0">
+                                <thead class="table-light small">
+                                    <tr>
+                                        <th>Job Title</th>
+                                        <th>Company</th>
+                                        <th>Status</th>
+                                        <th>Applied On</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="applications-table-body">
+                                    <tr><td colspan="4" class="text-center text-muted py-3">No applications submitted yet.</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Right Column: Recommendations, Workshops & Alerts -->
+            <div class="col-lg-4">
+                
+                <!-- Recommended Jobs Card -->
+                <div class="card shadow-sm border-0 mb-4">
+                    <div class="card-header bg-white py-3 border-bottom d-flex justify-content-between align-items-center">
+                        <h6 class="card-title fw-bold mb-0 text-primary">
+                            <i class="bi bi-lightning-charge-fill me-1"></i> Recommended Jobs
+                        </h6>
+                        <a href="jobs.html" class="btn btn-outline-primary btn-sm py-0 px-2 small">Marketplace &rarr;</a>
+                    </div>
+                    <div class="card-body p-3" id="recommended-jobs-list">
+                        <span class="text-muted small">Loading job opportunities...</span>
+                    </div>
+                </div>
+
+                <!-- Upcoming Workshops Card -->
+                <div class="card shadow-sm border-0 mb-4">
+                    <div class="card-header bg-white py-3 border-bottom">
+                        <h6 class="card-title fw-bold mb-0 text-success">
+                            <i class="bi bi-calendar-event me-1"></i> Upcoming Workshops
+                        </h6>
+                    </div>
+                    <div class="card-body p-3" id="workshops-list">
+                        <span class="text-muted small">Loading scheduled sessions...</span>
+                    </div>
+                </div>
+
+                <!-- Recent Notifications Card -->
+                <div class="card shadow-sm border-0 mb-4">
+                    <div class="card-header bg-white py-3 border-bottom">
+                        <h6 class="card-title fw-bold mb-0 text-dark">
+                            <i class="bi bi-bell-fill me-1"></i> Notifications
+                        </h6>
+                    </div>
+                    <div class="card-body p-3" id="notifications-list">
+                        <span class="text-muted small">No unread notifications.</span>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+    </main>
+
+    <!-- ===================================================================== -->
+    <!-- MODALS: Add Skill, Add Project, Edit Profile -->
+    <!-- ===================================================================== -->
+
+    <!-- Add Skill Modal -->
+    <div class="modal fade" id="addSkillModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <form id="add-skill-form">
+                    <div class="modal-header">
+                        <h5 class="modal-title fw-bold">Add Skill to Profile</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label class="form-label small fw-semibold">Skill Name *</label>
+                            <input type="text" id="skill-input-name" class="form-control" placeholder="e.g. Python, Docker, React" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label small fw-semibold">Category</label>
+                            <select id="skill-input-category" class="form-select">
+                                <option value="Programming">Programming</option>
+                                <option value="Backend Framework">Backend Framework</option>
+                                <option value="Frontend Framework">Frontend Framework</option>
+                                <option value="Database">Database</option>
+                                <option value="DevOps / Cloud">DevOps / Cloud</option>
+                                <option value="Core CS">Core CS</option>
+                                <option value="Soft Skill">Soft Skill</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label small fw-semibold">Proficiency Level</label>
+                            <select id="skill-input-level" class="form-select">
+                                <option value="Beginner">Beginner</option>
+                                <option value="Intermediate" selected>Intermediate</option>
+                                <option value="Advanced">Advanced</option>
+                                <option value="Expert">Expert</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-primary btn-sm">Save Skill</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Project Modal -->
+    <div class="modal fade" id="addProjectModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <form id="add-project-form">
+                    <div class="modal-header">
+                        <h5 class="modal-title fw-bold">Add Portfolio Project</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label class="form-label small fw-semibold">Project Title *</label>
+                            <input type="text" id="proj-input-title" class="form-control" placeholder="e.g. AI-Powered Resume Screener" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label small fw-semibold">Description</label>
+                            <textarea id="proj-input-desc" class="form-control" rows="3" placeholder="Brief summary of the architecture and functionality..."></textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label small fw-semibold">Technologies Used</label>
+                            <input type="text" id="proj-input-tech" class="form-control" placeholder="e.g. Python, Flask, PyMuPDF, Bootstrap">
+                        </div>
+                        <div class="row g-2 mb-3">
+                            <div class="col-6">
+                                <label class="form-label small fw-semibold">GitHub URL</label>
+                                <input type="url" id="proj-input-github" class="form-control" placeholder="https://github.com/...">
+                            </div>
+                            <div class="col-6">
+                                <label class="form-label small fw-semibold">Live Demo URL</label>
+                                <input type="url" id="proj-input-live" class="form-control" placeholder="https://...">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-success btn-sm">Save Project</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Profile Modal -->
+    <div class="modal fade" id="editProfileModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <form id="edit-profile-form">
+                    <div class="modal-header">
+                        <h5 class="modal-title fw-bold">Edit Student Profile & Preferences</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <h6 class="fw-bold text-primary mb-3">Academic & Personal Information</h6>
+                        <div class="row g-3 mb-4">
+                            <div class="col-md-6">
+                                <label class="form-label small fw-semibold">First Name</label>
+                                <input type="text" id="edit-first-name" class="form-control" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label small fw-semibold">Last Name</label>
+                                <input type="text" id="edit-last-name" class="form-control" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label small fw-semibold">Department / Branch</label>
+                                <input type="text" id="edit-department" class="form-control" required>
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label small fw-semibold">Graduation Year</label>
+                                <input type="number" id="edit-year" class="form-control" required>
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label small fw-semibold">CGPA</label>
+                                <input type="number" step="0.01" id="edit-cgpa" class="form-control" min="0" max="10">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label small fw-semibold">Phone Number</label>
+                                <input type="text" id="edit-phone" class="form-control">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label small fw-semibold">Gender</label>
+                                <select id="edit-gender" class="form-select">
+                                    <option value="">Select gender...</option>
+                                    <option value="Male">Male</option>
+                                    <option value="Female">Female</option>
+                                    <option value="Other">Other</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <h6 class="fw-bold text-primary mb-3">Career & Placement Preferences</h6>
+                        <div class="row g-3 mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label small fw-semibold">Preferred Domain</label>
+                                <input type="text" id="edit-domain" class="form-control" placeholder="e.g. AI/ML, Full-Stack, Cloud">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label small fw-semibold">Preferred Job Roles</label>
+                                <input type="text" id="edit-roles" class="form-control" placeholder="e.g. Software Engineer, Data Analyst">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label small fw-semibold">Job Type Preference</label>
+                                <select id="edit-job-type" class="form-select">
+                                    <option value="Both">Both (Internship & Full-time)</option>
+                                    <option value="Full-time">Full-time Only</option>
+                                    <option value="Internship">Internship Only</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label small fw-semibold">Preferred Locations</label>
+                                <input type="text" id="edit-locations" class="form-control" placeholder="e.g. Bangalore, Hyderabad, Pune">
+                            </div>
+                        </div>
+
+                        <h6 class="fw-bold text-primary mb-3">Certifications & Experience</h6>
+                        <div class="row g-3">
+                            <div class="col-12">
+                                <label class="form-label small fw-semibold">Certifications</label>
+                                <textarea id="edit-certifications" class="form-control" rows="2" placeholder="e.g. AWS Certified Developer, Meta Front-End Specialization"></textarea>
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label small fw-semibold">Work / Internship Experience</label>
+                                <textarea id="edit-experience" class="form-control" rows="2" placeholder="e.g. 3-month Summer Internship at ABC Tech as Frontend Developer"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-primary btn-sm">Save Profile Changes</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap 5 JS Bundle -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Student Dashboard Client Script -->
+    <script type="module">
+        import { getToken, getUser, removeToken, authFetch } from '../../js/auth.js';
+
+        // 1. Guard: Check Authentication
+        const token = getToken();
+        const user = getUser();
+        if (!token || !user || user.role !== 'student') {
+            window.location.href = '../login.html';
+        }
+
+        // Setup Logout
+        document.getElementById('logout-btn').addEventListener('click', () => {
+            removeToken();
+            window.location.href = '../login.html';
+        });
+
+        // Setup Refresh
+        document.getElementById('refresh-btn').addEventListener('click', () => {
+            loadDashboardData();
+            loadProfileData();
+            loadSkills();
+            loadProjects();
+        });
+
+        // 2. Fetch and Render Dashboard Metrics
+        async function loadDashboardData() {
+            try {
+                const res = await authFetch('/api/students/dashboard');
+                if (!res.ok) {
+                    if (res.status === 401 || res.status === 403) {
+                        window.location.href = '../login.html';
+                    }
+                    return;
+                }
+                const { data } = await res.json();
+
+                // Banner & Profile
+                document.getElementById('nav-student-name').textContent = data.student_name;
+                document.getElementById('banner-greeting').textContent = `Welcome back, ${data.student_name}!`;
+                document.getElementById('banner-roll').textContent = data.roll_number;
+                document.getElementById('banner-dept').textContent = data.department;
+                document.getElementById('banner-year').textContent = data.batch_year;
+
+                // KPI 1: Completion
+                document.getElementById('metric-completion').textContent = `${data.profile_completion}%`;
+                document.getElementById('metric-completion-bar').style.width = `${data.profile_completion}%`;
+
+                // KPI 2: Resume Score
+                const resumeVal = data.resume_score > 0 ? `${data.resume_score}/100` : "Pending";
+                document.getElementById('metric-resume-score').textContent = resumeVal;
+                document.getElementById('metric-resume-bar').style.width = `${data.resume_score}%`;
+
+                // KPI 3: Placement Readiness
+                document.getElementById('metric-readiness').textContent = `${data.placement_readiness}%`;
+                document.getElementById('metric-readiness-bar').style.width = `${data.placement_readiness}%`;
+
+                // KPI 4: Applications
+                document.getElementById('metric-applications').textContent = data.applications.counts.total;
+                document.getElementById('app-count-applied').textContent = `${data.applications.counts.applied} Applied`;
+                document.getElementById('app-count-shortlisted').textContent = `${data.applications.counts.shortlisted} Shortlisted`;
+
+                // Render Recommended Jobs
+                const jobsContainer = document.getElementById('recommended-jobs-list');
+                if (data.recommended_jobs.length === 0) {
+                    jobsContainer.innerHTML = '<p class="text-muted small mb-0">No open jobs at this time.</p>';
+                } else {
+                    jobsContainer.innerHTML = data.recommended_jobs.map(j => `
+                        <div class="border rounded p-2.5 mb-2 bg-white">
+                            <div class="d-flex justify-content-between align-items-start">
+                                <h6 class="fw-bold mb-1 small text-dark">${j.title}</h6>
+                                <span class="badge bg-primary-subtle text-primary small">${j.job_type}</span>
+                            </div>
+                            <div class="text-muted small">${j.company} &bull; ${j.location}</div>
+                            <div class="mt-1">
+                                ${j.skills.map(s => `<span class="badge bg-light text-secondary border me-1 small">${s}</span>`).join('')}
+                            </div>
+                        </div>
+                    `).join('');
+                }
+
+                // Render Upcoming Workshops
+                const workshopsContainer = document.getElementById('workshops-list');
+                if (data.upcoming_workshops.length === 0) {
+                    workshopsContainer.innerHTML = '<p class="text-muted small mb-0">No workshops scheduled.</p>';
+                } else {
+                    workshopsContainer.innerHTML = data.upcoming_workshops.map(w => `
+                        <div class="border rounded p-2.5 mb-2 bg-white">
+                            <div class="d-flex justify-content-between align-items-start">
+                                <h6 class="fw-bold mb-1 small text-dark">${w.title}</h6>
+                                ${w.is_registered 
+                                    ? '<span class="badge bg-success-subtle text-success border border-success-subtle small">Registered</span>'
+                                    : `<button class="btn btn-outline-success btn-sm py-0 px-2 register-ws-btn" data-ws-id="${w.id}" style="font-size: 0.75rem;">Register</button>`}
+                            </div>
+                            <div class="text-muted small"><i class="bi bi-person me-1"></i>${w.instructor}</div>
+                            <div class="text-success small"><i class="bi bi-clock me-1"></i>${w.start_time}</div>
+                        </div>
+                    `).join('');
+
+                    document.querySelectorAll('.register-ws-btn').forEach(btn => {
+                        btn.addEventListener('click', async () => {
+                            const wsId = btn.getAttribute('data-ws-id');
+                            btn.disabled = true;
+                            btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span>';
+                            try {
+                                const regRes = await authFetch(`/api/students/workshops/${wsId}/register`, { method: 'POST' });
+                                const regData = await regRes.json();
+                                if (!regRes.ok) throw new Error(regData.message || 'Registration failed');
+                                alert(regData.message || 'Registered successfully!');
+                                loadDashboardData();
+                            } catch (e) {
+                                alert(e.message);
+                                btn.disabled = false;
+                                btn.textContent = 'Register';
+                            }
+                        });
+                    });
+                }
+
+                // Render Notifications
+                const notifsContainer = document.getElementById('notifications-list');
+                if (data.recent_notifications.length === 0) {
+                    notifsContainer.innerHTML = '<p class="text-muted small mb-0">No recent notifications.</p>';
+                } else {
+                    notifsContainer.innerHTML = data.recent_notifications.map(n => `
+                        <div class="border-bottom pb-2 mb-2">
+                            <div class="d-flex justify-content-between">
+                                <strong class="small text-dark">${n.title}</strong>
+                                <span class="text-muted small" style="font-size: 0.75rem;">${n.time}</span>
+                            </div>
+                            <p class="text-muted small mb-0">${n.message}</p>
+                        </div>
+                    `).join('');
+                }
+
+                // Render Applications Table
+                const appTableBody = document.getElementById('applications-table-body');
+                if (data.applications.recent.length === 0) {
+                    appTableBody.innerHTML = '<tr><td colspan="4" class="text-center text-muted py-3">No applications submitted yet.</td></tr>';
+                } else {
+                    appTableBody.innerHTML = data.applications.recent.map(a => `
+                        <tr>
+                            <td class="fw-semibold">${a.job_title}</td>
+                            <td>${a.company}</td>
+                            <td><span class="badge bg-info-subtle text-info">${a.status}</span></td>
+                            <td class="text-muted small">${a.applied_at}</td>
+                        </tr>
+                    `).join('');
+                }
+
+            } catch (err) {
+                console.error("Dashboard fetch failed:", err);
+            }
+        }
+
+        // 3. Skills Management
+        async function loadSkills() {
+            const container = document.getElementById('skills-container');
+            try {
+                const res = await authFetch('/api/students/skills');
+                const { data } = await res.json();
+                if (!data.skills || data.skills.length === 0) {
+                    container.innerHTML = '<span class="text-muted small">No skills added yet. Click "Add Skill" to enhance your profile!</span>';
+                    return;
+                }
+
+                container.innerHTML = data.skills.map(s => `
+                    <div class="badge bg-primary-subtle text-primary border border-primary-subtle skill-badge d-flex align-items-center gap-2">
+                        <span><strong>${s.name}</strong> <small class="text-muted">(${s.proficiency_level})</small></span>
+                        <button type="button" class="btn-close btn-close-sm delete-skill-btn" data-id="${s.id}" style="font-size: 0.6rem;"></button>
+                    </div>
+                `).join('');
+
+                // Attach delete listeners
+                document.querySelectorAll('.delete-skill-btn').forEach(btn => {
+                    btn.addEventListener('click', async () => {
+                        const skillId = btn.getAttribute('data-id');
+                        await authFetch(`/api/students/skills/${skillId}`, { method: 'DELETE' });
+                        loadSkills();
+                        loadDashboardData();
+                    });
+                });
+            } catch (err) {
+                container.innerHTML = '<span class="text-danger small">Error loading skills.</span>';
+            }
+        }
+
+        // Add Skill Form Submit
+        document.getElementById('add-skill-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const name = document.getElementById('skill-input-name').value.trim();
+            const category = document.getElementById('skill-input-category').value;
+            const proficiency_level = document.getElementById('skill-input-level').value;
+
+            const res = await authFetch('/api/students/skills', {
+                method: 'POST',
+                body: JSON.stringify({ name, category, proficiency_level })
+            });
+
+            if (res.ok) {
+                bootstrap.Modal.getInstance(document.getElementById('addSkillModal')).hide();
+                document.getElementById('add-skill-form').reset();
+                loadSkills();
+                loadDashboardData();
+            }
+        });
+
+        // 4. Projects Management
+        async function loadProjects() {
+            const container = document.getElementById('projects-list');
+            try {
+                const res = await authFetch('/api/students/projects');
+                const { data } = await res.json();
+
+                if (!data.projects || data.projects.length === 0) {
+                    container.innerHTML = '<div class="col-12 text-muted small">No projects added yet. Showcase your work by clicking "Add Project"!</div>';
+                    return;
+                }
+
+                container.innerHTML = data.projects.map(p => `
+                    <div class="col-md-6">
+                        <div class="card border rounded h-100 p-3 bg-light">
+                            <div class="d-flex justify-content-between align-items-start">
+                                <h6 class="fw-bold mb-1">${p.title}</h6>
+                                <button class="btn btn-outline-danger btn-sm p-1 delete-proj-btn" data-id="${p.id}" title="Delete Project">
+                                    <i class="bi bi-trash" style="font-size: 0.75rem;"></i>
+                                </button>
+                            </div>
+                            <p class="text-muted small mb-2">${p.description || 'No description provided.'}</p>
+                            ${p.technologies_used ? `<div class="mb-2"><span class="badge bg-white text-secondary border small">${p.technologies_used}</span></div>` : ''}
+                            <div class="d-flex gap-2 mt-auto pt-2 border-top">
+                                ${p.github_url ? `<a href="${p.github_url}" target="_blank" class="btn btn-outline-dark btn-sm py-0 px-2 small"><i class="bi bi-github me-1"></i> Code</a>` : ''}
+                                ${p.live_url ? `<a href="${p.live_url}" target="_blank" class="btn btn-outline-primary btn-sm py-0 px-2 small"><i class="bi bi-box-arrow-up-right me-1"></i> Demo</a>` : ''}
+                            </div>
+                        </div>
+                    </div>
+                `).join('');
+
+                // Attach delete listeners
+                document.querySelectorAll('.delete-proj-btn').forEach(btn => {
+                    btn.addEventListener('click', async () => {
+                        const projId = btn.getAttribute('data-id');
+                        if (confirm("Are you sure you want to delete this project?")) {
+                            await authFetch(`/api/students/projects/${projId}`, { method: 'DELETE' });
+                            loadProjects();
+                            loadDashboardData();
+                        }
+                    });
+                });
+            } catch (err) {
+                container.innerHTML = '<div class="col-12 text-danger small">Error loading projects.</div>';
+            }
+        }
+
+        // Add Project Form Submit
+        document.getElementById('add-project-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const payload = {
+                title: document.getElementById('proj-input-title').value.trim(),
+                description: document.getElementById('proj-input-desc').value.trim(),
+                technologies_used: document.getElementById('proj-input-tech').value.trim(),
+                github_url: document.getElementById('proj-input-github').value.trim(),
+                live_url: document.getElementById('proj-input-live').value.trim()
+            };
+
+            const res = await authFetch('/api/students/projects', {
+                method: 'POST',
+                body: JSON.stringify(payload)
+            });
+
+            if (res.ok) {
+                bootstrap.Modal.getInstance(document.getElementById('addProjectModal')).hide();
+                document.getElementById('add-project-form').reset();
+                loadProjects();
+                loadDashboardData();
+            }
+        });
+
+        // 5. Load Profile for Edit Modal
+        async function loadProfileData() {
+            try {
+                const res = await authFetch('/api/students/profile');
+                if (!res.ok) return;
+                const { data } = await res.json();
+
+                document.getElementById('edit-first-name').value = data.first_name || '';
+                document.getElementById('edit-last-name').value = data.last_name || '';
+                document.getElementById('edit-department').value = data.department || '';
+                document.getElementById('edit-year').value = data.batch_year || '';
+                document.getElementById('edit-cgpa').value = data.cgpa || '';
+                document.getElementById('edit-phone').value = data.phone || '';
+                document.getElementById('edit-gender').value = data.gender || '';
+                document.getElementById('edit-certifications').value = data.certifications || '';
+                document.getElementById('edit-experience').value = data.experience || '';
+
+                if (data.preferences) {
+                    document.getElementById('edit-domain').value = data.preferences.preferred_domain || '';
+                    document.getElementById('edit-roles').value = data.preferences.preferred_roles || '';
+                    document.getElementById('edit-job-type').value = data.preferences.job_type_preference || 'Both';
+                    document.getElementById('edit-locations').value = data.preferences.preferred_locations || '';
+                }
+            } catch (err) {
+                console.error("Error loading profile details:", err);
+            }
+        }
+
+        // Edit Profile Form Submit
+        document.getElementById('edit-profile-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const payload = {
+                first_name: document.getElementById('edit-first-name').value.trim(),
+                last_name: document.getElementById('edit-last-name').value.trim(),
+                department: document.getElementById('edit-department').value.trim(),
+                batch_year: parseInt(document.getElementById('edit-year').value, 10),
+                cgpa: document.getElementById('edit-cgpa').value ? parseFloat(document.getElementById('edit-cgpa').value) : null,
+                phone: document.getElementById('edit-phone').value.trim(),
+                gender: document.getElementById('edit-gender').value,
+                certifications: document.getElementById('edit-certifications').value.trim(),
+                experience: document.getElementById('edit-experience').value.trim(),
+                preferred_domain: document.getElementById('edit-domain').value.trim(),
+                preferred_roles: document.getElementById('edit-roles').value.trim(),
+                job_type_preference: document.getElementById('edit-job-type').value,
+                preferred_locations: document.getElementById('edit-locations').value.trim()
+            };
+
+            const res = await authFetch('/api/students/profile', {
+                method: 'PUT',
+                body: JSON.stringify(payload)
+            });
+
+            if (res.ok) {
+                bootstrap.Modal.getInstance(document.getElementById('editProfileModal')).hide();
+                loadDashboardData();
+            }
+        });
+
+        // 6. Skill Demand Analytics & Gap Insights
+        async function loadSkillDemandAnalytics() {
+            const container = document.getElementById('skill-demand-container');
+            if (!container) return;
+            try {
+                const res = await authFetch('/api/analytics/skills');
+                if (!res.ok) {
+                    container.innerHTML = '<div class="col-12 text-muted small">Could not load skill demand analytics.</div>';
+                    return;
+                }
+                const { data } = await res.json();
+                const skillDemand = data.skill_demand || [];
+                const topDeficits = data.top_deficit_skills || [];
+
+                if (skillDemand.length === 0) {
+                    container.innerHTML = '<div class="col-12 text-muted small">No active job requirements posted yet to analyze demand.</div>';
+                    return;
+                }
+
+                // Get student's current skills
+                const skillsRes = await authFetch('/api/students/skills');
+                const studentSkillsData = await skillsRes.json();
+                const mySkillNames = new Set((studentSkillsData.data?.skills || []).map(s => s.name.toLowerCase()));
+
+                let html = '';
+                const topSkills = skillDemand.slice(0, 6);
+                topSkills.forEach(item => {
+                    const hasSkill = mySkillNames.has(item.skill.toLowerCase());
+                    const badgeClass = hasSkill ? 'bg-success-subtle text-success border border-success-subtle' : 'bg-warning-subtle text-warning border border-warning-subtle';
+                    const badgeText = hasSkill ? '<i class="bi bi-check-circle me-1"></i> Acquired' : '<i class="bi bi-exclamation-circle me-1"></i> Missing Skill';
+
+                    html += `
+                        <div class="col-md-6">
+                            <div class="p-3 border rounded bg-light h-100">
+                                <div class="d-flex justify-content-between align-items-center mb-1">
+                                    <strong class="text-dark">${item.skill}</strong>
+                                    <span class="badge ${badgeClass} small">${badgeText}</span>
+                                </div>
+                                <div class="d-flex justify-content-between small text-muted mb-1">
+                                    <span>Industry Demand:</span>
+                                    <span class="fw-semibold text-dark">${item.demand_pct}%</span>
+                                </div>
+                                <div class="progress" style="height: 6px;">
+                                    <div class="progress-bar ${hasSkill ? 'bg-success' : 'bg-primary'}" role="progressbar" style="width: ${item.demand_pct}%"></div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                });
+
+                if (topDeficits.length > 0) {
+                    html += `
+                        <div class="col-12 mt-2">
+                            <div class="alert alert-warning mb-0 p-2.5 small d-flex align-items-center justify-content-between">
+                                <div>
+                                    <i class="bi bi-lightning-charge-fill text-warning me-1"></i>
+                                    <strong>Campus Skill Gaps:</strong> High industry demand but low student supply in:
+                                    <span class="fw-semibold">${topDeficits.slice(0, 3).map(d => `${d.skill} (${d.demand_pct}%)`).join(', ')}</span>.
+                                </div>
+                                <button class="btn btn-warning btn-sm py-0 px-2 small ms-2" data-bs-toggle="modal" data-bs-target="#addSkillModal">Add to Profile</button>
+                            </div>
+                        </div>
+                    `;
+                }
+
+                container.innerHTML = html;
+            } catch (e) {
+                console.error("Skill demand error:", e);
+                container.innerHTML = '<div class="col-12 text-muted small">Failed to load market demand.</div>';
+            }
+        }
+
+        // 7. Live Notification Center
+        async function loadLiveNotifications() {
+            try {
+                const res = await authFetch('/api/notifications?limit=10');
+                if (!res.ok) return;
+                const result = await res.json();
+                const notifs = result.data.notifications || [];
+                const unreadCount = result.data.unread_count || 0;
+
+                const badge = document.getElementById('notif-badge');
+                if (badge) {
+                    if (unreadCount > 0) {
+                        badge.textContent = unreadCount;
+                        badge.classList.remove('d-none');
+                    } else {
+                        badge.classList.add('d-none');
+                    }
+                }
+
+                const list = document.getElementById('notif-dropdown-list');
+                if (list) {
+                    const items = list.querySelectorAll('.notif-item');
+                    items.forEach(i => i.remove());
+
+                    const emptyMsg = document.getElementById('notif-empty-msg');
+                    if (notifs.length === 0) {
+                        if (emptyMsg) emptyMsg.style.display = 'block';
+                    } else {
+                        if (emptyMsg) emptyMsg.style.display = 'none';
+                        notifs.forEach(n => {
+                            const li = document.createElement('li');
+                            li.className = `notif-item px-2 py-2 border-bottom ${n.is_read ? 'bg-light' : 'bg-white'}`;
+                            li.innerHTML = `
+                                <div class="d-flex justify-content-between">
+                                    <span class="fw-semibold small ${n.is_read ? 'text-muted' : 'text-dark'}">${n.title}</span>
+                                    <span class="text-muted" style="font-size: 0.7rem;">${n.created_at || ''}</span>
+                                </div>
+                                <p class="small text-muted mb-1 text-truncate">${n.message}</p>
+                                ${!n.is_read ? `<button class="btn btn-link btn-xs p-0 text-primary small mark-notif-btn" data-id="${n.id}">Mark read</button>` : ''}
+                            `;
+                            list.appendChild(li);
+                        });
+
+                        list.querySelectorAll('.mark-notif-btn').forEach(btn => {
+                            btn.addEventListener('click', async (e) => {
+                                e.stopPropagation();
+                                const nid = btn.getAttribute('data-id');
+                                await authFetch(`/api/notifications/${nid}/read`, { method: 'PUT' });
+                                loadLiveNotifications();
+                            });
+                        });
+                    }
+                }
+            } catch (e) {
+                console.error("Notifications error:", e);
+            }
+        }
+
+        document.getElementById('mark-all-read-btn')?.addEventListener('click', async () => {
+            await authFetch('/api/notifications/read-all', { method: 'PUT' });
+            loadLiveNotifications();
+        });
+
+        // Initial Page Boot
+        loadDashboardData();
+        loadProfileData();
+        loadSkills();
+        loadProjects();
+        loadSkillDemandAnalytics();
+        loadLiveNotifications();
+    </script>
+</body>
+</html>

@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Job Moderation & Compliance - College Placement Admin</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+    <link rel="stylesheet" href="../../css/style.css">
+    <style>
+        .priority-critical { background-color: #dc35451a; color: #b02a37; border: 1px solid #f5c2c7; }
+        .priority-important { background-color: #0d6efd1a; color: #084298; border: 1px solid #b6d4fe; }
+        .priority-preferred { background-color: #6c757d1a; color: #495057; border: 1px solid #ced4da; }
+    </style>
+</head>
+<body class="bg-light d-flex flex-column min-vh-100">
+
+    <!-- Top Navigation Bar -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark shadow-sm sticky-top">
+        <div class="container-fluid px-lg-5">
+            <a class="navbar-brand fw-bold" href="../../index.html">
+                <i class="bi bi-shield-lock-fill me-2 text-warning"></i>Placement Admin <span class="badge bg-warning text-dark ms-1 small">Moderation</span>
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navContent">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <div class="collapse navbar-collapse" id="navContent">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                    <li class="nav-item">
+                        <a class="nav-link text-white-50" href="dashboard.html"><i class="bi bi-speedometer2 me-1"></i> Command Center</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active fw-semibold" href="jobs.html"><i class="bi bi-check2-square me-1"></i> Job Moderation Queue</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-white-50" href="../../index.html"><i class="bi bi-house me-1"></i> Portal Home</a>
+                    </li>
+                </ul>
+
+                <div class="d-flex align-items-center gap-3">
+                    <span id="nav-admin-name" class="text-white fw-semibold small">Loading admin...</span>
+                    <button id="logout-btn" class="btn btn-outline-light btn-sm">
+                        <i class="bi bi-box-arrow-right me-1"></i> Sign Out
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Container -->
+    <main class="container-fluid px-lg-5 py-4 flex-grow-1">
+
+        <!-- Page Header -->
+        <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 pb-2 border-bottom">
+            <div>
+                <h2 class="fw-bold mb-1">
+                    <i class="bi bi-check2-square text-dark me-2"></i>Job Moderation & Compliance Pipeline
+                </h2>
+                <p class="text-muted small mb-0">
+                    Review and verify campus job openings submitted by industry recruiters before they are published to students.
+                </p>
+            </div>
+            <div class="mt-2 mt-md-0 d-flex gap-2">
+                <button id="refresh-queue-btn" class="btn btn-outline-secondary btn-sm">
+                    <i class="bi bi-arrow-clockwise me-1"></i> Refresh Queue
+                </button>
+            </div>
+        </div>
+
+        <!-- Alert Banner -->
+        <div id="alert-banner" class="alert alert-dismissible fade show d-none mb-3" role="alert">
+            <span id="alert-message"></span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+
+        <!-- Pending Moderation Queue -->
+        <div class="card border-0 shadow-sm mb-4">
+            <div class="card-header bg-white py-3 border-bottom d-flex justify-content-between align-items-center">
+                <h5 class="card-title fw-bold mb-0">
+                    <i class="bi bi-hourglass-split text-warning me-2"></i>Jobs Awaiting Review
+                </h5>
+                <span class="badge bg-warning text-dark px-3 py-2 fw-bold" id="pending-count-badge">0 Pending</span>
+            </div>
+            <div class="card-body p-4" id="moderation-container">
+                <div class="text-center py-5">
+                    <div class="spinner-border text-dark me-2" role="status"></div>
+                    <span class="text-muted">Loading pending jobs queue...</span>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Modal: Reject Job with Feedback -->
+    <div class="modal fade" id="rejectModal" tabindex="-1" aria-labelledby="rejectModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow">
+                <form id="reject-job-form">
+                    <div class="modal-header bg-danger text-white">
+                        <h5 class="modal-title fw-bold" id="rejectModalLabel">
+                            <i class="bi bi-x-circle me-2"></i>Reject Job Posting
+                        </h5>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body p-4">
+                        <input type="hidden" id="reject-job-id">
+                        <p class="small text-muted mb-3">
+                            Provide constructive feedback or reason for rejection. The recruiter will be notified to revise their submission.
+                        </p>
+                        <div class="mb-3">
+                            <label class="form-label small fw-semibold">Rejection Reason *</label>
+                            <textarea id="reject-reason" class="form-control" rows="3" placeholder="e.g. Compensation is below institutional minimum or eligibility criteria conflict with university calendar." required></textarea>
+                        </div>
+                    </div>
+                    <div class="modal-footer bg-light">
+                        <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" id="confirm-reject-btn" class="btn btn-danger btn-sm px-3 fw-semibold">Confirm Rejection</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="text-center py-3 text-muted small border-top bg-white mt-auto">
+        College Placement & Career Development Platform &bull; Administration Module
+    </footer>
+
+    <!-- Bootstrap 5 JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Client Script -->
+    <script type="module">
+        import { API_BASE, getToken, getUser, removeToken, authFetch } from '../../js/auth.js';
+
+        let pendingJobs = [];
+
+        const navAdminName = document.getElementById("nav-admin-name");
+        const logoutBtn = document.getElementById("logout-btn");
+        const moderationContainer = document.getElementById("moderation-container");
+        const pendingCountBadge = document.getElementById("pending-count-badge");
+        const refreshQueueBtn = document.getElementById("refresh-queue-btn");
+        const alertBanner = document.getElementById("alert-banner");
+        const alertMessage = document.getElementById("alert-message");
+
+        // Auth Protection Check
+        const token = getToken();
+        const user = getUser();
+        if (!token || !user || user.role !== "admin") {
+            window.location.href = "../login.html";
+        } else {
+            navAdminName.textContent = user.name || user.email;
+        }
+
+        logoutBtn.addEventListener("click", () => {
+            removeToken();
+            window.location.href = "../login.html";
+        });
+
+        function showAlert(msg, type = "success") {
+            alertBanner.className = `alert alert-${type} alert-dismissible fade show mb-3`;
+            alertMessage.innerHTML = msg;
+            alertBanner.classList.remove("d-none");
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        async function loadPendingJobs() {
+            moderationContainer.innerHTML = `
+                <div class="text-center py-5">
+                    <div class="spinner-border text-dark me-2" role="status"></div>
+                    <span class="text-muted">Loading pending jobs queue...</span>
+                </div>
+            `;
+
+            try {
+                const res = await authFetch("/api/admin/jobs/pending");
+                if (!res.ok) {
+                    const err = await res.json();
+                    throw new Error(err.message || "Failed to load moderation queue");
+                }
+
+                const data = await res.json();
+                pendingJobs = Array.isArray(data.data) ? data.data : (data.data?.jobs || []);
+                renderPendingJobs(pendingJobs);
+            } catch (err) {
+                moderationContainer.innerHTML = `
+                    <div class="text-center py-4 text-danger">
+                        <i class="bi bi-exclamation-triangle me-1 fs-3 d-block mb-2"></i>
+                        ${err.message}
+                    </div>
+                `;
+            }
+        }
+
+        function renderPendingJobs(jobs) {
+            pendingCountBadge.textContent = `${jobs.length} Pending`;
+
+            if (jobs.length === 0) {
+                moderationContainer.innerHTML = `
+                    <div class="text-center py-5 text-muted">
+                        <i class="bi bi-check2-circle fs-1 text-success d-block mb-2"></i>
+                        <h5 class="fw-bold text-dark">Moderation Queue is Clean!</h5>
+                        <p class="small text-muted mb-0">All submitted job listings have been reviewed and approved or rejected.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            moderationContainer.innerHTML = jobs.map(job => {
+                const expert = job.posted_by || job.created_by_expert || {};
+                const companyName = typeof job.company === "object" && job.company ? job.company.name : (job.company_name || "Partner Company");
+                const skillsHtml = (job.skills || []).map(s => {
+                    const p = (s.priority || "preferred").toLowerCase();
+                    const badgeClass = p === "critical" ? "priority-critical" : (p === "important" ? "priority-important" : "priority-preferred");
+                    return `<span class="badge ${badgeClass} me-1 mb-1 small">${s.priority}: ${escapeHtml(s.name)}</span>`;
+                }).join("");
+
+                return `
+                    <div class="card border rounded-3 p-4 mb-3 shadow-sm bg-white" data-job-id="${job.id}">
+                        <div class="d-flex flex-column flex-md-row justify-content-between align-items-start gap-3">
+                            <div class="flex-grow-1">
+                                <div class="d-flex align-items-center gap-2 flex-wrap mb-1">
+                                    <h5 class="fw-bold mb-0 text-dark">${escapeHtml(job.title)}</h5>
+                                    <span class="badge bg-secondary-subtle text-secondary border">${escapeHtml(job.domain || 'Software')}</span>
+                                    <span class="badge bg-primary-subtle text-primary border">${escapeHtml(job.job_type)}</span>
+                                </div>
+                                
+                                <p class="text-muted small mb-2">
+                                    <strong>Company:</strong> ${escapeHtml(companyName)} &bull; 
+                                    <strong>Recruiter:</strong> ${escapeHtml(expert.name || 'Industry Contact')} (${escapeHtml(expert.designation || 'Lead')}) &bull; 
+                                    <strong>Location:</strong> ${escapeHtml(job.location)} &bull; 
+                                    <strong>CTC:</strong> <span class="fw-bold text-dark">${escapeHtml(job.ctc)}</span>
+                                </p>
+
+                                <div class="p-3 bg-light rounded small mb-3 border">
+                                    <strong class="d-block text-dark mb-1">Job Description:</strong>
+                                    <p class="mb-0 text-secondary" style="white-space: pre-line;">${escapeHtml(job.description)}</p>
+                                </div>
+
+                                <div class="row g-2 small text-muted mb-3">
+                                    <div class="col-md-4">
+                                        <i class="bi bi-mortarboard me-1"></i>Min CGPA: <strong>${job.min_cgpa ? job.min_cgpa.toFixed(2) : 'Open'}</strong>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <i class="bi bi-calendar-event me-1"></i>Batches: <strong>${escapeHtml(job.eligible_batch_years || 'All')}</strong>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <i class="bi bi-diagram-3 me-1"></i>Branches: <strong>${escapeHtml(job.eligible_departments || 'All Branches')}</strong>
+                                    </div>
+                                </div>
+
+                                <div class="mb-2">
+                                    <span class="small fw-bold text-muted d-block mb-1">Prioritized Skills:</span>
+                                    ${skillsHtml || '<span class="text-muted small">None specified</span>'}
+                                </div>
+                            </div>
+
+                            <!-- Moderation Action Buttons -->
+                            <div class="d-flex flex-column gap-2" style="min-width: 170px;">
+                                <button class="btn btn-success btn-sm approve-job-btn fw-semibold" data-job-id="${job.id}">
+                                    <i class="bi bi-check-lg me-1"></i> Approve & Publish
+                                </button>
+                                <button class="btn btn-outline-danger btn-sm reject-job-btn" data-job-id="${job.id}">
+                                    <i class="bi bi-x-lg me-1"></i> Reject with Notes
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join("");
+
+            // Wire Approve buttons
+            document.querySelectorAll(".approve-job-btn").forEach(btn => {
+                btn.addEventListener("click", () => {
+                    const jobId = parseInt(btn.getAttribute("data-job-id"), 10);
+                    approveJob(jobId, btn);
+                });
+            });
+
+            // Wire Reject buttons
+            document.querySelectorAll(".reject-job-btn").forEach(btn => {
+                btn.addEventListener("click", () => {
+                    const jobId = parseInt(btn.getAttribute("data-job-id"), 10);
+                    document.getElementById("reject-job-id").value = jobId;
+                    document.getElementById("reject-reason").value = "";
+                    const modal = new bootstrap.Modal(document.getElementById("rejectModal"));
+                    modal.show();
+                });
+            });
+        }
+
+        async function approveJob(jobId, btn) {
+            if (!confirm("Are you sure you want to approve and publish this job opening to all eligible students?")) return;
+
+            btn.disabled = true;
+            btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>Approving...';
+
+            try {
+                const res = await authFetch(`/api/admin/jobs/${jobId}/approve`, {
+                    method: "PUT"
+                });
+                const data = await res.json();
+
+                if (!res.ok) {
+                    throw new Error(data.message || "Failed to approve job");
+                }
+
+                showAlert(`<strong>Job Approved & Published!</strong> Listing is now live on the Student Job Marketplace.`, "success");
+                loadPendingJobs();
+            } catch (err) {
+                alert(`Error approving job: ${err.message}`);
+                btn.disabled = false;
+                btn.innerHTML = '<i class="bi bi-check-lg me-1"></i> Approve & Publish';
+            }
+        }
+
+        // Reject Form Submission
+        const rejectJobForm = document.getElementById("reject-job-form");
+        rejectJobForm.addEventListener("submit", async (e) => {
+            e.preventDefault();
+            const jobId = document.getElementById("reject-job-id").value;
+            const reason = document.getElementById("reject-reason").value.trim();
+
+            const confirmBtn = document.getElementById("confirm-reject-btn");
+            confirmBtn.disabled = true;
+            confirmBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>Rejecting...';
+
+            try {
+                const res = await authFetch(`/api/admin/jobs/${jobId}/reject`, {
+                    method: "PUT",
+                    body: JSON.stringify({ rejection_reason: reason })
+                });
+                const data = await res.json();
+
+                if (!res.ok) {
+                    throw new Error(data.message || "Failed to reject job");
+                }
+
+                bootstrap.Modal.getInstance(document.getElementById("rejectModal")).hide();
+                showAlert(`Job listing has been rejected and returned to the recruiter with feedback.`, "info");
+                loadPendingJobs();
+            } catch (err) {
+                alert(`Error rejecting job: ${err.message}`);
+            } finally {
+                confirmBtn.disabled = false;
+                confirmBtn.innerHTML = 'Confirm Rejection';
+            }
+        });
+
+        function escapeHtml(text) {
+            if (!text) return "";
+            return String(text)
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#039;");
+        }
+
+        refreshQueueBtn.addEventListener("click", loadPendingJobs);
+
+        loadPendingJobs();
+    </script>
+</body>
+</html>

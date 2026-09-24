@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>SkillBridge — UI Preview</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap');
+:root{
+ --bg:#f7f3ee;--surface:#fff9f4;--plum:#5b3a70;--mauve:#8e6ba8;--coral:#e98b6a;
+ --beige:#e8ddd4;--sage:#a8b5a0;--text:#28232a;--muted:#6f6672;--border:#e3d9d5;
+}
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:var(--bg);color:var(--text);font-family:Manrope,system-ui,sans-serif}
+body:before,body:after{content:"";position:fixed;z-index:-1;border-radius:50%;filter:blur(1px);opacity:.45}
+body:before{width:420px;height:420px;background:#d9cbe2;left:-180px;top:220px}
+body:after{width:340px;height:340px;background:#f2c6b7;right:-150px;bottom:180px}
+.nav{position:sticky;top:18px;z-index:10;width:min(1180px,calc(100% - 32px));margin:18px auto 0;padding:12px 16px;border:1px solid var(--border);border-radius:24px;background:#fff9f4cc;backdrop-filter:blur(18px);box-shadow:0 12px 40px #5b3a7015;display:flex;align-items:center;gap:26px}
+.logo{font-size:21px;font-weight:800;color:var(--plum);margin-right:auto}.logo span{color:var(--coral)}
+.nav a{font-size:13px;color:var(--muted);text-decoration:none}.nav a:hover{color:var(--plum)}
+.theme{border:1px solid var(--border);background:#fff9f4;border-radius:99px;padding:8px 11px;cursor:pointer}
+.btn{display:inline-flex;align-items:center;gap:8px;border:0;border-radius:999px;padding:13px 20px;font-weight:700;text-decoration:none;cursor:pointer;transition:.25s}
+.btn.primary{background:var(--coral);color:white;box-shadow:0 10px 24px #e98b6a38}.btn.secondary{background:#fff9f4;color:var(--plum);border:1px solid var(--border)}
+.btn:hover{transform:translateY(-3px)}
+main{max-width:1180px;margin:auto}.hero{min-height:610px;display:grid;grid-template-columns:1.05fr .95fr;align-items:center;gap:40px;padding:90px 24px 60px}
+.eyebrow{color:var(--mauve);font-size:11px;letter-spacing:2px;font-weight:800}.hero h1{font-size:clamp(48px,6vw,78px);line-height:.98;letter-spacing:-4px;margin:16px 0 24px}.hero h1 .p{color:var(--plum)}.hero h1 .c{color:var(--coral)}
+.hero p{font-size:17px;line-height:1.75;color:var(--muted);max-width:590px}.actions{display:flex;gap:12px;margin-top:28px}.hero-art{height:450px;position:relative;display:grid;place-items:center}
+.blob{width:360px;height:390px;border-radius:48% 52% 56% 44%;background:linear-gradient(145deg,#d9cbe2,#8e6ba8);transform:rotate(7deg);position:absolute}
+.blob2{width:210px;height:210px;border-radius:50%;background:#e98b6a;position:absolute;right:15px;top:25px;opacity:.9}.person{width:270px;height:340px;border-radius:130px 130px 35px 35px;background:linear-gradient(#33273b,#5b3a70);position:relative;z-index:2;box-shadow:0 30px 70px #5b3a7030}
+.person:before{content:"";position:absolute;width:115px;height:115px;border-radius:50%;background:#d9a27f;left:78px;top:38px}.person:after{content:"SKILL\nBRIDGE";white-space:pre;position:absolute;left:68px;bottom:35px;color:#fff;font-size:20px;font-weight:800;line-height:1.1}
+.float{position:absolute;background:#fff9f4e8;border:1px solid #fff;box-shadow:0 15px 35px #5b3a7020;border-radius:20px;padding:15px 18px;font-size:13px;z-index:3}.f1{left:10px;top:75px}.f2{right:0;bottom:70px}.section{padding:70px 24px}.center{text-align:center}.section h2{font-size:42px;letter-spacing:-2px;margin:10px 0}.sub{color:var(--muted)}
+.cards{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;margin-top:38px}.card{min-height:260px;padding:28px;border:1px solid var(--border);border-radius:32px;background:var(--surface);box-shadow:0 18px 50px #5b3a7010;transition:.3s;position:relative;overflow:hidden}.card:hover{transform:translateY(-8px);box-shadow:0 28px 60px #5b3a7020}.num{color:var(--coral);font-weight:800}.card h3{font-size:25px;margin:42px 0 10px;color:var(--plum)}.card p{color:var(--muted);line-height:1.65}.orb{position:absolute;width:150px;height:150px;border-radius:50%;right:-50px;bottom:-50px;background:#d9cbe2}.card:nth-child(2) .orb{background:#f1c1b0}.card:nth-child(3) .orb{background:#cbd4c6}
+.flow{margin-top:42px;display:grid;grid-template-columns:repeat(4,1fr);gap:12px;align-items:stretch}.flowcard{padding:24px;border-radius:26px;background:#fff9f4;border:1px solid var(--border)}.flowcard h4{color:var(--plum);margin:0 0 18px}.bar{height:10px;background:#e9e1de;border-radius:99px;overflow:hidden;margin:10px 0 18px}.bar i{display:block;height:100%;border-radius:99px;background:linear-gradient(90deg,var(--mauve),var(--plum));animation:grow 1.2s ease both}.bar.coral i{background:var(--coral)}@keyframes grow{from{width:0}}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--border);border-radius:28px;overflow:hidden;margin-top:35px}.stat{padding:25px;text-align:center;background:#fff9f4}.stat b{display:block;font-size:30px;color:var(--plum)}.cta{margin:80px 24px;padding:55px;border-radius:38px;background:linear-gradient(110deg,#5b3a70,#8e6ba8);color:white;display:flex;align-items:center;justify-content:space-between;gap:30px;overflow:hidden}.cta h2{font-size:42px;margin:0 0 10px}.cta p{opacity:.8}.footer{padding:35px 24px 55px;display:flex;justify-content:space-between;color:var(--muted);font-size:13px}
+.dark{--bg:#151219;--surface:#211b24;--plum:#b794c7;--mauve:#9a7fb3;--coral:#f2a77d;--beige:#cbb9ad;--sage:#8fa58b;--text:#f7f1f5;--muted:#b9afba;--border:#3b323f}
+.dark .nav,.dark .theme,.dark .btn.secondary,.dark .float,.dark .flowcard,.dark .stat{background:#211b24dd}.dark .nav{border-color:var(--border)}.dark .card{background:#211b24}.dark .stats{background:var(--border)}.dark .cta{background:linear-gradient(110deg,#35233e,#5b3a70)}
+@media(max-width:800px){.nav a{display:none}.hero{grid-template-columns:1fr;padding-top:65px}.hero-art{height:380px}.cards,.flow{grid-template-columns:1fr}.stats{grid-template-columns:1fr 1fr}.cta{margin:50px 24px;display:block}.cta .btn{margin-top:20px}.footer{display:block}.footer div{margin-top:10px}}
+</style>
+</head>
+<body>
+<nav class="nav">
+  <div class="logo">✦ Skill<span>Bridge</span></div>
+  <a href="#home">Home</a><a href="#paths">Students</a><a href="#paths">Industry</a><a href="#paths">Admin</a><a href="#skills">Skills</a>
+  <button class="theme" onclick="document.body.classList.toggle('dark')">☼ / ☾</button>
+  <a class="btn secondary" href="#">Login</a><a class="btn primary" href="#paths">Get Started →</a>
+</nav>
+<main>
+<section class="hero" id="home">
+  <div>
+    <div class="eyebrow">✦ SKILLS TODAY. BETTER TOMORROW.</div>
+    <h1>Bridge the gap between <span class="p">learning</span> and <span class="c">opportunity.</span></h1>
+    <p>Understand your current skills, discover what's missing, and build a clear path toward your target career.</p>
+    <div class="actions"><a class="btn primary" href="#paths">Get Started →</a><a class="btn secondary" href="#skills">◉ Explore Platform</a></div>
+  </div>
+  <div class="hero-art"><div class="blob"></div><div class="blob2"></div><div class="person"></div><div class="float f1">✦ Better skills<br><b>Brighter future</b></div><div class="float f2">✓ Learn &nbsp; → &nbsp; Analyze<br>↗ Grow &nbsp; → &nbsp; Get Hired</div></div>
+</section>
+
+<section class="section center" id="paths">
+  <div class="eyebrow">FOR EVERY PATH</div><h2>One platform. Three communities.</h2><p class="sub">Different goals. A shared future.</p>
+  <div class="cards">
+    <article class="card"><div class="num">01</div><h3>Know your skills.<br>Build your future.</h3><p>Skill profiles, skill-gap analysis, career paths and personalized recommendations.</p><div class="orb"></div></article>
+    <article class="card"><div class="num">02</div><h3>Find skills.<br>Discover talent.</h3><p>Search candidates based on actual skills, experience and requirements.</p><div class="orb"></div></article>
+    <article class="card"><div class="num">03</div><h3>Manage placements.<br>Connect opportunities.</h3><p>Manage placement drives, eligibility, applications and institutional activities.</p><div class="orb"></div></article>
+  </div>
+</section>
+
+<section class="section" id="skills">
+  <div class="center"><div class="eyebrow">TURN INSIGHTS INTO OPPORTUNITY</div><h2>From skills to a stronger tomorrow.</h2><p class="sub">See where you stand, what's missing, and how to get there.</p></div>
+  <div class="flow">
+    <div class="flowcard"><h4>① Current Skills</h4><small>Python · 90%</small><div class="bar"><i style="width:90%"></i></div><small>SQL · 70%</small><div class="bar"><i style="width:70%"></i></div><small>DSA · 45%</small><div class="bar coral"><i style="width:45%"></i></div><small>Cloud · 20%</small><div class="bar coral"><i style="width:20%"></i></div></div>
+    <div class="flowcard"><h4>② Skill Gap</h4><p>✓ Python — Strong</p><p>✓ SQL — Good</p><p style="color:var(--coral)">! DSA — Improve</p><p style="color:var(--coral)">! Cloud — Major gap</p></div>
+    <div class="flowcard"><h4>③ Recommended Learning</h4><p>◈ Data Structures & Algorithms</p><p>☁ AWS Fundamentals</p><p>⌁ SQL Analytics</p></div>
+    <div class="flowcard"><h4>④ Career Opportunity</h4><p style="font-size:26px;color:var(--plum);font-weight:800">Data Analyst</p><p>Strong demand · High growth</p><a class="btn primary" href="#">View Career Path →</a></div>
+  </div>
+  <div class="stats"><div class="stat"><b>50K+</b>Students</div><div class="stat"><b>500+</b>Companies</div><div class="stat"><b>200+</b>Institutions</div><div class="stat"><b>1M+</b>Assessments</div></div>
+</section>
+
+<section class="cta"><div><div class="eyebrow" style="color:#f2a77d">✦ READY TO BRIDGE YOUR GAP?</div><h2>Start your journey today.</h2><p>Skills create opportunities. We help you find them.</p></div><a class="btn secondary" href="#">Get Started →</a></section>
+</main>
+<footer class="footer"><b style="color:var(--plum);font-size:18px">✦ SkillBridge</b><span>Skills today. A brighter tomorrow.</span><span>Platform · Resources · Legal · Contact</span></footer>
+</body>
+</html>

@@ -1,0 +1,523 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Alumni Mentors Directory - CareerPath AI</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+    <link rel="stylesheet" href="../../css/style.css">
+    <style>
+        .alumni-card {
+            border: 1px solid #e9ecef;
+            border-radius: 1rem;
+            transition: all 0.25s ease-in-out;
+            background: #ffffff;
+        }
+        .alumni-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 0.75rem 1.5rem rgba(0, 0, 0, 0.08);
+            border-color: #0d6efd40;
+        }
+        .avatar-circle {
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #0d6efd, #0dcaf0);
+            color: #ffffff;
+            font-weight: 700;
+            font-size: 1.25rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 8px rgba(13, 110, 253, 0.25);
+        }
+        .privacy-badge {
+            background-color: #f8f9fa;
+            border: 1px dashed #ced4da;
+            border-radius: 0.5rem;
+            padding: 0.5rem 0.75rem;
+            font-size: 0.8rem;
+            color: #6c757d;
+        }
+    </style>
+</head>
+<body class="bg-light d-flex flex-column min-vh-100">
+
+    <!-- Top Navigation Bar -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary shadow-sm sticky-top">
+        <div class="container-fluid px-lg-5">
+            <a class="navbar-brand fw-bold d-flex align-items-center gap-2" href="dashboard.html">
+                <i class="bi bi-mortarboard-fill fs-4"></i> CareerPath AI
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#studentNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <div class="collapse navbar-collapse" id="studentNav">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                    <li class="nav-item">
+                        <a class="nav-link text-white-50" href="dashboard.html"><i class="bi bi-speedometer2 me-1"></i> Dashboard</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-white-50" href="jobs.html"><i class="bi bi-briefcase me-1"></i> Job Marketplace</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-white-50" href="applications.html"><i class="bi bi-card-checklist me-1"></i> My Applications</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-white-50" href="resume-analysis.html"><i class="bi bi-file-earmark-check me-1"></i> Resume Intelligence</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active fw-semibold" href="alumni.html"><i class="bi bi-people me-1"></i> Alumni Network</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-white-50" href="why-not-selected.html"><i class="bi bi-lightbulb-fill me-1 text-warning"></i> Placement Intelligence</a>
+                    </li>
+                </ul>
+
+                <div class="d-flex align-items-center gap-3">
+                    <!-- Notification Bell Dropdown -->
+                    <div class="dropdown">
+                        <button class="btn btn-outline-light btn-sm position-relative dropdown-toggle" type="button" id="notifDropdownBtn" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="bi bi-bell-fill"></i>
+                            <span id="notif-badge" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger d-none">
+                                0
+                            </span>
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end shadow p-2" aria-labelledby="notifDropdownBtn" style="width: 320px; max-height: 400px; overflow-y: auto;" id="notif-dropdown-list">
+                            <li class="d-flex justify-content-between align-items-center px-2 py-1 border-bottom">
+                                <span class="fw-bold small">Notifications</span>
+                                <button class="btn btn-link btn-sm p-0 text-decoration-none small" id="mark-all-read-btn">Mark all as read</button>
+                            </li>
+                            <li class="text-center text-muted small py-3" id="notif-empty-msg">No notifications</li>
+                        </ul>
+                    </div>
+
+                    <span id="nav-student-name" class="text-white fw-semibold small">Loading student...</span>
+                    <button id="logout-btn" class="btn btn-outline-light btn-sm">
+                        <i class="bi bi-box-arrow-right me-1"></i> Sign Out
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Container -->
+    <main class="container-fluid px-lg-5 py-4 flex-grow-1">
+        
+        <!-- Header Banner -->
+        <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 pb-2 border-bottom">
+            <div>
+                <h2 class="fw-bold mb-1"><i class="bi bi-people-fill text-primary me-2"></i>Verified Alumni & Mentorship Directory</h2>
+                <p class="text-muted small mb-0">Connect with distinguished graduates from your institution for mock interviews, career mentoring, and corporate guidance.</p>
+            </div>
+            <div class="mt-2 mt-md-0 d-flex gap-2 align-items-center">
+                <span class="badge bg-success-subtle text-success border border-success-subtle px-3 py-2">
+                    <i class="bi bi-shield-check me-1"></i> Privacy Protected Network
+                </span>
+                <button class="btn btn-outline-secondary btn-sm" id="refresh-btn">
+                    <i class="bi bi-arrow-clockwise me-1"></i> Refresh
+                </button>
+            </div>
+        </div>
+
+        <!-- Metrics Overview Cards -->
+        <div class="row g-3 mb-4">
+            <div class="col-6 col-md-3">
+                <div class="card shadow-sm border-0 p-3 bg-white h-100">
+                    <span class="text-muted small fw-semibold text-uppercase">Verified Alumni</span>
+                    <h3 class="fw-bold mt-1 mb-0 text-primary" id="metric-total-alumni">0</h3>
+                </div>
+            </div>
+            <div class="col-6 col-md-3">
+                <div class="card shadow-sm border-0 p-3 bg-white h-100">
+                    <span class="text-muted small fw-semibold text-uppercase">Active Mentors</span>
+                    <h3 class="fw-bold mt-1 mb-0 text-success" id="metric-mentors-count">0</h3>
+                </div>
+            </div>
+            <div class="col-6 col-md-3">
+                <div class="card shadow-sm border-0 p-3 bg-white h-100">
+                    <span class="text-muted small fw-semibold text-uppercase">Companies Represented</span>
+                    <h3 class="fw-bold mt-1 mb-0 text-info" id="metric-companies-count">0</h3>
+                </div>
+            </div>
+            <div class="col-6 col-md-3">
+                <div class="card shadow-sm border-0 p-3 bg-white h-100">
+                    <span class="text-muted small fw-semibold text-uppercase">Graduation Batches</span>
+                    <h3 class="fw-bold mt-1 mb-0 text-secondary" id="metric-batches-count">--</h3>
+                </div>
+            </div>
+        </div>
+
+        <!-- Search & Filter Controls -->
+        <div class="card border-0 shadow-sm p-3 mb-4 bg-white">
+            <div class="row g-2 align-items-center">
+                <div class="col-md-5">
+                    <div class="input-group">
+                        <span class="input-group-text bg-light border-end-0"><i class="bi bi-search text-muted"></i></span>
+                        <input type="text" id="alumni-search" class="form-control border-start-0" placeholder="Search by name, company, role, or department...">
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <select id="filter-dept" class="form-select">
+                        <option value="">All Departments</option>
+                        <option value="Computer Science">Computer Science & Engineering</option>
+                        <option value="Information Technology">Information Technology</option>
+                        <option value="Electronics">Electronics & Communication</option>
+                        <option value="Electrical">Electrical Engineering</option>
+                        <option value="Mechanical">Mechanical Engineering</option>
+                        <option value="Civil">Civil Engineering</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <div class="form-check pt-2">
+                        <input class="form-check-input" type="checkbox" id="filter-mentors-only">
+                        <label class="form-check-label small fw-semibold" for="filter-mentors-only">
+                            Mentors Only
+                        </label>
+                    </div>
+                </div>
+                <div class="col-md-2 text-md-end">
+                    <button id="reset-filters-btn" class="btn btn-outline-secondary btn-sm w-100">
+                        <i class="bi bi-x-circle me-1"></i> Clear Filters
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Alumni Grid Section -->
+        <div class="row g-4" id="alumni-grid">
+            <div class="col-12 text-center py-5">
+                <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">Loading alumni mentors...</span>
+                </div>
+                <p class="text-muted mt-2">Loading verified alumni network...</p>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-white border-top py-3 text-center text-muted small mt-auto">
+        <div class="container">
+            CareerPath AI &bull; College Placement & Mentorship Network &bull; Privacy Protected
+        </div>
+    </footer>
+
+    <!-- Bootstrap Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        const API_BASE = '/api';
+        const token = localStorage.getItem('token');
+
+        if (!token) {
+            window.location.href = '../auth/login.html';
+        }
+
+        let allAlumni = [];
+
+        // Auth Fetch Helper
+        async function authFetch(url, options = {}) {
+            const headers = {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json',
+                ...(options.headers || {})
+            };
+            const response = await fetch(url, { ...options, headers });
+            if (response.status === 401) {
+                localStorage.removeItem('token');
+                window.location.href = '../auth/login.html';
+                return null;
+            }
+            return response;
+        }
+
+        // Init page
+        document.addEventListener('DOMContentLoaded', () => {
+            loadUserProfile();
+            loadNotifications();
+            loadAlumniDirectory();
+
+            document.getElementById('logout-btn').addEventListener('click', () => {
+                localStorage.clear();
+                window.location.href = '../auth/login.html';
+            });
+
+            document.getElementById('refresh-btn').addEventListener('click', loadAlumniDirectory);
+            document.getElementById('alumni-search').addEventListener('input', applyFilters);
+            document.getElementById('filter-dept').addEventListener('change', applyFilters);
+            document.getElementById('filter-mentors-only').addEventListener('change', applyFilters);
+            document.getElementById('reset-filters-btn').addEventListener('click', () => {
+                document.getElementById('alumni-search').value = '';
+                document.getElementById('filter-dept').value = '';
+                document.getElementById('filter-mentors-only').checked = false;
+                applyFilters();
+            });
+
+            document.getElementById('mark-all-read-btn').addEventListener('click', markAllNotificationsRead);
+        });
+
+        // Load logged in user
+        async function loadUserProfile() {
+            try {
+                const res = await authFetch(`${API_BASE}/students/profile`);
+                if (res && res.ok) {
+                    const data = await res.json();
+                    const s = data.data.student;
+                    document.getElementById('nav-student-name').textContent = `${s.first_name} ${s.last_name}`;
+                }
+            } catch (e) {
+                console.error('Error loading profile:', e);
+            }
+        }
+
+        // Load Notifications & Badge
+        async function loadNotifications() {
+            try {
+                const res = await authFetch(`${API_BASE}/notifications?limit=10`);
+                if (res && res.ok) {
+                    const result = await res.json();
+                    const notifs = result.data.notifications || [];
+                    const unreadCount = result.data.unread_count || 0;
+
+                    const badge = document.getElementById('notif-badge');
+                    if (unreadCount > 0) {
+                        badge.textContent = unreadCount;
+                        badge.classList.remove('d-none');
+                    } else {
+                        badge.classList.add('d-none');
+                    }
+
+                    const list = document.getElementById('notif-dropdown-list');
+                    const items = list.querySelectorAll('.notif-item');
+                    items.forEach(i => i.remove());
+
+                    if (notifs.length === 0) {
+                        document.getElementById('notif-empty-msg').style.display = 'block';
+                    } else {
+                        document.getElementById('notif-empty-msg').style.display = 'none';
+                        notifs.forEach(n => {
+                            const li = document.createElement('li');
+                            li.className = `notif-item px-2 py-2 border-bottom ${n.is_read ? 'bg-light' : 'bg-white'}`;
+                            li.innerHTML = `
+                                <div class="d-flex justify-content-between">
+                                    <span class="fw-semibold small ${n.is_read ? 'text-muted' : 'text-dark'}">${escapeHtml(n.title)}</span>
+                                    <span class="text-muted" style="font-size: 0.7rem;">${n.created_at || ''}</span>
+                                </div>
+                                <p class="small text-muted mb-1 text-truncate">${escapeHtml(n.message)}</p>
+                                ${!n.is_read ? `<button class="btn btn-link btn-xs p-0 text-primary small" onclick="markOneRead(${n.id})">Mark read</button>` : ''}
+                            `;
+                            list.appendChild(li);
+                        });
+                    }
+                }
+            } catch (e) {
+                console.error('Error fetching notifications:', e);
+            }
+        }
+
+        async function markOneRead(id) {
+            try {
+                await authFetch(`${API_BASE}/notifications/${id}/read`, { method: 'PUT' });
+                loadNotifications();
+            } catch (e) {
+                console.error(e);
+            }
+        }
+
+        async function markAllNotificationsRead() {
+            try {
+                await authFetch(`${API_BASE}/notifications/read-all`, { method: 'PUT' });
+                loadNotifications();
+            } catch (e) {
+                console.error(e);
+            }
+        }
+
+        // Load Alumni
+        async function loadAlumniDirectory() {
+            const grid = document.getElementById('alumni-grid');
+            grid.innerHTML = `
+                <div class="col-12 text-center py-5">
+                    <div class="spinner-border text-primary" role="status"></div>
+                    <p class="text-muted mt-2">Loading verified alumni network...</p>
+                </div>
+            `;
+
+            try {
+                const res = await authFetch(`${API_BASE}/students/alumni`);
+                if (!res || !res.ok) {
+                    grid.innerHTML = `<div class="col-12 alert alert-danger">Failed to load alumni directory.</div>`;
+                    return;
+                }
+
+                const json = await res.json();
+                allAlumni = json.data.alumni || [];
+
+                // Update summary stats
+                document.getElementById('metric-total-alumni').textContent = allAlumni.length;
+                const mentorsCount = allAlumni.filter(a => a.is_willing_to_mentor || a.willing_to_mentor).length;
+                document.getElementById('metric-mentors-count').textContent = mentorsCount;
+
+                const companies = new Set(allAlumni.map(a => a.current_company).filter(Boolean));
+                document.getElementById('metric-companies-count').textContent = companies.size;
+
+                const years = allAlumni.map(a => a.graduation_year).filter(Boolean);
+                if (years.length > 0) {
+                    const minYr = Math.min(...years);
+                    const maxYr = Math.max(...years);
+                    document.getElementById('metric-batches-count').textContent = `${minYr} - ${maxYr}`;
+                }
+
+                applyFilters();
+            } catch (e) {
+                console.error('Error loading alumni:', e);
+                grid.innerHTML = `<div class="col-12 alert alert-danger">An unexpected error occurred while loading alumni.</div>`;
+            }
+        }
+
+        function applyFilters() {
+            const query = (document.getElementById('alumni-search').value || '').toLowerCase().trim();
+            const dept = (document.getElementById('filter-dept').value || '').toLowerCase();
+            const mentorsOnly = document.getElementById('filter-mentors-only').checked;
+
+            const filtered = allAlumni.filter(a => {
+                const matchesSearch = !query ||
+                    (a.name && a.name.toLowerCase().includes(query)) ||
+                    (a.current_company && a.current_company.toLowerCase().includes(query)) ||
+                    (a.current_role && a.current_role.toLowerCase().includes(query)) ||
+                    (a.department && a.department.toLowerCase().includes(query));
+
+                const matchesDept = !dept || (a.department && a.department.toLowerCase().includes(dept));
+                const matchesMentor = !mentorsOnly || (a.is_willing_to_mentor || a.willing_to_mentor);
+
+                return matchesSearch && matchesDept && matchesMentor;
+            });
+
+            renderAlumniGrid(filtered);
+        }
+
+        function renderAlumniGrid(list) {
+            const grid = document.getElementById('alumni-grid');
+            if (list.length === 0) {
+                grid.innerHTML = `
+                    <div class="col-12 text-center py-5">
+                        <i class="bi bi-person-x fs-1 text-muted"></i>
+                        <h5 class="fw-semibold mt-2">No matching alumni found</h5>
+                        <p class="text-muted small">Try broadening your search query or removing active filters.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            let html = '';
+            list.forEach(a => {
+                const initials = (a.name || 'Alumnus')
+                    .split(' ')
+                    .map(n => n[0])
+                    .slice(0, 2)
+                    .join('')
+                    .toUpperCase();
+
+                const isMentor = a.is_willing_to_mentor || a.willing_to_mentor;
+                const company = a.current_company || 'Corporate Partner';
+                const role = a.current_role || a.role || 'Professional';
+                const branch = a.branch || a.department || 'Engineering';
+                const gradYear = a.graduation_year || 'Alumnus';
+
+                // Contact privacy guardrail
+                let contactSection = '';
+                if (a.has_contact_shared && a.contact_email) {
+                    contactSection = `
+                        <div class="mt-3 p-2 bg-light rounded border small">
+                            <span class="text-success fw-semibold"><i class="bi bi-envelope-check me-1"></i> ${escapeHtml(a.contact_email)}</span>
+                            <span class="badge bg-success-subtle text-success float-end">Contact Shared</span>
+                        </div>
+                    `;
+                } else {
+                    contactSection = `
+                        <div class="privacy-badge mt-3">
+                            <i class="bi bi-shield-lock text-muted me-1"></i> Private contact protected. Connect via LinkedIn or placement office.
+                        </div>
+                    `;
+                }
+
+                html += `
+                    <div class="col-md-6 col-xl-4">
+                        <div class="card alumni-card p-4 h-100 shadow-sm">
+                            <div class="d-flex align-items-start justify-content-between mb-3">
+                                <div class="d-flex align-items-center gap-3">
+                                    <div class="avatar-circle">
+                                        ${initials}
+                                    </div>
+                                    <div>
+                                        <h5 class="fw-bold mb-0 text-dark">${escapeHtml(a.name)}</h5>
+                                        <span class="badge bg-primary-subtle text-primary border border-primary-subtle small mt-1">
+                                            Batch of ${gradYear}
+                                        </span>
+                                    </div>
+                                </div>
+                                ${isMentor ? `
+                                    <span class="badge bg-success-subtle text-success border border-success-subtle" title="Willing to mentor students">
+                                        <i class="bi bi-star-fill me-1"></i> Mentor
+                                    </span>
+                                ` : ''}
+                            </div>
+
+                            <div class="mb-3">
+                                <p class="fw-semibold text-dark mb-1">
+                                    <i class="bi bi-briefcase text-primary me-2"></i>${escapeHtml(role)}
+                                </p>
+                                <p class="text-muted small mb-1">
+                                    <i class="bi bi-building text-secondary me-2"></i>${escapeHtml(company)}
+                                </p>
+                                <p class="text-muted small mb-0">
+                                    <i class="bi bi-mortarboard text-secondary me-2"></i>${escapeHtml(branch)}
+                                </p>
+                            </div>
+
+                            ${contactSection}
+
+                            <div class="mt-4 pt-3 border-top d-flex justify-content-between align-items-center">
+                                ${a.linkedin_profile || a.linkedin_url ? `
+                                    <a href="${escapeHtml(a.linkedin_profile || a.linkedin_url)}" target="_blank" rel="noopener noreferrer" class="btn btn-outline-primary btn-sm px-3">
+                                        <i class="bi bi-linkedin me-1"></i> View LinkedIn
+                                    </a>
+                                ` : `
+                                    <span class="text-muted small"><i class="bi bi-link-45deg"></i> Profile on file</span>
+                                `}
+
+                                ${isMentor ? `
+                                    <button class="btn btn-primary btn-sm" onclick="requestMentorship('${escapeHtml(a.name)}')">
+                                        <i class="bi bi-chat-dots me-1"></i> Connect
+                                    </button>
+                                ` : ''}
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+
+            grid.innerHTML = html;
+        }
+
+        function requestMentorship(alumniName) {
+            alert(`Mentorship interest for ${alumniName} noted! The placement coordinator will connect you for scheduled mock interviews.`);
+        }
+
+        function escapeHtml(str) {
+            if (!str) return '';
+            return String(str)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#039;');
+        }
+    </script>
+</body>
+</html>

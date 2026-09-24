@@ -1,0 +1,862 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Placement Intelligence - Why Am I Not Getting Selected?</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+    <link rel="stylesheet" href="../../css/style.css">
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        .diagnostic-card {
+            border: 0;
+            border-radius: 1rem;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        .diagnostic-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 0.5rem 1.25rem rgba(0, 0, 0, 0.08) !important;
+        }
+        .funnel-step {
+            position: relative;
+            padding: 1rem;
+            border-radius: 0.75rem;
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            text-align: center;
+        }
+        .funnel-step.bottleneck {
+            border: 2px solid #dc3545;
+            background: #fff5f5;
+        }
+        .badge-critical {
+            background-color: #dc3545;
+            color: #fff;
+        }
+        .badge-gap {
+            background-color: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeeba;
+        }
+        .evidence-quote {
+            border-left: 4px solid #0d6efd;
+            background-color: #f8f9fa;
+            padding: 0.75rem 1rem;
+            border-radius: 0 0.5rem 0.5rem 0;
+            font-style: italic;
+        }
+        .employer-feedback-quote {
+            border-left: 4px solid #198754;
+            background-color: #f4fbf7;
+            padding: 0.75rem 1rem;
+            border-radius: 0 0.5rem 0.5rem 0;
+        }
+    </style>
+</head>
+<body class="bg-light">
+
+    <!-- Top Navigation Bar -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary shadow-sm sticky-top">
+        <div class="container-fluid px-lg-5">
+            <a class="navbar-brand fw-bold" href="../../index.html">
+                <i class="bi bi-mortarboard-fill me-2"></i>CareerPath AI <span class="badge bg-white text-primary ms-1 small">Student</span>
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navContent">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <div class="collapse navbar-collapse" id="navContent">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                    <li class="nav-item">
+                        <a class="nav-link text-white-50" href="dashboard.html"><i class="bi bi-speedometer2 me-1"></i> Dashboard</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-white-50" href="jobs.html"><i class="bi bi-briefcase me-1"></i> Job Marketplace</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-white-50" href="applications.html"><i class="bi bi-card-checklist me-1"></i> My Applications</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-white-50" href="resume-analysis.html"><i class="bi bi-file-earmark-check me-1"></i> Resume Intelligence</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-white-50" href="alumni.html"><i class="bi bi-people me-1"></i> Alumni Network</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active fw-semibold text-white" href="why-not-selected.html"><i class="bi bi-lightbulb-fill me-1 text-warning"></i> Placement Intelligence</a>
+                    </li>
+                </ul>
+
+                <div class="d-flex align-items-center gap-3">
+                    <!-- Notification Bell Dropdown -->
+                    <div class="dropdown">
+                        <button class="btn btn-outline-light btn-sm position-relative dropdown-toggle" type="button" id="notifDropdownBtn" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="bi bi-bell-fill"></i>
+                            <span id="notif-badge" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger d-none">
+                                0
+                            </span>
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end shadow p-2" aria-labelledby="notifDropdownBtn" style="width: 320px; max-height: 400px; overflow-y: auto;" id="notif-dropdown-list">
+                            <li class="d-flex justify-content-between align-items-center px-2 py-1 border-bottom">
+                                <span class="fw-bold small">Notifications</span>
+                                <button class="btn btn-link btn-sm p-0 text-decoration-none small" id="mark-all-read-btn">Mark all as read</button>
+                            </li>
+                            <li class="text-center text-muted small py-3" id="notif-empty-msg">No notifications</li>
+                        </ul>
+                    </div>
+
+                    <span id="nav-student-name" class="text-white fw-semibold small">Loading student...</span>
+                    <button id="logout-btn" class="btn btn-outline-light btn-sm">
+                        <i class="bi bi-box-arrow-right me-1"></i> Sign Out
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content Container -->
+    <main class="container-fluid px-lg-5 py-4">
+
+        <!-- Header Banner -->
+        <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 pb-3 border-bottom">
+            <div>
+                <span class="badge bg-primary-subtle text-primary border border-primary-subtle px-3 py-2 rounded-pill small mb-2 fw-semibold">
+                    <i class="bi bi-cpu-fill me-1"></i> Signature Placement Intelligence Engine
+                </span>
+                <h2 class="fw-bold mb-1 text-dark">Why Am I Not Getting Selected?</h2>
+                <p class="text-muted mb-0 small">
+                    Evidence-based diagnosis across your recruitment funnel, recurring application requirements, employer feedback, and readiness metrics.
+                </p>
+            </div>
+            <div class="mt-3 mt-md-0 d-flex gap-2">
+                <button class="btn btn-outline-primary btn-sm px-3" id="refresh-diagnosis-btn">
+                    <i class="bi bi-arrow-clockwise me-1"></i> Re-Analyze Applications
+                </button>
+                <a href="jobs.html" class="btn btn-primary btn-sm px-3">
+                    <i class="bi bi-search me-1"></i> Explore Recommended Jobs
+                </a>
+            </div>
+        </div>
+
+        <!-- Evidence-Based Guardrail Disclaimer Alert -->
+        <div class="alert alert-info border-0 shadow-sm d-flex align-items-center gap-3 mb-4 rounded-3">
+            <i class="bi bi-shield-check fs-3 text-primary flex-shrink-0"></i>
+            <div class="small">
+                <strong>Evidence-Based Diagnostics Protocol:</strong>
+                All inferences are mathematically derived from requirement frequencies across your applied job descriptions.
+                The system strictly treats recurring missing requirements as <em>potential skill gaps</em>, and does not claim a specific skill caused rejection unless validated by explicit employer feedback.
+            </div>
+        </div>
+
+        <!-- 5 Top KPI Cards -->
+        <div class="row g-3 mb-4">
+            <!-- 1. Total Applications -->
+            <div class="col-md-6 col-xl">
+                <div class="card diagnostic-card shadow-sm p-3 bg-white h-100">
+                    <span class="text-muted small fw-semibold text-uppercase">Total Applications</span>
+                    <h3 class="fw-bold my-1 text-primary" id="kpi-total-apps">--</h3>
+                    <span class="text-muted small" id="kpi-apps-sub">Job postings applied</span>
+                </div>
+            </div>
+
+            <!-- 2. Shortlisting Rate -->
+            <div class="col-md-6 col-xl">
+                <div class="card diagnostic-card shadow-sm p-3 bg-white h-100">
+                    <span class="text-muted small fw-semibold text-uppercase">Shortlisting Rate</span>
+                    <h3 class="fw-bold my-1 text-info" id="kpi-shortlist-rate">--%</h3>
+                    <span class="text-muted small" id="kpi-shortlist-ratio">-- shortlisted</span>
+                </div>
+            </div>
+
+            <!-- 3. Interview Conversion -->
+            <div class="col-md-6 col-xl">
+                <div class="card diagnostic-card shadow-sm p-3 bg-white h-100">
+                    <span class="text-muted small fw-semibold text-uppercase">Interview Conversion</span>
+                    <h3 class="fw-bold my-1 text-warning" id="kpi-interview-rate">--%</h3>
+                    <span class="text-muted small" id="kpi-interview-ratio">-- interviews reached</span>
+                </div>
+            </div>
+
+            <!-- 4. Selection Rate -->
+            <div class="col-md-6 col-xl">
+                <div class="card diagnostic-card shadow-sm p-3 bg-white h-100">
+                    <span class="text-muted small fw-semibold text-uppercase">Selection Rate</span>
+                    <h3 class="fw-bold my-1 text-success" id="kpi-selection-rate">--%</h3>
+                    <span class="text-muted small" id="kpi-selection-ratio">-- final offers</span>
+                </div>
+            </div>
+
+            <!-- 5. Primary Bottleneck -->
+            <div class="col-md-12 col-xl-4">
+                <div class="card diagnostic-card shadow-sm p-3 bg-white h-100 border-start border-4" id="kpi-bottleneck-card" style="border-left-color: #dc3545 !important;">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span class="text-muted small fw-semibold text-uppercase">Primary Bottleneck</span>
+                        <span class="badge bg-danger" id="kpi-bottleneck-severity">HIGH</span>
+                    </div>
+                    <h5 class="fw-bold my-1 text-danger" id="kpi-bottleneck-stage">Analyzing...</h5>
+                    <p class="text-muted small mb-0" id="kpi-bottleneck-summary">Identifying conversion constraints...</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Section 1: Application Funnel & Bottleneck Diagnosis -->
+        <div class="card shadow-sm border-0 rounded-3 mb-4">
+            <div class="card-header bg-white py-3 border-bottom d-flex justify-content-between align-items-center">
+                <h5 class="fw-bold mb-0 text-dark">
+                    <i class="bi bi-funnel-fill text-primary me-2"></i>Recruitment Conversion Funnel Analysis
+                </h5>
+                <span class="text-muted small" id="funnel-summary-badge">Stage-by-stage drop-off tracking</span>
+            </div>
+            <div class="card-body p-4">
+                <!-- Funnel Visual Steps -->
+                <div class="row g-2 text-center mb-4" id="funnel-steps-container">
+                    <div class="col-md">
+                        <div class="funnel-step">
+                            <span class="text-muted small fw-bold">1. Applied</span>
+                            <h4 class="fw-bold my-1 text-primary" id="funnel-count-applied">0</h4>
+                            <span class="badge bg-light text-dark border">100% Ingestion</span>
+                        </div>
+                    </div>
+                    <div class="col-md">
+                        <div class="funnel-step" id="step-shortlist">
+                            <span class="text-muted small fw-bold">2. Shortlisted</span>
+                            <h4 class="fw-bold my-1 text-info" id="funnel-count-shortlisted">0</h4>
+                            <span class="badge bg-info-subtle text-info border border-info-subtle" id="funnel-pct-shortlist">0%</span>
+                        </div>
+                    </div>
+                    <div class="col-md">
+                        <div class="funnel-step" id="step-assessment">
+                            <span class="text-muted small fw-bold">3. Assessment</span>
+                            <h4 class="fw-bold my-1 text-secondary" id="funnel-count-assessment">0</h4>
+                            <span class="badge bg-secondary-subtle text-secondary border" id="funnel-pct-assessment">--</span>
+                        </div>
+                    </div>
+                    <div class="col-md">
+                        <div class="funnel-step" id="step-interview">
+                            <span class="text-muted small fw-bold">4. Interview</span>
+                            <h4 class="fw-bold my-1 text-warning" id="funnel-count-interview">0</h4>
+                            <span class="badge bg-warning-subtle text-warning border border-warning-subtle" id="funnel-pct-interview">0%</span>
+                        </div>
+                    </div>
+                    <div class="col-md">
+                        <div class="funnel-step" id="step-selected">
+                            <span class="text-muted small fw-bold">5. Selected</span>
+                            <h4 class="fw-bold my-1 text-success" id="funnel-count-selected">0</h4>
+                            <span class="badge bg-success-subtle text-success border border-success-subtle" id="funnel-pct-selected">0%</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Bottleneck Detailed Narrative -->
+                <div class="p-3 bg-light rounded-3 border">
+                    <div class="d-flex align-items-center gap-2 mb-2">
+                        <i class="bi bi-exclamation-triangle-fill text-danger fs-5"></i>
+                        <span class="fw-bold text-dark">Identified Conversion Constraint:</span>
+                        <span class="badge bg-danger" id="detail-bottleneck-title">Resume Screening</span>
+                    </div>
+                    <p class="text-secondary small mb-0" id="detail-bottleneck-explanation">
+                        Loading bottleneck analysis...
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Section 2: Recurring Skill Demands vs Profile Gaps -->
+        <div class="row g-4 mb-4">
+            <!-- Left: Recurring Missing Skill Gaps -->
+            <div class="col-lg-7">
+                <div class="card shadow-sm border-0 rounded-3 h-100">
+                    <div class="card-header bg-white py-3 border-bottom d-flex justify-content-between align-items-center">
+                        <div>
+                            <h5 class="fw-bold mb-0 text-dark">
+                                <i class="bi bi-pie-chart-fill text-danger me-2"></i>Recurring Skill Gaps in Applied Jobs
+                            </h5>
+                            <small class="text-muted">Skills demanded across your applied roles that are absent from your profile</small>
+                        </div>
+                        <span class="badge bg-danger-subtle text-danger border border-danger-subtle" id="gaps-count-badge">0 Gaps</span>
+                    </div>
+                    <div class="card-body p-4">
+                        <div id="recurring-gaps-list">
+                            <div class="text-center text-muted py-4">Scanning applied job requirements...</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right: Skills You Have That Matched -->
+            <div class="col-lg-5">
+                <div class="card shadow-sm border-0 rounded-3 h-100">
+                    <div class="card-header bg-white py-3 border-bottom d-flex justify-content-between align-items-center">
+                        <div>
+                            <h5 class="fw-bold mb-0 text-dark">
+                                <i class="bi bi-check-circle-fill text-success me-2"></i>Matched Profile Strengths
+                            </h5>
+                            <small class="text-muted">Skills in your profile that matched job requirements</small>
+                        </div>
+                        <span class="badge bg-success-subtle text-success border border-success-subtle" id="matched-count-badge">0 Matched</span>
+                    </div>
+                    <div class="card-body p-4">
+                        <div id="matched-skills-list">
+                            <div class="text-center text-muted py-4">Evaluating matched competencies...</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Section 3: Verified Employer & Interview Feedback -->
+        <div class="card shadow-sm border-0 rounded-3 mb-4">
+            <div class="card-header bg-white py-3 border-bottom d-flex justify-content-between align-items-center">
+                <div>
+                    <h5 class="fw-bold mb-0 text-dark">
+                        <i class="bi bi-chat-quote-fill text-primary me-2"></i>Verified Employer & Interviewer Feedback
+                    </h5>
+                    <small class="text-muted">Explicit observations recorded by corporate recruiters and interviewers</small>
+                </div>
+                <span class="badge bg-secondary" id="feedback-status-badge">Checking feedback records...</span>
+            </div>
+            <div class="card-body p-4" id="employer-feedback-section">
+                <div class="text-center text-muted py-3">Retrieving interviewer remarks...</div>
+            </div>
+        </div>
+
+        <!-- Section 4: Readiness & Portfolio Health Metrics -->
+        <div class="row g-4 mb-4">
+            <!-- 1. Resume ATS Score -->
+            <div class="col-md-4">
+                <div class="card shadow-sm border-0 rounded-3 h-100 p-3 bg-white">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <span class="text-muted small fw-semibold text-uppercase">Resume ATS Quality</span>
+                        <i class="bi bi-file-earmark-text-fill text-primary fs-4"></i>
+                    </div>
+                    <h3 class="fw-bold my-1 text-primary" id="ats-score-display">-- / 100</h3>
+                    <div class="progress my-2" style="height: 8px;">
+                        <div class="progress-bar bg-primary" id="ats-progress-bar" style="width: 0%;"></div>
+                    </div>
+                    <span class="small text-muted" id="ats-status-text">Checking resume analysis...</span>
+                </div>
+            </div>
+
+            <!-- 2. Portfolio Projects Count -->
+            <div class="col-md-4">
+                <div class="card shadow-sm border-0 rounded-3 h-100 p-3 bg-white">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <span class="text-muted small fw-semibold text-uppercase">Portfolio Projects</span>
+                        <i class="bi bi-folder-check text-warning fs-4"></i>
+                    </div>
+                    <h3 class="fw-bold my-1 text-warning" id="projects-count-display">0</h3>
+                    <p class="small text-muted mb-0" id="projects-status-text">
+                        Evaluating logged technical projects...
+                    </p>
+                </div>
+            </div>
+
+            <!-- 3. Pre-Placement Assessment Tests -->
+            <div class="col-md-4">
+                <div class="card shadow-sm border-0 rounded-3 h-100 p-3 bg-white">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <span class="text-muted small fw-semibold text-uppercase">Assessment Screening</span>
+                        <i class="bi bi-award-fill text-success fs-4"></i>
+                    </div>
+                    <h3 class="fw-bold my-1 text-success" id="assessment-score-display">--%</h3>
+                    <p class="small text-muted mb-0" id="assessment-status-text">
+                        Checking screening test attempts...
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Section 5: Actionable Upskilling Roadmap & Recommendations -->
+        <div class="card shadow-sm border-0 rounded-3 mb-5">
+            <div class="card-header bg-white py-3 border-bottom">
+                <h5 class="fw-bold mb-0 text-dark">
+                    <i class="bi bi-compass-fill text-primary me-2"></i>Actionable Upskilling & Recovery Roadmap
+                </h5>
+                <small class="text-muted">Targeted recommendations tailored to resolve your primary bottleneck and recurring skill gaps</small>
+            </div>
+            <div class="card-body p-4">
+                <div class="row g-4">
+                    <!-- Column 1: Priority Skills to Master -->
+                    <div class="col-lg-6">
+                        <h6 class="fw-bold text-dark mb-3"><i class="bi bi-star-fill text-warning me-2"></i>Priority Skills to Add or Verify</h6>
+                        <div class="list-group mb-4" id="rec-skills-list">
+                            <div class="text-muted small py-2">Loading skill recommendations...</div>
+                        </div>
+
+                        <h6 class="fw-bold text-dark mb-3"><i class="bi bi-laptop-fill text-primary me-2"></i>Recommended Projects to Build</h6>
+                        <div id="rec-projects-list">
+                            <div class="text-muted small py-2">Loading project ideas...</div>
+                        </div>
+                    </div>
+
+                    <!-- Column 2: Relevant Workshops & High-Affinity Jobs -->
+                    <div class="col-lg-6">
+                        <h6 class="fw-bold text-dark mb-3"><i class="bi bi-easel2-fill text-info me-2"></i>Targeted Placement Workshops</h6>
+                        <div id="rec-workshops-list" class="mb-4">
+                            <div class="text-muted small py-2">Loading relevant workshops...</div>
+                        </div>
+
+                        <h6 class="fw-bold text-dark mb-3"><i class="bi bi-briefcase-fill text-success me-2"></i>High-Affinity Roles & Companies (Skill Match &ge; 50%)</h6>
+                        <div id="rec-roles-list">
+                            <div class="text-muted small py-2">Loading suitable roles...</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Bootstrap 5 JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Placement Intelligence Dashboard Script -->
+    <script>
+        const API_BASE = '/api';
+        const token = localStorage.getItem('token');
+
+        // Security check
+        if (!token) {
+            window.location.href = '../../pages/auth/login.html';
+        }
+
+        const authHeaders = {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+        };
+
+        // Initialize Page
+        document.addEventListener('DOMContentLoaded', () => {
+            loadStudentProfile();
+            loadPlacementIntelligence();
+            loadNotifications();
+
+            document.getElementById('refresh-diagnosis-btn').addEventListener('click', () => {
+                loadPlacementIntelligence();
+            });
+
+            document.getElementById('logout-btn').addEventListener('click', () => {
+                localStorage.removeItem('token');
+                localStorage.removeItem('user');
+                window.location.href = '../../pages/auth/login.html';
+            });
+        });
+
+        // 1. Load Student Profile Header
+        async function loadStudentProfile() {
+            try {
+                const res = await fetch(`${API_BASE}/students/profile`, { headers: authHeaders });
+                if (res.status === 401) {
+                    localStorage.clear();
+                    window.location.href = '../../pages/auth/login.html';
+                    return;
+                }
+                const json = await res.json();
+                if (json.status === 'success') {
+                    const s = json.data;
+                    document.getElementById('nav-student-name').textContent = `${s.first_name} ${s.last_name}`;
+                }
+            } catch (err) {
+                console.error('Error fetching profile:', err);
+            }
+        }
+
+        // 2. Load Placement Intelligence Diagnosis
+        async function loadPlacementIntelligence() {
+            try {
+                const res = await fetch(`${API_BASE}/students/placement-intelligence`, { headers: authHeaders });
+                const json = await res.json();
+                if (json.status !== 'success') {
+                    alert('Could not load diagnosis: ' + (json.message || 'Unknown error'));
+                    return;
+                }
+
+                const data = json.data;
+                renderFunnelMetrics(data.funnel);
+                renderSkillPatterns(data.skill_patterns);
+                renderEmployerFeedback(data.employer_feedback);
+                renderReadiness(data.readiness);
+                renderRecommendations(data.recommendations);
+
+            } catch (err) {
+                console.error('Error loading placement intelligence:', err);
+            }
+        }
+
+        // Render Funnel KPIs and Stages
+        function renderFunnelMetrics(funnel) {
+            document.getElementById('kpi-total-apps').textContent = funnel.total_applications;
+            document.getElementById('kpi-apps-sub').textContent = `${funnel.total_applications} roles applied`;
+
+            document.getElementById('kpi-shortlist-rate').textContent = `${funnel.conversion_rates.shortlisting_rate}%`;
+            document.getElementById('kpi-shortlist-ratio').textContent = `${funnel.shortlisted_count} of ${funnel.total_applications} shortlisted`;
+
+            document.getElementById('kpi-interview-rate').textContent = `${funnel.conversion_rates.interview_to_selection_rate !== undefined ? funnel.conversion_rates.shortlist_to_interview_rate : 0}%`;
+            document.getElementById('kpi-interview-ratio').textContent = `${funnel.interview_count} of ${funnel.shortlisted_count} reached interview`;
+
+            document.getElementById('kpi-selection-rate').textContent = `${funnel.conversion_rates.overall_selection_rate}%`;
+            document.getElementById('kpi-selection-ratio').textContent = `${funnel.selected_count} of ${funnel.total_applications} selected`;
+
+            // Bottleneck
+            const b = funnel.bottleneck;
+            document.getElementById('kpi-bottleneck-stage').textContent = b.stage;
+            document.getElementById('kpi-bottleneck-summary').textContent = b.summary;
+            document.getElementById('kpi-bottleneck-severity').textContent = b.severity;
+
+            const bCard = document.getElementById('kpi-bottleneck-card');
+            if (b.severity === 'HIGH') {
+                bCard.style.borderLeftColor = '#dc3545';
+                document.getElementById('kpi-bottleneck-stage').className = 'fw-bold my-1 text-danger';
+                document.getElementById('kpi-bottleneck-severity').className = 'badge bg-danger';
+            } else {
+                bCard.style.borderLeftColor = '#198754';
+                document.getElementById('kpi-bottleneck-stage').className = 'fw-bold my-1 text-success';
+                document.getElementById('kpi-bottleneck-severity').className = 'badge bg-success';
+            }
+
+            // Funnel Visual Step Counts
+            const sb = funnel.stage_breakdown;
+            document.getElementById('funnel-count-applied').textContent = sb.applied;
+            document.getElementById('funnel-count-shortlisted').textContent = sb.shortlisted;
+            document.getElementById('funnel-count-assessment').textContent = sb.assessment;
+            document.getElementById('funnel-count-interview').textContent = sb.interview;
+            document.getElementById('funnel-count-selected').textContent = sb.selected;
+
+            document.getElementById('funnel-pct-shortlist').textContent = `${funnel.conversion_rates.shortlisting_rate}% Shortlist`;
+            document.getElementById('funnel-pct-interview').textContent = `${funnel.conversion_rates.shortlist_to_interview_rate}% Interview`;
+            document.getElementById('funnel-pct-selected').textContent = `${funnel.conversion_rates.overall_selection_rate}% Offer`;
+
+            // Highlight bottleneck step
+            ['step-shortlist', 'step-assessment', 'step-interview', 'step-selected'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.classList.remove('bottleneck');
+            });
+
+            if (b.stage.includes('Screening')) {
+                document.getElementById('step-shortlist')?.classList.add('bottleneck');
+            } else if (b.stage.includes('Assessment')) {
+                document.getElementById('step-assessment')?.classList.add('bottleneck');
+            } else if (b.stage.includes('Interview')) {
+                document.getElementById('step-interview')?.classList.add('bottleneck');
+            }
+
+            document.getElementById('detail-bottleneck-title').textContent = b.stage;
+            document.getElementById('detail-bottleneck-explanation').textContent = b.detail;
+        }
+
+        // Render Recurring Skill Patterns
+        function renderSkillPatterns(patterns) {
+            const gapsList = document.getElementById('recurring-gaps-list');
+            const matchedList = document.getElementById('matched-skills-list');
+
+            const gaps = patterns.recurring_skill_gaps || [];
+            const matched = patterns.matched_skills_in_applications || [];
+
+            document.getElementById('gaps-count-badge').textContent = `${gaps.length} Potential Gaps`;
+            document.getElementById('matched-count-badge').textContent = `${matched.length} Matched`;
+
+            // Render Gaps
+            if (gaps.length === 0) {
+                gapsList.innerHTML = `
+                    <div class="text-center py-4 text-muted">
+                        <i class="bi bi-check2-circle text-success fs-2 mb-2 d-block"></i>
+                        No critical recurring skill gaps detected in your applied roles!
+                    </div>
+                `;
+            } else {
+                gapsList.innerHTML = gaps.map(g => `
+                    <div class="mb-3 p-3 bg-light rounded-3 border">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <div class="d-flex align-items-center gap-2">
+                                <span class="fw-bold text-dark">${g.skill}</span>
+                                <span class="badge ${g.is_critical ? 'badge-critical' : 'badge-gap'}">${g.is_critical ? 'Critical Requirement' : 'Important'}</span>
+                            </div>
+                            <span class="fw-semibold small text-danger">${g.frequency} / ${g.total_applied_jobs} Applied Jobs (${g.percentage_in_applied_jobs}%)</span>
+                        </div>
+                        <div class="progress mb-2" style="height: 6px;">
+                            <div class="progress-bar bg-danger" style="width: ${g.percentage_in_applied_jobs}%;"></div>
+                        </div>
+                        <div class="evidence-quote small text-muted">
+                            <i class="bi bi-info-circle me-1 text-primary"></i> ${g.evidence_statement}
+                        </div>
+                    </div>
+                `).join('');
+            }
+
+            // Render Matched
+            if (matched.length === 0) {
+                matchedList.innerHTML = `
+                    <div class="text-center py-4 text-muted">
+                        No overlap between applied job requirements and profile skills.
+                    </div>
+                `;
+            } else {
+                matchedList.innerHTML = matched.map(m => `
+                    <div class="d-flex justify-content-between align-items-center py-2 px-3 mb-2 bg-light rounded-2 border">
+                        <div>
+                            <span class="fw-semibold text-dark"><i class="bi bi-patch-check-fill text-success me-1"></i> ${m.skill}</span>
+                        </div>
+                        <span class="badge bg-success-subtle text-success border border-success-subtle small">
+                            In ${m.frequency} jobs (${m.percentage_in_applied_jobs}%)
+                        </span>
+                    </div>
+                `).join('');
+            }
+        }
+
+        // Render Employer Feedback
+        function renderEmployerFeedback(fb) {
+            const container = document.getElementById('employer-feedback-section');
+            const statusBadge = document.getElementById('feedback-status-badge');
+
+            if (!fb.has_employer_feedback) {
+                statusBadge.textContent = 'No Feedback Recorded';
+                statusBadge.className = 'badge bg-secondary';
+                container.innerHTML = `
+                    <div class="text-center py-4">
+                        <i class="bi bi-clipboard-x text-muted fs-2 d-block mb-2"></i>
+                        <h6 class="fw-bold text-secondary">No Explicit Employer Feedback Recorded Yet</h6>
+                        <p class="text-muted small mb-0">
+                            ${fb.notice_detail || 'Insights in this diagnosis represent statistical pattern analysis from job requirements.'}
+                        </p>
+                    </div>
+                `;
+                return;
+            }
+
+            statusBadge.textContent = `${fb.feedback_count} Verified Review(s)`;
+            statusBadge.className = 'badge bg-success';
+
+            // Average ratings bar
+            const avg = fb.average_ratings || {};
+            let ratingsHtml = '';
+            if (avg.overall) {
+                ratingsHtml = `
+                    <div class="row g-3 mb-4 p-3 bg-light rounded-3 border text-center">
+                        <div class="col-sm-3">
+                            <span class="text-muted small">Technical Rating</span>
+                            <h5 class="fw-bold my-1 text-primary">${avg.technical ? avg.technical + ' / 5' : 'N/A'}</h5>
+                        </div>
+                        <div class="col-sm-3">
+                            <span class="text-muted small">Problem Solving</span>
+                            <h5 class="fw-bold my-1 text-info">${avg.problem_solving ? avg.problem_solving + ' / 5' : 'N/A'}</h5>
+                        </div>
+                        <div class="col-sm-3">
+                            <span class="text-muted small">Communication</span>
+                            <h5 class="fw-bold my-1 text-warning">${avg.communication ? avg.communication + ' / 5' : 'N/A'}</h5>
+                        </div>
+                        <div class="col-sm-3">
+                            <span class="text-muted small">Overall Verdict</span>
+                            <h5 class="fw-bold my-1 text-success">${avg.overall ? avg.overall + ' / 5' : 'N/A'}</h5>
+                        </div>
+                    </div>
+                `;
+            }
+
+            const entriesHtml = fb.verified_feedback_entries.map(e => `
+                <div class="p-3 mb-3 bg-white border rounded-3 shadow-sm">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <div>
+                            <span class="fw-bold text-dark">${e.company_name}</span>
+                            <span class="text-muted small ms-2">Role: ${e.job_title}</span>
+                        </div>
+                        <span class="badge ${e.recommendation === 'Strong Hire' || e.recommendation === 'Hire' ? 'bg-success' : 'bg-warning text-dark'}">
+                            ${e.recommendation || e.feedback_type}
+                        </span>
+                    </div>
+                    <div class="employer-feedback-quote mb-2 text-dark small">
+                        <strong><i class="bi bi-chat-quote me-1 text-success"></i> Employer feedback indicates:</strong> "${e.comments}"
+                    </div>
+                    <div class="text-muted small d-flex gap-3">
+                        <span>Technical: <strong>${e.ratings.technical || 'N/A'}/5</strong></span>
+                        <span>Problem Solving: <strong>${e.ratings.problem_solving || 'N/A'}/5</strong></span>
+                        <span>Communication: <strong>${e.ratings.communication || 'N/A'}/5</strong></span>
+                    </div>
+                </div>
+            `).join('');
+
+            container.innerHTML = ratingsHtml + entriesHtml;
+        }
+
+        // Render Readiness Metrics
+        function renderReadiness(readiness) {
+            // Resume ATS
+            const resume = readiness.resume;
+            const atsScore = resume.ats_score;
+            if (atsScore !== null && atsScore !== undefined) {
+                document.getElementById('ats-score-display').textContent = `${atsScore} / 100`;
+                document.getElementById('ats-progress-bar').style.width = `${atsScore}%`;
+                document.getElementById('ats-status-text').textContent = `${resume.status} (${resume.file_name || 'Primary Resume'})`;
+            } else {
+                document.getElementById('ats-score-display').textContent = 'Not Scored';
+                document.getElementById('ats-progress-bar').style.width = '0%';
+                document.getElementById('ats-status-text').textContent = 'Upload or parse resume in Resume Intelligence.';
+            }
+
+            // Projects
+            const projects = readiness.projects;
+            document.getElementById('projects-count-display').textContent = `${projects.total_projects} Projects`;
+            document.getElementById('projects-status-text').textContent = projects.status;
+
+            // Assessments
+            const tests = readiness.assessments;
+            if (tests.total_attempts > 0) {
+                document.getElementById('assessment-score-display').textContent = `${tests.average_score}% Avg`;
+                document.getElementById('assessment-status-text').textContent = `${tests.passed_attempts} of ${tests.total_attempts} tests cleared (${tests.pass_rate}% Pass Rate)`;
+            } else {
+                document.getElementById('assessment-score-display').textContent = '0 Tests';
+                document.getElementById('assessment-status-text').textContent = 'No technical screening attempts recorded.';
+            }
+        }
+
+        // Render Actionable Recommendations
+        function renderRecommendations(rec) {
+            // Skills to improve
+            const skillsContainer = document.getElementById('rec-skills-list');
+            if (!rec.skills_to_improve || rec.skills_to_improve.length === 0) {
+                skillsContainer.innerHTML = '<div class="text-muted small">No immediate skill gaps identified.</div>';
+            } else {
+                skillsContainer.innerHTML = rec.skills_to_improve.map(s => `
+                    <div class="list-group-item d-flex justify-content-between align-items-center py-2 px-3 border rounded-2 mb-2">
+                        <div>
+                            <span class="fw-semibold text-dark">${s.skill}</span>
+                            <small class="text-muted d-block">${s.reason}</small>
+                        </div>
+                        <span class="badge ${s.priority === 'High' ? 'bg-danger' : 'bg-warning text-dark'}">${s.priority} Priority</span>
+                    </div>
+                `).join('');
+            }
+
+            // Projects to build
+            const projectsContainer = document.getElementById('rec-projects-list');
+            if (!rec.suggested_projects || rec.suggested_projects.length === 0) {
+                projectsContainer.innerHTML = '<div class="text-muted small">No specific projects recommended.</div>';
+            } else {
+                projectsContainer.innerHTML = rec.suggested_projects.map(p => `
+                    <div class="p-3 mb-2 bg-light border rounded-3">
+                        <div class="fw-bold text-dark small mb-1">${p.title}</div>
+                        <p class="text-muted small mb-2">${p.description}</p>
+                        <div class="d-flex flex-wrap gap-1">
+                            ${p.target_skills.map(t => `<span class="badge bg-secondary-subtle text-secondary border small">${t}</span>`).join('')}
+                        </div>
+                    </div>
+                `).join('');
+            }
+
+            // Relevant workshops
+            const workshopsContainer = document.getElementById('rec-workshops-list');
+            if (!rec.relevant_workshops || rec.relevant_workshops.length === 0) {
+                workshopsContainer.innerHTML = '<div class="text-muted small">No upcoming workshops matching missing skills.</div>';
+            } else {
+                workshopsContainer.innerHTML = rec.relevant_workshops.map(w => `
+                    <div class="p-3 mb-2 bg-white border rounded-3 shadow-sm d-flex justify-content-between align-items-center">
+                        <div>
+                            <div class="fw-bold text-dark small">${w.title}</div>
+                            <small class="text-muted d-block">By ${w.instructor} | Seats: ${w.registrations_count}/${w.max_capacity}</small>
+                        </div>
+                        <div>
+                            ${w.is_already_registered 
+                                ? '<span class="badge bg-success"><i class="bi bi-check"></i> Registered</span>'
+                                : `<button class="btn btn-outline-primary btn-sm px-2 py-1" onclick="registerWorkshop(${w.id})">Register</button>`
+                            }
+                        </div>
+                    </div>
+                `).join('');
+            }
+
+            // Suitable Roles & Companies
+            const rolesContainer = document.getElementById('rec-roles-list');
+            if (!rec.suitable_job_roles || rec.suitable_job_roles.length === 0) {
+                rolesContainer.innerHTML = '<div class="text-muted small">No active matching job listings currently open.</div>';
+            } else {
+                rolesContainer.innerHTML = rec.suitable_job_roles.map(r => `
+                    <div class="p-3 mb-2 bg-light border rounded-3 d-flex justify-content-between align-items-center">
+                        <div>
+                            <div class="fw-bold text-dark small">${r.title}</div>
+                            <small class="text-muted">${r.company} | ${r.job_type} | ${r.ctc || 'Competitive'}</small>
+                        </div>
+                        <div class="text-end">
+                            <span class="badge bg-success mb-1">${r.affinity_pct}% Skill Match</span>
+                            <br>
+                            <a href="jobs.html?job_id=${r.job_id}" class="btn btn-sm btn-link p-0 text-decoration-none small">View Job &rarr;</a>
+                        </div>
+                    </div>
+                `).join('');
+            }
+        }
+
+        // Workshop Registration Handler
+        async function registerWorkshop(workshopId) {
+            try {
+                const res = await fetch(`${API_BASE}/students/workshops/${workshopId}/register`, {
+                    method: 'POST',
+                    headers: authHeaders
+                });
+                const json = await res.json();
+                if (json.status === 'success') {
+                    alert('Successfully registered for the workshop!');
+                    loadPlacementIntelligence();
+                } else {
+                    alert('Registration failed: ' + (json.message || 'Error'));
+                }
+            } catch (err) {
+                console.error('Error registering workshop:', err);
+            }
+        }
+
+        // 3. Load In-App Notifications
+        async function loadNotifications() {
+            try {
+                const badge = document.getElementById('notif-badge');
+                const list = document.getElementById('notif-dropdown-list');
+                const emptyMsg = document.getElementById('notif-empty-msg');
+
+                const countRes = await fetch(`${API_BASE}/notifications/unread-count`, { headers: authHeaders });
+                const countJson = await countRes.json();
+                if (countJson.status === 'success' && countJson.data.unread_count > 0) {
+                    badge.textContent = countJson.data.unread_count;
+                    badge.classList.remove('d-none');
+                } else {
+                    badge.classList.add('d-none');
+                }
+
+                const notifRes = await fetch(`${API_BASE}/notifications`, { headers: authHeaders });
+                const notifJson = await notifRes.json();
+                if (notifJson.status === 'success' && notifJson.data.notifications.length > 0) {
+                    if (emptyMsg) emptyMsg.remove();
+                    const notifs = notifJson.data.notifications.slice(0, 5);
+                    notifs.forEach(n => {
+                        const item = document.createElement('li');
+                        item.className = `dropdown-item small py-2 border-bottom ${n.is_read ? 'text-muted' : 'fw-semibold bg-light'}`;
+                        item.innerHTML = `
+                            <div class="d-flex justify-content-between">
+                                <span class="fw-bold">${n.title}</span>
+                                <span class="badge bg-secondary small" style="font-size: 0.65rem;">${n.type}</span>
+                            </div>
+                            <div class="small text-truncate" style="max-width: 260px;">${n.message}</div>
+                        `;
+                        item.addEventListener('click', async () => {
+                            await fetch(`${API_BASE}/notifications/${n.id}/read`, { method: 'PUT', headers: authHeaders });
+                            if (n.link) window.location.href = n.link;
+                            else loadNotifications();
+                        });
+                        list.appendChild(item);
+                    });
+                }
+
+                document.getElementById('mark-all-read-btn')?.addEventListener('click', async (e) => {
+                    e.stopPropagation();
+                    await fetch(`${API_BASE}/notifications/read-all`, { method: 'PUT', headers: authHeaders });
+                    loadNotifications();
+                });
+            } catch (err) {
+                console.error('Error loading notifications:', err);
+            }
+        }
+    </script>
+</body>
+</html>

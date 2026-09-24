@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Account - College Placement & Career Development Platform</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+    <link rel="stylesheet" href="../css/style.css">
+    <style>
+        :root { --auth-bg:#f7f3ee; --auth-surface:#fffaf6; --auth-plum:#5b3a70; --auth-mauve:#8e6ba8; --auth-coral:#e98b6a; --auth-muted:#746a75; --auth-border:#e7ddd8; }
+        body.auth-page { color:#28232a; background:radial-gradient(ellipse at 8% 16%,#e7dced 0,transparent 34%),radial-gradient(ellipse at 92% 84%,#f6ddd3 0,transparent 32%),var(--auth-bg)!important; }
+        .auth-nav { width:min(1180px,calc(100% - 32px)); margin:18px auto 0; padding:10px 18px; border:1px solid #e6dcd8; border-radius:22px; background:#fffaf4dc!important; backdrop-filter:blur(16px); }
+        .auth-nav .navbar-brand { color:var(--auth-plum)!important; font-size:1.1rem; }
+        .auth-nav .navbar-brand i { color:var(--auth-coral); }
+        .auth-nav .nav-link { color:var(--auth-muted)!important; font-weight:600; }
+        .auth-nav .nav-link:hover { color:var(--auth-plum)!important; }
+        .auth-main { flex:1; }
+        .auth-main > .row { min-height:calc(100vh - 100px); align-items:center; }
+        .auth-card { overflow:hidden; border:1px solid #e8ded9!important; border-radius:28px!important; background:#fffaf5ed; box-shadow:0 24px 70px #5b3a7017!important; }
+        .auth-card .card-body { padding:clamp(1.5rem,5vw,3rem)!important; }
+        .auth-mark { display:grid; place-items:center; width:58px; height:58px; margin:0 auto 18px; border-radius:20px; color:#fff; background:linear-gradient(145deg,var(--auth-mauve),var(--auth-plum)); box-shadow:0 12px 26px #5b3a702e; font-size:1.5rem; }
+        .auth-eyebrow { color:var(--auth-mauve); font-size:.68rem; letter-spacing:.17em; font-weight:800; }
+        .auth-card h1 { color:var(--auth-plum); letter-spacing:-.04em; }
+        .auth-card p { color:var(--auth-muted)!important; }
+        .auth-card .form-label { color:#403747; }
+        .auth-card .form-control { min-height:46px; border-color:var(--auth-border); background:#fffdfa; }
+        .auth-card .form-control:focus { border-color:var(--auth-mauve); box-shadow:0 0 0 .22rem #8e6ba826; }
+        .auth-primary { border:0!important; border-radius:999px!important; color:white!important; background:linear-gradient(100deg,var(--auth-coral),#e77d69)!important; box-shadow:0 10px 24px #e98b6a38; }
+        .auth-card .btn-success { border:0; border-radius:999px; background:linear-gradient(100deg,var(--auth-plum),var(--auth-mauve)); }
+        .auth-card .nav-pills { border:1px solid var(--auth-border)!important; background:#f4eeea!important; }
+        .auth-card .nav-pills .nav-link { color:var(--auth-muted); border-radius:999px; }
+        .auth-card .nav-pills .nav-link.active { color:#fff; background:var(--auth-plum); box-shadow:0 5px 14px #5b3a7026; }
+        .auth-card .alert-warning { color:#674f3f; background:#fbf1e5; border-color:#f0ddc5; }
+        .auth-card a:not(.btn) { color:var(--auth-plum)!important; }
+        .auth-card .border-top { border-color:var(--auth-border)!important; }
+        @media(max-width:575px) { .auth-nav { margin-top:10px; } }
+    </style>
+</head>
+<body class="auth-page auth-register">
+
+    <!-- Header Navigation -->
+    <nav class="navbar navbar-expand-lg auth-nav">
+        <div class="container">
+            <a class="navbar-brand fw-bold" href="../index.html">
+                <i class="bi bi-stars me-2"></i>SkillBridge
+            </a>
+            <div class="navbar-nav ms-auto">
+                <a class="nav-link" href="../index.html"><i class="bi bi-house me-1"></i> Home</a>
+                <a class="nav-link" href="login.html"><i class="bi bi-box-arrow-in-right me-1"></i> Sign In</a>
+            </div>
+        </div>
+    </nav>
+
+    <main class="container auth-main py-5">
+        <div class="row justify-content-center">
+            <div class="col-lg-8 col-xl-7">
+                <div class="card auth-card">
+                    <div class="card-body p-4 p-md-5">
+                        <div class="text-center mb-4">
+                            <div class="auth-mark"><i class="bi bi-person-plus"></i></div>
+                            <div class="auth-eyebrow mb-2">JOIN THE SKILLBRIDGE COMMUNITY</div>
+                            <h1 class="h2 fw-bold">Create your account</h1>
+                            <p class="text-muted small">Select your platform role to get started</p>
+                        </div>
+
+                        <!-- Feedback Alert -->
+                        <div id="alert-box" class="alert d-none small mb-4" role="alert"></div>
+
+                        <!-- Role Selection Tabs -->
+                        <ul class="nav nav-pills nav-fill mb-4 p-1 bg-light rounded border" id="roleTabs" role="tablist">
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link active fw-semibold" id="student-tab" data-bs-toggle="pill" data-bs-target="#student-pane" type="button" role="tab">
+                                    <i class="bi bi-person-fill me-1"></i> Student Registration
+                                </button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link fw-semibold" id="industry-tab" data-bs-toggle="pill" data-bs-target="#industry-pane" type="button" role="tab">
+                                    <i class="bi bi-building me-1"></i> Industry / Recruiter
+                                </button>
+                            </li>
+                        </ul>
+
+                        <div class="tab-content" id="roleTabContent">
+                            <!-- Student Form -->
+                            <div class="tab-pane fade show active" id="student-pane" role="tabpanel">
+                                <form id="student-form">
+                                    <div class="row g-3">
+                                        <div class="col-md-6">
+                                            <label class="form-label small fw-semibold">Full Name *</label>
+                                            <input type="text" id="stu-name" class="form-control" placeholder="e.g. Rahul Sharma" required>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label class="form-label small fw-semibold">Enrollment / Roll Number *</label>
+                                            <input type="text" id="stu-roll" class="form-control" placeholder="e.g. CS2026042" required>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label class="form-label small fw-semibold">College Email Address *</label>
+                                            <input type="email" id="stu-email" class="form-control" placeholder="student@college.edu" required>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label class="form-label small fw-semibold">Password *</label>
+                                            <input type="password" id="stu-pwd" class="form-control" placeholder="Min 6 characters" minlength="6" required>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label class="form-label small fw-semibold">Branch / Department *</label>
+                                            <input type="text" id="stu-branch" class="form-control" placeholder="e.g. Computer Science" required>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <label class="form-label small fw-semibold">Graduation Year *</label>
+                                            <input type="number" id="stu-year" class="form-control" placeholder="2026" min="2020" max="2035" value="2026" required>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <label class="form-label small fw-semibold">CGPA</label>
+                                            <input type="number" step="0.01" id="stu-cgpa" class="form-control" placeholder="e.g. 8.75" min="0" max="10">
+                                        </div>
+                                    </div>
+                                    <div class="mt-4">
+                                        <button type="submit" id="stu-submit" class="btn auth-primary w-100 py-2 fw-semibold">
+                                            <i class="bi bi-person-check-fill me-1"></i> Register as Student
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
+
+                            <!-- Industry Form -->
+                            <div class="tab-pane fade" id="industry-pane" role="tabpanel">
+                                <div class="alert alert-warning small py-2 mb-3">
+                                    <i class="bi bi-shield-exclamation me-1"></i>
+                                    <strong>Approval Notice:</strong> Industry accounts are registered with <code>status = PENDING</code> and require administrator approval before gaining recruiter privileges.
+                                </div>
+                                <form id="industry-form">
+                                    <div class="row g-3">
+                                        <div class="col-md-6">
+                                            <label class="form-label small fw-semibold">Full Name *</label>
+                                            <input type="text" id="ind-name" class="form-control" placeholder="e.g. Priya Nair" required>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label class="form-label small fw-semibold">Work / Corporate Email *</label>
+                                            <input type="email" id="ind-email" class="form-control" placeholder="recruiter@company.com" required>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label class="form-label small fw-semibold">Password *</label>
+                                            <input type="password" id="ind-pwd" class="form-control" placeholder="Min 6 characters" minlength="6" required>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label class="form-label small fw-semibold">Designation / Role *</label>
+                                            <input type="text" id="ind-designation" class="form-control" placeholder="e.g. Senior Tech Recruiter" required>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label class="form-label small fw-semibold">Company Name *</label>
+                                            <input type="text" id="ind-company" class="form-control" placeholder="e.g. Microsoft India" required>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label class="form-label small fw-semibold">Years of Experience</label>
+                                            <input type="number" id="ind-exp" class="form-control" placeholder="e.g. 5" min="0" max="60">
+                                        </div>
+                                    </div>
+                                    <div class="mt-4">
+                                        <button type="submit" id="ind-submit" class="btn btn-success w-100 py-2 fw-semibold">
+                                            <i class="bi bi-building-add me-1"></i> Register as Industry Expert
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+
+                        <div class="text-center mt-4 pt-3 border-top small">
+                            <span class="text-muted">Already have an account?</span>
+                            <a href="login.html" class="fw-semibold text-decoration-none">Sign in here</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Bootstrap 5 Bundle JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script type="module">
+        import { API_BASE, setToken, setUser } from '../js/auth.js';
+
+        const alertBox = document.getElementById("alert-box");
+
+        function showAlert(msg, type) {
+            alertBox.className = `alert alert-${type} small mb-4`;
+            alertBox.textContent = msg;
+            alertBox.classList.remove("d-none");
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        async function parseResponse(res) {
+            const contentType = res.headers.get("content-type");
+            if (contentType && contentType.includes("application/json")) {
+                return await res.json();
+            }
+            const text = await res.text();
+            throw new Error(`Server returned HTTP ${res.status} (non-JSON). Verify Flask backend is running on port 5000.`);
+        }
+
+        // Student Form Submit
+        document.getElementById("student-form").addEventListener("submit", async (e) => {
+            e.preventDefault();
+            alertBox.classList.add("d-none");
+            const btn = document.getElementById("stu-submit");
+            btn.disabled = true;
+
+            const payload = {
+                name: document.getElementById("stu-name").value.trim(),
+                roll_number: document.getElementById("stu-roll").value.trim(),
+                email: document.getElementById("stu-email").value.trim(),
+                password: document.getElementById("stu-pwd").value,
+                branch: document.getElementById("stu-branch").value.trim(),
+                graduation_year: parseInt(document.getElementById("stu-year").value, 10),
+                cgpa: document.getElementById("stu-cgpa").value ? parseFloat(document.getElementById("stu-cgpa").value) : null
+            };
+
+            try {
+                const res = await fetch(`${API_BASE}/api/auth/student/register`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json", "Accept": "application/json" },
+                    body: JSON.stringify(payload)
+                });
+                const data = await parseResponse(res);
+                if (res.ok) {
+                    setToken(data.data.token);
+                    setUser(data.data.user);
+                    showAlert("Student registered successfully! Redirecting to home...", "success");
+                    setTimeout(() => window.location.href = "../index.html", 1500);
+                } else {
+                    showAlert(data.message || "Registration failed.", "danger");
+                }
+            } catch (err) {
+                showAlert(`Registration error: ${err.message}`, "danger");
+            } finally {
+                btn.disabled = false;
+            }
+        });
+
+        // Industry Form Submit
+        document.getElementById("industry-form").addEventListener("submit", async (e) => {
+            e.preventDefault();
+            alertBox.classList.add("d-none");
+            const btn = document.getElementById("ind-submit");
+            btn.disabled = true;
+
+            const payload = {
+                name: document.getElementById("ind-name").value.trim(),
+                email: document.getElementById("ind-email").value.trim(),
+                password: document.getElementById("ind-pwd").value,
+                designation: document.getElementById("ind-designation").value.trim(),
+                company: document.getElementById("ind-company").value.trim(),
+                experience_years: document.getElementById("ind-exp").value ? parseInt(document.getElementById("ind-exp").value, 10) : 0
+            };
+
+            try {
+                const res = await fetch(`${API_BASE}/api/auth/industry/register`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json", "Accept": "application/json" },
+                    body: JSON.stringify(payload)
+                });
+                const data = await parseResponse(res);
+                if (res.ok) {
+                    setToken(data.data.token);
+                    setUser(data.data.user);
+                    showAlert("Registration submitted! Status: PENDING administrator approval. Redirecting...", "warning");
+                    setTimeout(() => window.location.href = "../index.html", 2000);
+                } else {
+                    showAlert(data.message || "Registration failed.", "danger");
+                }
+            } catch (err) {
+                showAlert(`Registration error: ${err.message}`, "danger");
+            } finally {
+                btn.disabled = false;
+            }
+        });
+    </script>
+</body>
+</html>

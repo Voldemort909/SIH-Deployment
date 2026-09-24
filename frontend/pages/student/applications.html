@@ -1,0 +1,780 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Applications & Assessments - CareerPath AI</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+    <link rel="stylesheet" href="../../css/style.css">
+    <style>
+        .status-badge-APPLIED { background-color: #cfe2ff; color: #084298; border: 1px solid #b6d4fe; }
+        .status-badge-UNDER_REVIEW { background-color: #cff4fc; color: #055160; border: 1px solid #b6effb; }
+        .status-badge-SHORTLISTED { background-color: #e0cffc; color: #3d0a91; border: 1px solid #c5a3ff; }
+        .status-badge-ASSESSMENT { background-color: #fff3cd; color: #664d03; border: 1px solid #ffe69c; }
+        .status-badge-INTERVIEW { background-color: #d1e7dd; color: #0f5132; border: 1px solid #badbcc; }
+        .status-badge-SELECTED { background-color: #198754; color: #ffffff; }
+        .status-badge-REJECTED { background-color: #f8d7da; color: #842029; border: 1px solid #f5c2c7; }
+
+        .timeline-container {
+            position: relative;
+            padding-left: 2rem;
+        }
+        .timeline-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            left: 11px;
+            width: 2px;
+            background-color: #dee2e6;
+        }
+        .timeline-item {
+            position: relative;
+            margin-bottom: 1.5rem;
+        }
+        .timeline-item:last-child {
+            margin-bottom: 0;
+        }
+        .timeline-dot {
+            position: absolute;
+            left: -2rem;
+            top: 4px;
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            background-color: #0d6efd;
+            border: 2px solid #ffffff;
+            box-shadow: 0 0 0 2px #0d6efd40;
+        }
+    </style>
+</head>
+<body class="bg-light d-flex flex-column min-vh-100">
+
+    <!-- Top Navigation Bar -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary shadow-sm sticky-top">
+        <div class="container-fluid px-lg-5">
+            <a class="navbar-brand fw-bold" href="../../index.html">
+                <i class="bi bi-mortarboard-fill me-2"></i>CareerPath AI <span class="badge bg-white text-primary ms-1 small">Student</span>
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navContent">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <div class="collapse navbar-collapse" id="navContent">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                    <li class="nav-item">
+                        <a class="nav-link text-white-50" href="dashboard.html"><i class="bi bi-speedometer2 me-1"></i> Dashboard</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-white-50" href="jobs.html"><i class="bi bi-briefcase me-1"></i> Job Marketplace</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active fw-semibold" href="applications.html"><i class="bi bi-card-checklist me-1"></i> My Applications</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-white-50" href="resume-analysis.html"><i class="bi bi-file-earmark-check me-1"></i> Resume Intelligence</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-white-50" href="alumni.html"><i class="bi bi-people me-1"></i> Alumni Network</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-white-50" href="why-not-selected.html"><i class="bi bi-lightbulb-fill me-1 text-warning"></i> Placement Intelligence</a>
+                    </li>
+                </ul>
+
+                <div class="d-flex align-items-center gap-3">
+                    <span id="nav-student-name" class="text-white fw-semibold small">Loading user...</span>
+                    <button id="logout-btn" class="btn btn-outline-light btn-sm">
+                        <i class="bi bi-box-arrow-right me-1"></i> Sign Out
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Container -->
+    <main class="container-fluid px-lg-5 py-4 flex-grow-1">
+
+        <!-- Page Header -->
+        <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 pb-2 border-bottom">
+            <div>
+                <h2 class="fw-bold mb-1">
+                    <i class="bi bi-card-checklist text-primary me-2"></i>My Applications & Online Assessments
+                </h2>
+                <p class="text-muted small mb-0">
+                    Track your campus hiring pipeline, view interviewer feedback, and complete online technical screening assessments.
+                </p>
+            </div>
+            <div class="mt-2 mt-md-0 d-flex gap-2">
+                <a href="jobs.html" class="btn btn-primary btn-sm">
+                    <i class="bi bi-search me-1"></i> Explore More Jobs
+                </a>
+                <button id="refresh-apps-btn" class="btn btn-outline-secondary btn-sm">
+                    <i class="bi bi-arrow-clockwise me-1"></i> Refresh
+                </button>
+            </div>
+        </div>
+
+        <!-- Summary KPIs -->
+        <div class="row g-3 mb-4">
+            <div class="col-6 col-md-3">
+                <div class="card border-0 shadow-sm p-3 text-center bg-white">
+                    <span class="text-muted small fw-semibold text-uppercase">Total Applications</span>
+                    <h3 class="fw-bold mt-1 mb-0 text-dark" id="kpi-total">0</h3>
+                </div>
+            </div>
+            <div class="col-6 col-md-3">
+                <div class="card border-0 shadow-sm p-3 text-center bg-white">
+                    <span class="text-muted small fw-semibold text-uppercase">Under Active Review</span>
+                    <h3 class="fw-bold mt-1 mb-0 text-primary" id="kpi-review">0</h3>
+                </div>
+            </div>
+            <div class="col-6 col-md-3">
+                <div class="card border-0 shadow-sm p-3 text-center bg-white">
+                    <span class="text-muted small fw-semibold text-uppercase">Interviews & Tests</span>
+                    <h3 class="fw-bold mt-1 mb-0 text-warning" id="kpi-interviews">0</h3>
+                </div>
+            </div>
+            <div class="col-6 col-md-3">
+                <div class="card border-0 shadow-sm p-3 text-center bg-white">
+                    <span class="text-muted small fw-semibold text-uppercase">Selected Offers</span>
+                    <h3 class="fw-bold mt-1 mb-0 text-success" id="kpi-selected">0</h3>
+                </div>
+            </div>
+        </div>
+
+        <!-- Applications Table Card -->
+        <div class="card border-0 shadow-sm mb-4">
+            <div class="card-header bg-white py-3 border-bottom d-flex justify-content-between align-items-center">
+                <h5 class="card-title fw-bold mb-0">Application Pipeline</h5>
+                <span class="badge bg-light text-muted border" id="table-count-badge">0 entries</span>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="table-light small">
+                            <tr>
+                                <th class="ps-4">Job Role & Company</th>
+                                <th>Location & CTC</th>
+                                <th>Match Score</th>
+                                <th>Status</th>
+                                <th>Applied Date</th>
+                                <th class="text-end pe-4">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="applications-table-body">
+                            <tr>
+                                <td colspan="6" class="text-center text-muted py-5">
+                                    <div class="spinner-border spinner-border-sm text-primary me-2"></div>
+                                    Loading your applications...
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Online Assessments Section -->
+        <div class="card border-0 shadow-sm mb-4">
+            <div class="card-header bg-white py-3 border-bottom d-flex justify-content-between align-items-center">
+                <div>
+                    <h5 class="card-title fw-bold mb-0">
+                        <i class="bi bi-file-earmark-check text-success me-2"></i>Pre-Placement Screening Assessments
+                    </h5>
+                    <small class="text-muted">Take online technical tests and view auto-graded results.</small>
+                </div>
+                <span class="badge bg-success-subtle text-success border border-success-subtle px-2 py-1" id="assessments-count-badge">0 available</span>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="table-light small">
+                            <tr>
+                                <th class="ps-4">Assessment Title</th>
+                                <th>Company & Job</th>
+                                <th>Duration</th>
+                                <th>Passing Criteria</th>
+                                <th>Status / Score</th>
+                                <th class="text-end pe-4">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="student-assessments-body">
+                            <tr><td colspan="6" class="text-center text-muted py-4">Loading screening assessments...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Modal: Application Status Audit & Timeline -->
+    <div class="modal fade" id="timelineModal" tabindex="-1" aria-labelledby="timelineModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content border-0 shadow">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title fw-bold" id="timelineModalLabel">
+                        <i class="bi bi-clock-history me-2"></i>Application Audit & Timeline
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-4" id="timeline-modal-body">
+                    <!-- Dynamic timeline content -->
+                </div>
+                <div class="modal-footer bg-light">
+                    <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Interviewer Feedback -->
+    <div class="modal fade" id="studentFeedbackModal" tabindex="-1" aria-labelledby="studentFeedbackModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content border-0 shadow">
+                <div class="modal-header bg-info-subtle border-bottom">
+                    <h5 class="modal-title fw-bold text-dark" id="studentFeedbackModalLabel">
+                        <i class="bi bi-star-fill text-warning me-2"></i>Interviewer Feedback & Recommendations
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-4" id="student-feedback-content">
+                    <!-- Dynamic feedback content -->
+                </div>
+                <div class="modal-footer bg-light">
+                    <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Take Assessment & Test Execution -->
+    <div class="modal fade" id="takeAssessmentModal" tabindex="-1" data-bs-backdrop="static" aria-labelledby="takeAssessmentModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content border-0 shadow">
+                <div class="modal-header bg-success text-white">
+                    <div>
+                        <h5 class="modal-title fw-bold" id="test-modal-title">Online Assessment</h5>
+                        <p class="small mb-0 opacity-75" id="test-modal-subtitle">Auto-graded technical screening</p>
+                    </div>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <div id="test-intro-container" class="alert alert-info small mb-3">
+                        Answer all multiple-choice questions carefully. Upon submission, your score will be calculated and reported to the recruiter immediately.
+                    </div>
+
+                    <form id="assessment-quiz-form">
+                        <div id="test-questions-list" class="d-flex flex-column gap-3 mb-4">
+                            <!-- Dynamic questions with radio options -->
+                        </div>
+
+                        <div class="d-flex justify-content-end gap-2">
+                            <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cancel</button>
+                            <button type="submit" id="submit-quiz-btn" class="btn btn-success btn-sm px-4 fw-semibold">
+                                <i class="bi bi-check2-circle me-1"></i> Submit & Finish Test
+                            </button>
+                        </div>
+                    </form>
+
+                    <!-- Test Result Container (Initially hidden) -->
+                    <div id="test-result-box" class="d-none mt-3 p-4 rounded text-center border">
+                        <div id="test-verdict-icon" class="display-5 mb-2"></div>
+                        <h4 class="fw-bold mb-1" id="test-verdict-text">Passed!</h4>
+                        <p class="text-muted small mb-3" id="test-verdict-sub">Your performance has been evaluated.</p>
+                        <div class="d-inline-flex gap-3 px-4 py-2 bg-light rounded border mb-3">
+                            <div><small class="text-muted d-block">Score</small><strong class="fs-5 text-dark" id="test-result-score">0 / 0</strong></div>
+                            <div class="border-end"></div>
+                            <div><small class="text-muted d-block">Percentage</small><strong class="fs-5 text-primary" id="test-result-pct">0%</strong></div>
+                            <div class="border-end"></div>
+                            <div><small class="text-muted d-block">Status</small><span class="badge bg-success mt-1" id="test-result-badge">PASSED</span></div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="text-center py-3 text-muted small border-top bg-white mt-auto">
+        College Placement & Career Development Platform &bull; Student Application Tracker
+    </footer>
+
+    <!-- Bootstrap 5 JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Client Script -->
+    <script type="module">
+        import { API_BASE, getToken, getUser, removeToken, authFetch } from '../../js/auth.js';
+
+        let applications = [];
+        let assessments = [];
+        let activeAssessmentId = null;
+
+        const navStudentName = document.getElementById("nav-student-name");
+        const logoutBtn = document.getElementById("logout-btn");
+        const appsTableBody = document.getElementById("applications-table-body");
+        const assessmentsBody = document.getElementById("student-assessments-body");
+        const refreshAppsBtn = document.getElementById("refresh-apps-btn");
+        const tableCountBadge = document.getElementById("table-count-badge");
+        const assessmentsCountBadge = document.getElementById("assessments-count-badge");
+
+        const kpiTotal = document.getElementById("kpi-total");
+        const kpiReview = document.getElementById("kpi-review");
+        const kpiInterviews = document.getElementById("kpi-interviews");
+        const kpiSelected = document.getElementById("kpi-selected");
+
+        // Auth Protection Check
+        const token = getToken();
+        const user = getUser();
+        if (!token || !user || user.role !== "student") {
+            window.location.href = "../login.html";
+        } else {
+            navStudentName.textContent = user.name || user.email;
+        }
+
+        logoutBtn.addEventListener("click", () => {
+            removeToken();
+            window.location.href = "../login.html";
+        });
+
+        async function loadApplications() {
+            appsTableBody.innerHTML = `
+                <tr>
+                    <td colspan="6" class="text-center text-muted py-5">
+                        <div class="spinner-border spinner-border-sm text-primary me-2"></div>
+                        Loading your applications...
+                    </td>
+                </tr>
+            `;
+
+            try {
+                const res = await authFetch("/api/students/applications");
+                if (!res.ok) {
+                    const err = await res.json();
+                    throw new Error(err.message || "Failed to load applications");
+                }
+
+                const data = await res.json();
+                applications = Array.isArray(data.data) ? data.data : (data.data?.applications || []);
+                renderApplications(applications);
+            } catch (err) {
+                appsTableBody.innerHTML = `
+                    <tr>
+                        <td colspan="6" class="text-center text-danger py-4">
+                            <i class="bi bi-exclamation-triangle me-1"></i> ${err.message}
+                        </td>
+                    </tr>
+                `;
+            }
+        }
+
+        function renderApplications(apps) {
+            tableCountBadge.textContent = `${apps.length} entries`;
+
+            // Compute KPIs
+            kpiTotal.textContent = apps.length;
+            kpiReview.textContent = apps.filter(a => ["APPLIED", "UNDER_REVIEW", "SHORTLISTED"].includes(a.status)).length;
+            kpiInterviews.textContent = apps.filter(a => ["ASSESSMENT", "INTERVIEW"].includes(a.status)).length;
+            kpiSelected.textContent = apps.filter(a => a.status === "SELECTED").length;
+
+            if (apps.length === 0) {
+                appsTableBody.innerHTML = `
+                    <tr>
+                        <td colspan="6" class="text-center text-muted py-5">
+                            <i class="bi bi-inbox fs-2 d-block mb-2 text-secondary"></i>
+                            <h6 class="fw-bold text-dark">No applications submitted yet</h6>
+                            <p class="small text-muted mb-3">Browse our active campus recruitment openings and apply with your AI-matched profile.</p>
+                            <a href="jobs.html" class="btn btn-primary btn-sm">Explore Job Marketplace</a>
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            appsTableBody.innerHTML = apps.map(app => {
+                const job = app.job || {};
+                const appliedDate = app.applied_at 
+                    ? new Date(app.applied_at).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })
+                    : '--';
+                
+                const score = app.match_score != null ? `${Math.round(app.match_score)}%` : '--';
+                const statusClass = `status-badge-${app.status || 'APPLIED'}`;
+
+                return `
+                    <tr>
+                        <td class="ps-4">
+                            <div class="fw-bold text-dark">${escapeHtml(job.title || 'Untitled Position')}</div>
+                            <div class="text-muted small"><i class="bi bi-building me-1"></i>${escapeHtml(job.company_name || 'Partner Company')}</div>
+                        </td>
+                        <td>
+                            <div class="small text-dark">${escapeHtml(job.location || 'Flexible')}</div>
+                            <div class="text-muted small">${escapeHtml(job.ctc || '--')}</div>
+                        </td>
+                        <td>
+                            <span class="badge bg-light text-dark border px-2 py-1">${score}</span>
+                        </td>
+                        <td>
+                            <span class="badge ${statusClass} px-3 py-1 fw-semibold">${formatStatus(app.status)}</span>
+                        </td>
+                        <td class="text-muted small">
+                            ${appliedDate}
+                        </td>
+                        <td class="text-end pe-4">
+                            <div class="btn-group btn-group-sm">
+                                <button class="btn btn-outline-primary view-timeline-btn" data-app-id="${app.id}">
+                                    <i class="bi bi-clock-history me-1"></i> Track
+                                </button>
+                                <button class="btn btn-outline-info view-feedback-btn" data-app-id="${app.id}">
+                                    <i class="bi bi-chat-quote me-1"></i> Feedback
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            }).join("");
+
+            // Wire timeline buttons
+            document.querySelectorAll(".view-timeline-btn").forEach(btn => {
+                btn.addEventListener("click", () => {
+                    const appId = parseInt(btn.getAttribute("data-app-id"), 10);
+                    showTimelineModal(appId);
+                });
+            });
+
+            // Wire feedback buttons
+            document.querySelectorAll(".view-feedback-btn").forEach(btn => {
+                btn.addEventListener("click", () => {
+                    const appId = parseInt(btn.getAttribute("data-app-id"), 10);
+                    showFeedbackModal(appId);
+                });
+            });
+        }
+
+        function formatStatus(status) {
+            if (!status) return "APPLIED";
+            return status.replace(/_/g, " ");
+        }
+
+        function showTimelineModal(appId) {
+            const app = applications.find(a => a.id === appId);
+            if (!app) return;
+
+            const job = app.job || {};
+            const timeline = app.timeline || [];
+            const modalBody = document.getElementById("timeline-modal-body");
+
+            const timelineHtml = timeline.length > 0 ? timeline.map((item, idx) => {
+                const d = item.changed_at ? new Date(item.changed_at).toLocaleString() : '--';
+                const roleBadge = item.changed_by_role === "admin" 
+                    ? '<span class="badge bg-dark-subtle text-dark border">Placement Admin</span>'
+                    : '<span class="badge bg-primary-subtle text-primary border">Recruiter</span>';
+
+                return `
+                    <div class="timeline-item">
+                        <div class="timeline-dot"></div>
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                            <strong class="text-dark">${formatStatus(item.to_status)}</strong>
+                            <span class="text-muted small">${d}</span>
+                        </div>
+                        <div class="mb-1">${roleBadge}</div>
+                        ${item.notes ? `<div class="p-2 bg-light rounded text-secondary small border">${escapeHtml(item.notes)}</div>` : ''}
+                    </div>
+                `;
+            }).join("") : `
+                <div class="text-muted small fst-italic">Application received. Awaiting recruiter review.</div>
+            `;
+
+            modalBody.innerHTML = `
+                <div class="mb-4 pb-3 border-bottom">
+                    <h5 class="fw-bold mb-1">${escapeHtml(job.title || 'Role')}</h5>
+                    <p class="text-muted small mb-0">
+                        <i class="bi bi-building me-1"></i>${escapeHtml(job.company_name || 'Company')} &bull; 
+                        Current Status: <span class="badge status-badge-${app.status}">${formatStatus(app.status)}</span>
+                    </p>
+                </div>
+
+                <h6 class="fw-bold mb-3"><i class="bi bi-signpost-2 text-primary me-1"></i> Stage Progression & Review Notes</h6>
+                <div class="timeline-container">
+                    <div class="timeline-item">
+                        <div class="timeline-dot bg-success"></div>
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                            <strong class="text-dark">Application Submitted</strong>
+                            <span class="text-muted small">${app.applied_at ? new Date(app.applied_at).toLocaleString() : '--'}</span>
+                        </div>
+                        <div class="text-muted small">Candidate profile and resume transmitted to recruiter portal.</div>
+                    </div>
+                    ${timelineHtml}
+                </div>
+            `;
+
+            const modal = new bootstrap.Modal(document.getElementById("timelineModal"));
+            modal.show();
+        }
+
+        async function showFeedbackModal(appId) {
+            const modalContent = document.getElementById("student-feedback-content");
+            modalContent.innerHTML = `<div class="text-center py-4"><div class="spinner-border spinner-border-sm text-info me-2"></div> Loading interviewer feedback...</div>`;
+
+            const modal = new bootstrap.Modal(document.getElementById("studentFeedbackModal"));
+            modal.show();
+
+            try {
+                const res = await authFetch("/api/students/feedback");
+                const result = await res.json();
+                if (!res.ok) throw new Error(result.message || "Failed to load feedback");
+
+                const allFeedback = result.data.feedback || [];
+                const matching = allFeedback.filter(f => f.application_id === appId);
+
+                if (matching.length === 0) {
+                    modalContent.innerHTML = `
+                        <div class="text-center py-4 text-muted">
+                            <i class="bi bi-chat-dots display-6 d-block mb-2 text-secondary"></i>
+                            No shared feedback from interviewers recorded for this application yet.
+                        </div>
+                    `;
+                    return;
+                }
+
+                modalContent.innerHTML = matching.map(f => `
+                    <div class="card border bg-light p-3 mb-3">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <h6 class="fw-bold mb-0 text-dark">${escapeHtml(f.feedback_type || 'Interview')} &bull; Recommendation: <span class="badge bg-dark">${escapeHtml(f.recommendation)}</span></h6>
+                            <small class="text-muted">${f.created_at ? new Date(f.created_at).toLocaleDateString() : ''}</small>
+                        </div>
+                        <div class="row g-2 text-center py-2 bg-white rounded border mb-2 small">
+                            <div class="col-4 border-end">
+                                <span class="text-muted d-block">Technical</span>
+                                <strong class="text-primary">${f.technical_rating || '-'}/5</strong>
+                            </div>
+                            <div class="col-4 border-end">
+                                <span class="text-muted d-block">Problem Solving</span>
+                                <strong class="text-primary">${f.problem_solving_rating || '-'}/5</strong>
+                            </div>
+                            <div class="col-4">
+                                <span class="text-muted d-block">Communication</span>
+                                <strong class="text-primary">${f.communication_rating || '-'}/5</strong>
+                            </div>
+                        </div>
+                        <p class="small mb-1 text-dark fst-italic">"${escapeHtml(f.comments)}"</p>
+                        <small class="text-muted text-end d-block">&mdash; Evaluated by ${escapeHtml(f.reviewer_name)}</small>
+                    </div>
+                `).join("");
+
+            } catch (err) {
+                modalContent.innerHTML = `<div class="text-danger py-3 text-center">${escapeHtml(err.message)}</div>`;
+            }
+        }
+
+        // ====================================================================
+        // ONLINE ASSESSMENTS
+        // ====================================================================
+        async function loadAssessments() {
+            try {
+                const res = await authFetch("/api/students/assessments");
+                const result = await res.json();
+                if (!res.ok) throw new Error(result.message || "Failed to load assessments");
+
+                assessments = result.data.assessments || [];
+                assessmentsCountBadge.textContent = `${assessments.length} available`;
+
+                if (assessments.length === 0) {
+                    assessmentsBody.innerHTML = `<tr><td colspan="6" class="text-center text-muted py-4">No screening assessments scheduled currently.</td></tr>`;
+                    return;
+                }
+
+                assessmentsBody.innerHTML = assessments.map(a => {
+                    const attempt = a.attempt;
+                    let statusCol = `<span class="badge bg-secondary-subtle text-secondary border">Not Attempted</span>`;
+                    let actionBtn = `
+                        <button class="btn btn-sm btn-success take-test-btn" data-as-id="${a.id}">
+                            <i class="bi bi-play-circle me-1"></i> Take Test
+                        </button>
+                    `;
+
+                    if (attempt) {
+                        const passBadge = attempt.passed ? 'bg-success' : 'bg-danger';
+                        statusCol = `
+                            <span class="badge ${passBadge} px-2 py-1">${attempt.passed ? 'PASSED' : 'FAILED'}</span>
+                            <small class="d-block text-muted mt-1">${attempt.score} marks</small>
+                        `;
+                        actionBtn = `
+                            <button class="btn btn-sm btn-outline-secondary take-test-btn" data-as-id="${a.id}">
+                                <i class="bi bi-arrow-repeat me-1"></i> Retake
+                            </button>
+                        `;
+                    }
+
+                    return `
+                        <tr>
+                            <td class="ps-4">
+                                <div class="fw-bold text-dark">${escapeHtml(a.title)}</div>
+                                <div class="small text-muted">${a.total_questions || 0} questions &bull; ${escapeHtml(a.description || 'Screening')}</div>
+                            </td>
+                            <td>
+                                <div>${escapeHtml(a.company_name || 'Partner Recruiter')}</div>
+                                <div class="small text-muted">${escapeHtml(a.job_title || 'General Test')}</div>
+                            </td>
+                            <td><span class="small text-dark">${a.duration_minutes} mins</span></td>
+                            <td><span class="badge bg-warning-subtle text-dark border border-warning-subtle">${a.passing_score}% passing</span></td>
+                            <td>${statusCol}</td>
+                            <td class="text-end pe-4">${actionBtn}</td>
+                        </tr>
+                    `;
+                }).join("");
+
+                document.querySelectorAll(".take-test-btn").forEach(btn => {
+                    btn.addEventListener("click", () => {
+                        const asId = parseInt(btn.getAttribute("data-as-id"), 10);
+                        openTakeAssessmentModal(asId);
+                    });
+                });
+
+            } catch (err) {
+                assessmentsBody.innerHTML = `<tr><td colspan="6" class="text-center text-danger py-4">${escapeHtml(err.message)}</td></tr>`;
+            }
+        }
+
+        async function openTakeAssessmentModal(asId) {
+            activeAssessmentId = asId;
+            const titleEl = document.getElementById("test-modal-title");
+            const qList = document.getElementById("test-questions-list");
+            const quizForm = document.getElementById("assessment-quiz-form");
+            const resultBox = document.getElementById("test-result-box");
+
+            quizForm.classList.remove("d-none");
+            resultBox.classList.add("d-none");
+            qList.innerHTML = `<div class="text-center py-4"><div class="spinner-border spinner-border-sm text-success me-2"></div> Loading questions...</div>`;
+
+            const modal = new bootstrap.Modal(document.getElementById("takeAssessmentModal"));
+            modal.show();
+
+            try {
+                const res = await authFetch(`/api/students/assessments/${asId}`);
+                const result = await res.json();
+                if (!res.ok) throw new Error(result.message || "Failed to load test");
+
+                const as = result.data.assessment;
+                titleEl.textContent = as.title;
+
+                const questions = as.questions || [];
+                if (questions.length === 0) {
+                    qList.innerHTML = `<div class="text-muted text-center py-3">No questions in this assessment.</div>`;
+                    return;
+                }
+
+                qList.innerHTML = questions.map((q, idx) => {
+                    const optionsHtml = (q.options || []).map((opt, optIdx) => `
+                        <div class="form-check mb-1">
+                            <input class="form-check-input" type="radio" name="q_${q.id}" id="q_${q.id}_opt_${optIdx}" value="${escapeHtml(opt)}" required>
+                            <label class="form-check-label small" for="q_${q.id}_opt_${optIdx}">
+                                ${escapeHtml(opt)}
+                            </label>
+                        </div>
+                    `).join("");
+
+                    return `
+                        <div class="card border p-3 bg-light">
+                            <div class="d-flex justify-content-between mb-2">
+                                <strong class="small text-dark">Question ${idx + 1} of ${questions.length}</strong>
+                                <span class="badge bg-light text-muted border">${q.marks} mark(s)</span>
+                            </div>
+                            <p class="fw-semibold small text-dark mb-2">${escapeHtml(q.question_text)}</p>
+                            <div class="ps-2">
+                                ${optionsHtml}
+                            </div>
+                        </div>
+                    `;
+                }).join("");
+
+            } catch (err) {
+                qList.innerHTML = `<div class="text-danger py-3">${escapeHtml(err.message)}</div>`;
+            }
+        }
+
+        // Handle Test Submission
+        document.getElementById("assessment-quiz-form").addEventListener("submit", async (e) => {
+            e.preventDefault();
+            const submitBtn = document.getElementById("submit-quiz-btn");
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = `<span class="spinner-border spinner-border-sm me-1"></span> Evaluating...`;
+
+            // Gather answers
+            const formData = new FormData(e.target);
+            const answers = {};
+            for (let [key, val] of formData.entries()) {
+                if (key.startsWith("q_")) {
+                    const qId = key.replace("q_", "");
+                    answers[qId] = val;
+                }
+            }
+
+            try {
+                const res = await authFetch(`/api/students/assessments/${activeAssessmentId}/submit`, {
+                    method: "POST",
+                    body: JSON.stringify({ answers })
+                });
+                const result = await res.json();
+                if (!res.ok) throw new Error(result.message || "Failed to submit assessment");
+
+                const grade = result.data;
+                document.getElementById("assessment-quiz-form").classList.add("d-none");
+                const resultBox = document.getElementById("test-result-box");
+                resultBox.classList.remove("d-none");
+
+                document.getElementById("test-result-score").textContent = `${grade.score} / ${grade.total_marks}`;
+                document.getElementById("test-result-pct").textContent = `${grade.percentage}%`;
+
+                const badge = document.getElementById("test-result-badge");
+                const verdictText = document.getElementById("test-verdict-text");
+                const verdictIcon = document.getElementById("test-verdict-icon");
+
+                if (grade.passed) {
+                    badge.className = "badge bg-success mt-1";
+                    badge.textContent = "PASSED";
+                    verdictText.textContent = "Congratulations! You Passed";
+                    verdictText.className = "fw-bold mb-1 text-success";
+                    verdictIcon.innerHTML = `<i class="bi bi-check-circle-fill text-success"></i>`;
+                } else {
+                    badge.className = "badge bg-danger mt-1";
+                    badge.textContent = "NOT PASSED";
+                    verdictText.textContent = "Assessment Completed";
+                    verdictText.className = "fw-bold mb-1 text-danger";
+                    verdictIcon.innerHTML = `<i class="bi bi-x-circle-fill text-danger"></i>`;
+                }
+
+                loadAssessments();
+            } catch (err) {
+                alert(err.message);
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = `<i class="bi bi-check2-circle me-1"></i> Submit & Finish Test`;
+            }
+        });
+
+        function escapeHtml(text) {
+            if (!text) return "";
+            return String(text)
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#039;");
+        }
+
+        refreshAppsBtn.addEventListener("click", () => {
+            loadApplications();
+            loadAssessments();
+        });
+
+        loadApplications();
+        loadAssessments();
+    </script>
+</body>
+</html>

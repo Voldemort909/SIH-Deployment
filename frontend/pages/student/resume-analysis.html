@@ -1,0 +1,735 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Resume Intelligence & Skill-Gap Analysis - CareerPath AI</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+    <link rel="stylesheet" href="../../css/style.css">
+    <style>
+        .score-circle {
+            width: 140px;
+            height: 140px;
+            border-radius: 50%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            color: #fff;
+            margin: 0 auto;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        .score-circle.excellent { background: linear-gradient(135deg, #198754, #20c997); }
+        .score-circle.good { background: linear-gradient(135deg, #0d6efd, #0dcaf0); }
+        .score-circle.moderate { background: linear-gradient(135deg, #fd7e14, #ffc107); color: #212529; }
+        .score-circle.poor { background: linear-gradient(135deg, #dc3545, #e83e8c); }
+        
+        .upload-dropzone {
+            border: 2px dashed #0d6efd;
+            border-radius: 12px;
+            background-color: #f8faff;
+            padding: 2.5rem 1.5rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .upload-dropzone:hover, .upload-dropzone.dragover {
+            background-color: #eef4ff;
+            border-color: #0a58ca;
+        }
+        .skill-badge {
+            font-size: 0.85rem;
+            padding: 0.4rem 0.65rem;
+        }
+        .blueprint-card {
+            border-left: 4px solid #0d6efd;
+            transition: transform 0.15s ease;
+        }
+        .blueprint-card:hover {
+            transform: translateY(-2px);
+        }
+    </style>
+</head>
+<body class="bg-light min-vh-100 d-flex flex-column">
+
+    <!-- Top Navigation Bar -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary shadow-sm sticky-top">
+        <div class="container-fluid px-4">
+            <a class="navbar-brand fw-bold" href="../../index.html">
+                <i class="bi bi-mortarboard-fill me-2"></i>CareerPath AI
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#resumeNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="resumeNav">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                    <li class="nav-item">
+                        <a class="nav-link" href="dashboard.html"><i class="bi bi-speedometer2 me-1"></i> Dashboard</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="jobs.html"><i class="bi bi-briefcase me-1"></i> Job Marketplace</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="applications.html"><i class="bi bi-card-checklist me-1"></i> My Applications</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active fw-bold" href="resume-analysis.html"><i class="bi bi-file-earmark-check-fill me-1"></i> Resume Intelligence</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="alumni.html"><i class="bi bi-people me-1"></i> Alumni Network</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="why-not-selected.html"><i class="bi bi-lightbulb-fill me-1 text-warning"></i> Placement Intelligence</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="../../index.html"><i class="bi bi-house me-1"></i> Home</a>
+                    </li>
+                </ul>
+                <div class="d-flex align-items-center gap-3">
+                    <span id="student-name-badge" class="badge bg-light text-dark py-2 px-3 fw-semibold">Loading...</span>
+                    <button id="logout-btn" class="btn btn-outline-light btn-sm">
+                        <i class="bi bi-box-arrow-left me-1"></i> Logout
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Container -->
+    <main class="container py-4 flex-grow-1">
+
+        <!-- Page Header -->
+        <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+            <div>
+                <h3 class="fw-bold text-dark mb-1">
+                    <i class="bi bi-file-earmark-pdf-fill text-danger me-2"></i>Resume Intelligence & Skill-Gap Analysis
+                </h3>
+                <p class="text-muted small mb-0">
+                    Upload your PDF resume to receive deterministic rubric scoring, ATS structure breakdown, and tailored role recommendations.
+                </p>
+            </div>
+            <div>
+                <button id="reupload-toggle-btn" class="btn btn-primary btn-sm fw-semibold">
+                    <i class="bi bi-cloud-arrow-up-fill me-1"></i> Upload New Resume
+                </button>
+            </div>
+        </div>
+
+        <!-- Global Alert Feedback -->
+        <div id="alert-box" class="alert d-none small mb-4 shadow-sm" role="alert"></div>
+
+        <!-- Upload Card (Collapsible or Initial state) -->
+        <div id="upload-card" class="card shadow-sm border-0 mb-4">
+            <div class="card-header bg-white py-3 border-bottom d-flex justify-content-between align-items-center">
+                <h6 class="fw-bold mb-0 text-primary">
+                    <i class="bi bi-file-earmark-arrow-up me-2"></i>Upload Candidate Resume (PDF Only)
+                </h6>
+                <span class="badge bg-light text-muted border">Max 5MB &bull; .PDF</span>
+            </div>
+            <div class="card-body p-4">
+                <form id="resume-upload-form">
+                    <div class="upload-dropzone mb-3" id="dropzone">
+                        <i class="bi bi-cloud-arrow-up text-primary display-4 mb-2 d-block"></i>
+                        <h6 class="fw-bold text-dark mb-1">Drag & Drop your Resume PDF here</h6>
+                        <p class="text-muted small mb-2">or click to browse files from your computer</p>
+                        <input type="file" id="resume-file-input" class="d-none" accept=".pdf,application/pdf" required>
+                        <div id="file-info" class="badge bg-primary-subtle text-primary py-2 px-3 d-none">
+                            <i class="bi bi-file-earmark-pdf me-1"></i> <span id="file-name-display"></span>
+                        </div>
+                    </div>
+
+                    <div class="row g-3 align-items-center mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label small fw-semibold">Select Target Industry Role</label>
+                            <select id="target-role-select" class="form-select form-select-sm">
+                                <option value="Software Engineer" selected>Software Engineer</option>
+                                <option value="Full-Stack Developer">Full-Stack Developer</option>
+                                <option value="Data Scientist">Data Scientist</option>
+                                <option value="DevOps / Cloud Engineer">DevOps / Cloud Engineer</option>
+                                <option value="Frontend Engineer">Frontend Engineer</option>
+                                <option value="Backend Engineer">Backend Engineer</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6 pt-md-4">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="sync-skills-check" checked>
+                                <label class="form-check-label small fw-semibold" for="sync-skills-check">
+                                    Automatically sync extracted skills into my profile
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="d-flex justify-content-end gap-2">
+                        <button type="button" id="cancel-upload-btn" class="btn btn-outline-secondary btn-sm d-none">Cancel</button>
+                        <button type="submit" id="upload-submit-btn" class="btn btn-primary px-4 fw-semibold">
+                            <i class="bi bi-cpu me-1"></i> Analyze Resume
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Empty State (When no resume has been uploaded yet) -->
+        <div id="no-resume-card" class="card shadow-sm border-0 text-center py-5 d-none">
+            <div class="card-body">
+                <i class="bi bi-file-earmark-x text-muted display-3 mb-3 d-block"></i>
+                <h5 class="fw-bold">No Resume Analyzed Yet</h5>
+                <p class="text-muted small mx-auto" style="max-width: 500px;">
+                    Upload your PDF resume above to unlock instant ATS scoring, section completeness checks, and role benchmark skill-gap recommendations.
+                </p>
+            </div>
+        </div>
+
+        <!-- Analysis Results Section -->
+        <div id="analysis-results" class="d-none">
+
+            <!-- Top Row: Score Hero & Target Role Matcher -->
+            <div class="row g-4 mb-4">
+                
+                <!-- Overall Score Card -->
+                <div class="col-lg-5">
+                    <div class="card shadow-sm border-0 h-100">
+                        <div class="card-header bg-white py-3 border-bottom text-center">
+                            <h6 class="fw-bold mb-0 text-dark">Overall Resume Score</h6>
+                        </div>
+                        <div class="card-body p-4 text-center d-flex flex-column justify-content-center">
+                            <div id="score-circle-element" class="score-circle good mb-3">
+                                <span id="overall-score-number" class="display-5 fw-bold">--</span>
+                                <small class="text-white-50">/ 100</small>
+                            </div>
+                            <h5 id="rating-label" class="fw-bold text-dark mb-1">Calculating...</h5>
+                            <p id="resume-meta" class="text-muted small mb-0">PDF Version 1</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Target Role Match & Switcher -->
+                <div class="col-lg-7">
+                    <div class="card shadow-sm border-0 h-100">
+                        <div class="card-header bg-white py-3 border-bottom d-flex justify-content-between align-items-center">
+                            <h6 class="fw-bold mb-0 text-primary">
+                                <i class="bi bi-crosshair me-1"></i>Target Role Benchmark Alignment
+                            </h6>
+                            <span id="role-badge" class="badge bg-primary">Software Engineer</span>
+                        </div>
+                        <div class="card-body p-4">
+                            <div class="d-flex align-items-center gap-2 mb-3">
+                                <label class="small fw-semibold text-muted text-nowrap">Evaluate against:</label>
+                                <select id="dynamic-role-select" class="form-select form-select-sm"></select>
+                                <button id="recalculate-role-btn" class="btn btn-outline-primary btn-sm text-nowrap">
+                                    <i class="bi bi-arrow-repeat me-1"></i> Update Role
+                                </button>
+                            </div>
+
+                            <div class="mb-3">
+                                <div class="d-flex justify-content-between align-items-center mb-1">
+                                    <span class="small fw-semibold">Role Skill Match Index</span>
+                                    <span id="role-match-pct" class="fw-bold text-primary">0%</span>
+                                </div>
+                                <div class="progress" style="height: 10px;">
+                                    <div id="role-match-bar" class="progress-bar bg-primary progress-bar-striped progress-bar-animated" style="width: 0%;"></div>
+                                </div>
+                            </div>
+
+                            <div class="row g-2 text-center mt-2">
+                                <div class="col-4">
+                                    <div class="border rounded p-2 bg-light">
+                                        <div id="matched-skills-count" class="fw-bold text-success fs-5">0</div>
+                                        <div class="text-muted small" style="font-size: 0.75rem;">Matched Skills</div>
+                                    </div>
+                                </div>
+                                <div class="col-4">
+                                    <div class="border rounded p-2 bg-light">
+                                        <div id="missing-critical-count" class="fw-bold text-danger fs-5">0</div>
+                                        <div class="text-muted small" style="font-size: 0.75rem;">Critical Gaps</div>
+                                    </div>
+                                </div>
+                                <div class="col-4">
+                                    <div class="border rounded p-2 bg-light">
+                                        <div id="total-extracted-count" class="fw-bold text-primary fs-5">0</div>
+                                        <div class="text-muted small" style="font-size: 0.75rem;">Total Found</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Scorecard Itemized Criteria Breakdown -->
+            <div class="card shadow-sm border-0 mb-4">
+                <div class="card-header bg-white py-3 border-bottom">
+                    <h5 class="card-title fw-bold mb-0 text-dark">
+                        <i class="bi bi-clipboard-data text-primary me-2"></i>Itemized Scorecard Breakdown (100 Points)
+                    </h5>
+                </div>
+                <div class="card-body p-4">
+                    <div class="row g-4" id="scorecard-grid">
+                        <!-- Populated by JS -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Strengths & Areas of Improvement -->
+            <div class="row g-4 mb-4">
+                <div class="col-md-6">
+                    <div class="card shadow-sm border-0 h-100 border-start border-success border-4">
+                        <div class="card-header bg-white py-3 border-bottom">
+                            <h6 class="fw-bold text-success mb-0">
+                                <i class="bi bi-check-circle-fill me-2"></i>Candidate Strengths
+                            </h6>
+                        </div>
+                        <div class="card-body p-3">
+                            <ul id="strengths-list" class="list-group list-group-flush small"></ul>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="card shadow-sm border-0 h-100 border-start border-warning border-4">
+                        <div class="card-header bg-white py-3 border-bottom">
+                            <h6 class="fw-bold text-warning-emphasis mb-0">
+                                <i class="bi bi-exclamation-triangle-fill me-2"></i>Recommended Improvements
+                            </h6>
+                        </div>
+                        <div class="card-body p-3">
+                            <ul id="improvements-list" class="list-group list-group-flush small"></ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Skills & Gap Analysis Tabs -->
+            <div class="card shadow-sm border-0 mb-4">
+                <div class="card-header bg-white py-3 border-bottom d-flex justify-content-between align-items-center flex-wrap gap-2">
+                    <h5 class="card-title fw-bold mb-0 text-dark">
+                        <i class="bi bi-diagram-3-fill text-primary me-2"></i>Skills Matrix & Target Role Gap Analysis
+                    </h5>
+                    <button id="manual-sync-btn" class="btn btn-outline-success btn-sm">
+                        <i class="bi bi-arrow-repeat me-1"></i> Sync Skills to Profile
+                    </button>
+                </div>
+                <div class="card-body p-4">
+                    
+                    <!-- Critical Missing Skills Alert -->
+                    <div id="critical-missing-wrapper" class="mb-4">
+                        <h6 class="fw-bold text-danger mb-2">
+                            <i class="bi bi-shield-fill-x me-1"></i> Important Missing Skills (High Recruiter Weight)
+                        </h6>
+                        <div id="critical-skills-container" class="d-flex flex-wrap gap-2"></div>
+                    </div>
+
+                    <!-- Other Missing Skills -->
+                    <div class="mb-4">
+                        <h6 class="fw-bold text-warning-emphasis mb-2">
+                            <i class="bi bi-bookmark-plus me-1"></i> Secondary Missing Skills
+                        </h6>
+                        <div id="secondary-skills-container" class="d-flex flex-wrap gap-2"></div>
+                    </div>
+
+                    <!-- Role Matched Skills -->
+                    <div class="mb-4">
+                        <h6 class="fw-bold text-success mb-2">
+                            <i class="bi bi-check-all me-1"></i> Role-Matched Skills Present in Resume
+                        </h6>
+                        <div id="matched-skills-container" class="d-flex flex-wrap gap-2"></div>
+                    </div>
+
+                    <!-- All Extracted Skills -->
+                    <div>
+                        <h6 class="fw-bold text-secondary mb-2">
+                            <i class="bi bi-list-check me-1"></i> All Extracted Technical Skills
+                        </h6>
+                        <div id="all-extracted-skills-container" class="d-flex flex-wrap gap-2"></div>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- Recommendations: Learning Tracks & Project Blueprints -->
+            <div class="card shadow-sm border-0 mb-4">
+                <div class="card-header bg-white py-3 border-bottom">
+                    <h5 class="card-title fw-bold mb-0 text-dark">
+                        <i class="bi bi-lightbulb-fill text-warning me-2"></i>Curated Portfolio Project Blueprints
+                    </h5>
+                </div>
+                <div class="card-body p-4">
+                    <p class="text-muted small mb-3">
+                        Bridge your skill gap and boost placement readiness by implementing these role-tailored project blueprints:
+                    </p>
+                    <div class="row g-3" id="blueprints-container"></div>
+                </div>
+            </div>
+
+        </div>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="text-center py-3 text-muted small border-top bg-white mt-auto">
+        College Placement & Career Development Platform &bull; Resume Intelligence Engine
+    </footer>
+
+    <!-- Bootstrap 5 JS Bundle -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Page Client Script -->
+    <script type="module">
+        import { API_BASE, getToken, getUser, removeToken, authFetch } from '../../js/auth.js?v=2';
+
+        // 1. Guard Authentication
+        const token = getToken();
+        const user = getUser();
+        if (!token || !user || user.role !== 'student') {
+            window.location.href = '../login.html';
+        }
+
+        // Display user email
+        document.getElementById("student-name-badge").textContent = `${user.email} (STUDENT)`;
+
+        // Logout listener
+        document.getElementById("logout-btn").addEventListener("click", () => {
+            removeToken();
+            window.location.href = '../login.html';
+        });
+
+        const alertBox = document.getElementById("alert-box");
+        const uploadCard = document.getElementById("upload-card");
+        const noResumeCard = document.getElementById("no-resume-card");
+        const analysisResults = document.getElementById("analysis-results");
+        const reuploadToggleBtn = document.getElementById("reupload-toggle-btn");
+        const cancelUploadBtn = document.getElementById("cancel-upload-btn");
+
+        let activeExtractedSkills = [];
+        let supportedRolesList = ["Software Engineer", "Full-Stack Developer", "Data Scientist", "DevOps / Cloud Engineer", "Frontend Engineer", "Backend Engineer"];
+
+        function showAlert(msg, type = "danger") {
+            alertBox.className = `alert alert-${type} small mb-4 shadow-sm`;
+            alertBox.textContent = msg;
+            alertBox.classList.remove("d-none");
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function clearAlert() {
+            alertBox.classList.add("d-none");
+        }
+
+        // Toggle Upload Card
+        reuploadToggleBtn.addEventListener("click", () => {
+            uploadCard.classList.toggle("d-none");
+            cancelUploadBtn.classList.remove("d-none");
+            uploadCard.scrollIntoView({ behavior: 'smooth' });
+        });
+
+        cancelUploadBtn.addEventListener("click", () => {
+            uploadCard.classList.add("d-none");
+        });
+
+        // Dropzone & File Input Handling
+        const dropzone = document.getElementById("dropzone");
+        const fileInput = document.getElementById("resume-file-input");
+        const fileInfo = document.getElementById("file-info");
+        const fileNameDisplay = document.getElementById("file-name-display");
+
+        dropzone.addEventListener("click", () => fileInput.click());
+
+        dropzone.addEventListener("dragover", (e) => {
+            e.preventDefault();
+            dropzone.classList.add("dragover");
+        });
+
+        dropzone.addEventListener("dragleave", () => {
+            dropzone.classList.remove("dragover");
+        });
+
+        dropzone.addEventListener("drop", (e) => {
+            e.preventDefault();
+            dropzone.classList.remove("dragover");
+            if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+                fileInput.files = e.dataTransfer.files;
+                handleFileSelected();
+            }
+        });
+
+        fileInput.addEventListener("change", handleFileSelected);
+
+        function handleFileSelected() {
+            if (fileInput.files && fileInput.files[0]) {
+                const file = fileInput.files[0];
+                if (!file.name.toLowerCase().endsWith(".pdf")) {
+                    showAlert("Please select a PDF file (.pdf). Other formats are not supported.", "danger");
+                    fileInput.value = "";
+                    fileInfo.classList.add("d-none");
+                    return;
+                }
+                if (file.size > 5 * 1024 * 1024) {
+                    showAlert("File size exceeds 5MB limit. Please upload a smaller PDF.", "danger");
+                    fileInput.value = "";
+                    fileInfo.classList.add("d-none");
+                    return;
+                }
+                clearAlert();
+                fileNameDisplay.textContent = `${file.name} (${(file.size / 1024).toFixed(1)} KB)`;
+                fileInfo.classList.remove("d-none");
+            }
+        }
+
+        // Upload Form Submission
+        document.getElementById("resume-upload-form").addEventListener("submit", async (e) => {
+            e.preventDefault();
+            clearAlert();
+
+            if (!fileInput.files || !fileInput.files[0]) {
+                showAlert("Please select a PDF resume file to upload.", "warning");
+                return;
+            }
+
+            const btn = document.getElementById("upload-submit-btn");
+            btn.disabled = true;
+            btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Extracting & Scoring with PyMuPDF...';
+
+            const formData = new FormData();
+            formData.append("file", fileInput.files[0]);
+            formData.append("target_role", document.getElementById("target-role-select").value);
+            formData.append("sync_skills", document.getElementById("sync-skills-check").checked ? "true" : "false");
+
+            try {
+                const res = await authFetch("/api/students/resume", {
+                    method: "POST",
+                    body: formData,
+                    headers: {} // Let browser set multipart boundary
+                });
+
+                const contentType = res.headers.get("content-type");
+                let data;
+                if (contentType && contentType.includes("application/json")) {
+                    data = await res.json();
+                } else {
+                    const text = await res.text();
+                    throw new Error(`Server returned HTTP ${res.status}`);
+                }
+
+                if (res.ok) {
+                    showAlert(data.message, "success");
+                    uploadCard.classList.add("d-none");
+                    renderAnalysis(data.data);
+                } else {
+                    showAlert(data.message || "Resume upload failed.", "danger");
+                }
+            } catch (err) {
+                showAlert(`Upload failed: ${err.message}`, "danger");
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="bi bi-cpu me-1"></i> Analyze Resume';
+            }
+        });
+
+        // Fetch Existing Analysis on Page Load
+        async function fetchInitialAnalysis() {
+            try {
+                const res = await authFetch("/api/students/resume-analysis");
+                if (!res.ok) return;
+                const { data } = await res.json();
+                
+                if (data.supported_roles) {
+                    supportedRolesList = data.supported_roles;
+                    populateRoleSelects(data.supported_roles);
+                }
+
+                if (data.has_resume) {
+                    noResumeCard.classList.add("d-none");
+                    uploadCard.classList.add("d-none");
+                    renderAnalysis(data);
+                } else {
+                    noResumeCard.classList.remove("d-none");
+                    uploadCard.classList.remove("d-none");
+                }
+            } catch (err) {
+                console.error("Failed to load initial analysis:", err);
+            }
+        }
+
+        function populateRoleSelects(roles) {
+            const roleSelect = document.getElementById("target-role-select");
+            const dynamicSelect = document.getElementById("dynamic-role-select");
+            
+            roleSelect.innerHTML = roles.map(r => `<option value="${r}">${r}</option>`).join('');
+            dynamicSelect.innerHTML = roles.map(r => `<option value="${r}">${r}</option>`).join('');
+        }
+
+        // Dynamic Role Switcher
+        document.getElementById("recalculate-role-btn").addEventListener("click", async () => {
+            const selectedRole = document.getElementById("dynamic-role-select").value;
+            try {
+                const res = await authFetch(`/api/students/resume-analysis?target_role=${encodeURIComponent(selectedRole)}`);
+                if (res.ok) {
+                    const { data } = await res.json();
+                    renderAnalysis(data);
+                    showAlert(`Recalculated benchmarks and project blueprints for ${selectedRole}.`, "info");
+                }
+            } catch (err) {
+                showAlert("Failed to update target role analysis.", "danger");
+            }
+        });
+
+        // Manual Sync Skills Button
+        document.getElementById("manual-sync-btn").addEventListener("click", async () => {
+            if (!activeExtractedSkills || activeExtractedSkills.length === 0) {
+                showAlert("No extracted skills available to sync.", "warning");
+                return;
+            }
+            let synced = 0;
+            for (const s of activeExtractedSkills) {
+                try {
+                    await authFetch("/api/students/skills", {
+                        method: "POST",
+                        body: JSON.stringify({ name: s.name, category: s.category, proficiency_level: "Intermediate" })
+                    });
+                    synced++;
+                } catch (e) {
+                    // Ignore already present
+                }
+            }
+            showAlert(`Successfully synchronized skills to your Student Profile!`, "success");
+        });
+
+        // Render Comprehensive Analysis UI
+        function renderAnalysis(data) {
+            analysisResults.classList.remove("d-none");
+            activeExtractedSkills = data.extracted_skills || [];
+
+            // Score Circle
+            const score = Math.round(data.overall_score || 0);
+            const scoreCircle = document.getElementById("score-circle-element");
+            document.getElementById("overall-score-number").textContent = score;
+            document.getElementById("rating-label").textContent = data.rating_label || "Scored";
+
+            scoreCircle.className = "score-circle mb-3 " + (
+                score >= 80 ? "excellent" : score >= 65 ? "good" : score >= 50 ? "moderate" : "poor"
+            );
+
+            // Meta
+            if (data.resume) {
+                document.getElementById("resume-meta").textContent = 
+                    `${data.resume.file_name} • Version ${data.resume.version} • Uploaded ${data.resume.uploaded_at}`;
+            }
+
+            // Role Match
+            document.getElementById("role-badge").textContent = data.target_role || "Software Engineer";
+            document.getElementById("dynamic-role-select").value = data.target_role || "Software Engineer";
+
+            const gap = data.skill_gap || {};
+            const matchScore = gap.match_score || 0;
+            document.getElementById("role-match-pct").textContent = `${matchScore}%`;
+            document.getElementById("role-match-bar").style.width = `${matchScore}%`;
+            
+            document.getElementById("matched-skills-count").textContent = (gap.existing_skills || []).length;
+            document.getElementById("missing-critical-count").textContent = (gap.important_missing_skills || []).length;
+            document.getElementById("total-extracted-count").textContent = activeExtractedSkills.length;
+
+            // Scorecard Grid
+            const breakdown = data.score_breakdown || {};
+            const grid = document.getElementById("scorecard-grid");
+            const criteriaLabels = {
+                "structure": { name: "Resume Structure & Layout", icon: "bi-layout-text-window-reverse", max: 20 },
+                "skills": { name: "Skills Depth & Diversity", icon: "bi-cpu", max: 25 },
+                "projects": { name: "Portfolio Projects & Links", icon: "bi-code-square", max: 20 },
+                "education": { name: "Academic & Education Clarity", icon: "bi-mortarboard", max: 15 },
+                "experience": { name: "Experience & Internships", icon: "bi-briefcase", max: 10 },
+                "role_relevance": { name: "Target-Role Relevance", icon: "bi-crosshair", max: 10 }
+            };
+
+            grid.innerHTML = Object.keys(criteriaLabels).map(key => {
+                const item = breakdown[key] || { score: 0, details: "No details available." };
+                const meta = criteriaLabels[key];
+                const pct = Math.round((item.score / meta.max) * 100);
+                const color = pct >= 80 ? "bg-success" : pct >= 60 ? "bg-primary" : pct >= 40 ? "bg-warning" : "bg-danger";
+
+                return `
+                    <div class="col-md-6 col-lg-4">
+                        <div class="card h-100 border rounded p-3 bg-light">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <span class="fw-bold small text-dark"><i class="bi ${meta.icon} text-primary me-1"></i> ${meta.name}</span>
+                                <span class="fw-bold text-dark small">${item.score} / ${meta.max}</span>
+                            </div>
+                            <div class="progress mb-2" style="height: 6px;">
+                                <div class="progress-bar ${color}" style="width: ${pct}%;"></div>
+                            </div>
+                            <p class="text-muted small mb-0" style="font-size: 0.78rem;">${item.details}</p>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            // Strengths & Improvements
+            const strengthsList = document.getElementById("strengths-list");
+            const strItems = data.strengths || [];
+            strengthsList.innerHTML = strItems.length > 0 
+                ? strItems.map(s => `<li class="list-group-item bg-transparent px-0 py-1.5 border-0"><i class="bi bi-check-circle-fill text-success me-2"></i>${s}</li>`).join('')
+                : '<li class="text-muted small">Upload a structured resume to see strengths.</li>';
+
+            const improvementsList = document.getElementById("improvements-list");
+            const impItems = data.improvements || [];
+            improvementsList.innerHTML = impItems.length > 0 
+                ? impItems.map(i => `<li class="list-group-item bg-transparent px-0 py-1.5 border-0"><i class="bi bi-exclamation-triangle-fill text-warning me-2"></i>${i}</li>`).join('')
+                : '<li class="text-muted small">No major structural improvements needed.</li>';
+
+            // Skills Badges
+            // Critical Missing
+            const critContainer = document.getElementById("critical-skills-container");
+            const critSkills = gap.important_missing_skills || [];
+            critContainer.innerHTML = critSkills.length > 0
+                ? critSkills.map(s => `<span class="badge bg-danger text-white skill-badge"><i class="bi bi-x-circle me-1"></i>${s}</span>`).join('')
+                : '<span class="text-success small"><i class="bi bi-check-circle me-1"></i> All critical prerequisite skills for this role are covered!</span>';
+
+            // Secondary Missing
+            const secContainer = document.getElementById("secondary-skills-container");
+            const secSkills = (gap.missing_skills || []).filter(s => !critSkills.includes(s));
+            secContainer.innerHTML = secSkills.length > 0
+                ? secSkills.map(s => `<span class="badge bg-warning-subtle text-warning-emphasis border border-warning-subtle skill-badge">${s}</span>`).join('')
+                : '<span class="text-muted small">No secondary gaps.</span>';
+
+            // Role Matched
+            const matchContainer = document.getElementById("matched-skills-container");
+            const matchedSkills = gap.existing_skills || [];
+            matchContainer.innerHTML = matchedSkills.length > 0
+                ? matchedSkills.map(s => `<span class="badge bg-success-subtle text-success border border-success-subtle skill-badge"><i class="bi bi-check-lg me-1"></i>${s}</span>`).join('')
+                : '<span class="text-muted small">No direct benchmark matches found yet.</span>';
+
+            // All Extracted
+            const allContainer = document.getElementById("all-extracted-skills-container");
+            allContainer.innerHTML = activeExtractedSkills.length > 0
+                ? activeExtractedSkills.map(s => `<span class="badge bg-light text-secondary border skill-badge">${s.name} <small class="text-muted">(${s.category})</small></span>`).join('')
+                : '<span class="text-muted small">No skills extracted.</span>';
+
+            // Project Blueprints
+            const blueprints = gap.recommended_projects || [];
+            const blueprintsContainer = document.getElementById("blueprints-container");
+            blueprintsContainer.innerHTML = blueprints.length > 0
+                ? blueprints.map(b => `
+                    <div class="col-md-6">
+                        <div class="card h-100 p-3 bg-light blueprint-card shadow-sm">
+                            <div class="d-flex justify-content-between align-items-start mb-2">
+                                <h6 class="fw-bold mb-0 text-dark">${b.title}</h6>
+                                <span class="badge ${b.difficulty === 'Advanced' ? 'bg-danger-subtle text-danger' : 'bg-primary-subtle text-primary'} small">${b.difficulty}</span>
+                            </div>
+                            <p class="text-muted small mb-2">${b.description}</p>
+                            <div class="d-flex flex-wrap gap-1 mt-auto">
+                                ${b.technologies.map(t => `<span class="badge bg-white text-dark border small">${t}</span>`).join('')}
+                            </div>
+                        </div>
+                    </div>
+                `).join('')
+                : '<p class="text-muted small">No specific project templates required for this profile.</p>';
+        }
+
+        // Initialize
+        fetchInitialAnalysis();
+    </script>
+</body>
+</html>

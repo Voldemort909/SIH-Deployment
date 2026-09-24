@@ -1,0 +1,26 @@
+services:
+  - type: web
+    name: placement-career-platform
+    runtime: python
+    plan: free
+    buildCommand: pip install -r requirements.txt
+    startCommand: flask --app backend.app:create_app db upgrade && gunicorn --bind 0.0.0.0:$PORT --workers 2 --timeout 120 "backend.app:create_app('production')"
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.12.8
+      - key: FLASK_ENV
+        value: production
+      - key: SECRET_KEY
+        generateValue: true
+      - key: DB_HOST
+        sync: false
+      - key: DB_PORT
+        value: "3306"
+      - key: DB_NAME
+        sync: false
+      - key: DB_USER
+        sync: false
+      - key: DB_PASSWORD
+        sync: false
+      - key: CORS_ORIGINS
+        value: "*"
