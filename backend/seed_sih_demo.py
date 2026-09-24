@@ -64,8 +64,9 @@ def seed_database(app=None):
     with app.app_context():
         admin_password, recruiter_password, student_password = get_demo_passwords()
 
-        print("Initializing database tables...")
-        db.create_all()
+        print("Initializing database tables and syncing schema...")
+        from backend.schema_sync import sync_missing_columns
+        sync_missing_columns()
 
         # --------------------------------------------------------------------
         # 1. ADMIN USER & PROFILE

@@ -217,13 +217,15 @@ def create_app(config_name=None):
 
 def _ensure_demo_users_auto_seed(app):
     """
-    Ensures all database tables exist and seeds foundational demonstration accounts
-    (admin, recruiter, student) automatically so users can sign in immediately
-    without manual terminal commands.
+    Ensures all database tables exist, syncs any missing model columns,
+    and seeds foundational demonstration accounts (admin, recruiter, student)
+    automatically so users can sign in immediately without manual terminal commands.
     """
     with app.app_context():
         try:
-            db.create_all()
+            from backend.schema_sync import sync_missing_columns
+            sync_missing_columns()
+
             from backend.models.user import User
             admin_user = User.query.filter_by(email="admin@college.edu").first()
             recruiter_user = User.query.filter_by(email="recruiter@company.com").first()

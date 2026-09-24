@@ -53,8 +53,9 @@ def init_database():
     app = create_app()
     with app.app_context():
         print(f"Connecting to database: {app.config['SQLALCHEMY_DATABASE_URI']}...")
-        db.create_all()
-        print("Successfully ensured all 26 database tables!")
+        from backend.schema_sync import sync_missing_columns
+        sync_missing_columns()
+        print("Successfully ensured all 26 database tables and synchronized schema columns!")
 
         # 1. Seed initial skills if table is empty
         if Skill.query.count() == 0:
