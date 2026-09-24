@@ -2,9 +2,13 @@
  * Main JavaScript file for client-side API verification and interaction.
  */
 
-const API_BASE_URL = (window.location.port === "5000")
-    ? window.location.origin
-    : "http://127.0.0.1:5000";
+const API_BASE_URL = (() => {
+    const isLocalhost = window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1";
+    if (isLocalhost && window.location.port !== "5000" && window.location.port !== "") {
+        return "http://127.0.0.1:5000";
+    }
+    return window.location.origin;
+})();
 
 document.addEventListener("DOMContentLoaded", () => {
     const checkHealthBtn = document.getElementById("check-health-btn");

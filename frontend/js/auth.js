@@ -2,9 +2,16 @@
  * Authentication and Session Management Utility for Frontend
  */
 
-export const API_BASE = (window.location.port === "5000")
-    ? window.location.origin
-    : "http://127.0.0.1:5000";
+export const API_BASE = (() => {
+    // If running in local dev with a separate frontend server (e.g. Live Server on port 5500/3000),
+    // target the local Flask server at http://127.0.0.1:5000.
+    const isLocalhost = window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1";
+    if (isLocalhost && window.location.port !== "5000" && window.location.port !== "") {
+        return "http://127.0.0.1:5000";
+    }
+    // When served by Flask on the same server (Render, cloud, or localhost:5000), use the same origin.
+    return window.location.origin;
+})();
 
 const AUTH_API_BASE = API_BASE;
 
@@ -60,7 +67,8 @@ export async function authFetch(endpoint, options = {}) {
         headers["Authorization"] = `Bearer ${token}`;
     }
 
-    const url = endpoint.startsWith("http") ? endpoint : `${AUTH_API_BASE}${endpoint}`;
+    const cleanEndpoint = endpoint.startsWith("/") ? endpoint : `/${endpoint}`;
+    const url = endpoint.startsWith("http") ? endpoint : `${AUTH_API_BASE}${cleanEndpoint}`;
     return fetch(url, {
         ...options,
         headers

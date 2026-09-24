@@ -47,9 +47,23 @@ def create_app(config_name=None):
     import backend.models  # noqa: F401
 
     migrate.init_app(app, db, directory=str(PROJECT_ROOT / "backend" / "migrations"))
+    raw_cors = app.config.get("CORS_ORIGINS", "*")
+    if isinstance(raw_cors, str):
+        if raw_cors.strip() == "*":
+            cors_origins = "*"
+        else:
+            cors_origins = [o.strip() for o in raw_cors.split(",") if o.strip()]
+    else:
+        cors_origins = raw_cors
+
     cors.init_app(
         app,
-        resources={r"/api/*": {"origins": app.config.get("CORS_ORIGINS", "*")}},
+        resources={r"/api/*": {
+            "origins": cors_origins,
+            "methods": ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+            "allow_headers": ["Content-Type", "Authorization", "Accept"],
+            "expose_headers": ["Content-Type", "Authorization"]
+        }},
         supports_credentials=True
     )
 
