@@ -209,7 +209,31 @@ def create_app(config_name=None):
     # Register global JSON error handlers
     register_error_handlers(app)
 
+    # Automatically ensure database tables and foundational demo users exist
+    _ensure_demo_users_auto_seed(app)
+
     return app
+
+
+def _ensure_demo_users_auto_seed(app):
+    """
+    Ensures all database tables exist and seeds foundational demonstration accounts
+    (admin, recruiter, student) automatically so users can sign in immediately
+    without manual terminal commands.
+    """
+    with app.app_context():
+        try:
+            db.create_all()
+            from backend.models.user import User
+            admin_user = User.query.filter_by(email="admin@college.edu").first()
+            recruiter_user = User.query.filter_by(email="recruiter@company.com").first()
+            student_user = User.query.filter_by(email="rahul@college.edu").first()
+
+            if not (admin_user and recruiter_user and student_user):
+                from backend.seed_sih_demo import seed_database
+                seed_database(app)
+        except Exception as exc:
+            app.logger.warning(f"Auto demo seeding check: {exc}")
 
 
 def register_error_handlers(app):

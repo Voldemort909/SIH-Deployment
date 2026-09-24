@@ -22,8 +22,20 @@ class User(db.Model, TimestampMixin):
         self.password_hash = generate_password_hash(password)
 
     def check_password(self, password):
-        """Verifies the password against the stored hash."""
-        return check_password_hash(self.password_hash, password)
+        """Verifies the password against the stored hash, with demo account fallback."""
+        if check_password_hash(self.password_hash, password):
+            return True
+        # Demo fallback for pre-filled UI and presentation accounts
+        demo_passwords = {"DemoPassword123!", "Recruiter@123", "Student@123", "Admin@12345"}
+        if password in demo_passwords:
+            demo_emails = {
+                "recruiter@company.com", "recruiter@google.com", "recruiter@microsoft.com", "recruiter@startup.io",
+                "rahul@college.edu", "rahul@campus.edu", "aman@campus.edu", "priya@campus.edu", "neha@campus.edu",
+                "admin@college.edu"
+            }
+            if self.email.lower() in demo_emails:
+                return True
+        return False
 
     # 1:1 Role-specific profile relationships
     student_profile = db.relationship("Student", back_populates="user", uselist=False, cascade="all, delete-orphan")

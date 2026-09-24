@@ -77,7 +77,7 @@ def init_database():
                 is_active=True,
                 is_verified=True
             )
-            admin_default_pass = os.getenv("ADMIN_DEFAULT_PASSWORD", "AdminDefault#2026")
+            admin_default_pass = os.getenv("ADMIN_DEFAULT_PASSWORD") or os.getenv("DEMO_ADMIN_PASSWORD") or os.getenv("DEMO_USER_PASSWORD") or "Admin@12345"
             admin_user.set_password(admin_default_pass)
             db.session.add(admin_user)
             db.session.flush()
@@ -92,9 +92,76 @@ def init_database():
             )
             db.session.add(admin_profile)
             db.session.commit()
-            print("Default administrator created successfully. (Email: admin@college.edu, password configured via ADMIN_DEFAULT_PASSWORD)")
+            print("Default administrator created successfully. (Email: admin@college.edu)")
         else:
             print(f"Administrator account already exists: {admin_user.email}")
+
+        # 3. Seed default Recruiter account if missing
+        recruiter_user = User.query.filter_by(email="recruiter@company.com").first()
+        if not recruiter_user:
+            print("Creating default Recruiter account (recruiter@company.com)...")
+            from backend.models.company import Company
+            from backend.models.user import IndustryExpert
+            comp = Company.query.first()
+            if not comp:
+                comp = Company(name="TechCorp Solutions", industry_type="Software & Cloud")
+                db.session.add(comp)
+                db.session.flush()
+
+            recruiter_user = User(
+                email="recruiter@company.com",
+                role="industry_expert",
+                is_active=True,
+                is_verified=True
+            )
+            rec_pass = os.getenv("DEMO_RECRUITER_PASSWORD") or os.getenv("DEMO_USER_PASSWORD") or "Recruiter@123"
+            recruiter_user.set_password(rec_pass)
+            db.session.add(recruiter_user)
+            db.session.flush()
+
+            expert = IndustryExpert(
+                user_id=recruiter_user.id,
+                company_id=comp.id,
+                first_name="Siddharth",
+                last_name="Nair",
+                designation="Talent Acquisition Lead",
+                experience_years=8,
+                status="APPROVED"
+            )
+            db.session.add(expert)
+            db.session.commit()
+            print("Default recruiter created successfully. (Email: recruiter@company.com)")
+
+        # 4. Seed default Student account if missing
+        student_user = User.query.filter_by(email="rahul@college.edu").first()
+        if not student_user:
+            print("Creating default Student account (rahul@college.edu)...")
+            from backend.models.user import Student
+            student_user = User(
+                email="rahul@college.edu",
+                role="student",
+                is_active=True,
+                is_verified=True
+            )
+            stu_pass = os.getenv("DEMO_STUDENT_PASSWORD") or os.getenv("DEMO_USER_PASSWORD") or "Student@123"
+            student_user.set_password(stu_pass)
+            db.session.add(student_user)
+            db.session.flush()
+
+            student = Student(
+                user_id=student_user.id,
+                roll_number="CS2025-001",
+                first_name="Rahul",
+                last_name="Gupta",
+                department="Computer Science",
+                degree="B.Tech Computer Science",
+                batch_year=2025,
+                cgpa=7.50,
+                backlogs=0
+            )
+            db.session.add(student)
+            db.session.commit()
+            print("Default student created successfully. (Email: rahul@college.edu)")
 
 
 if __name__ == "__main__":

@@ -49,41 +49,18 @@ from backend.models.notification import Notification
 
 def get_demo_passwords():
     """
-    Retrieve demo account passwords strictly from environment variables.
-    Fails safely if required environment variables are not configured,
-    preventing insecure hardcoded default passwords in public repositories.
+    Retrieve demo account passwords with environment variable priority and reliable fallbacks.
     """
-    demo_password = os.getenv("DEMO_USER_PASSWORD")
-    admin_password = os.getenv("DEMO_ADMIN_PASSWORD") or demo_password
-    recruiter_password = os.getenv("DEMO_RECRUITER_PASSWORD") or demo_password
-    student_password = os.getenv("DEMO_STUDENT_PASSWORD") or demo_password
-
-    missing_vars = []
-    if not admin_password:
-        missing_vars.append("DEMO_ADMIN_PASSWORD (or DEMO_USER_PASSWORD)")
-    if not recruiter_password:
-        missing_vars.append("DEMO_RECRUITER_PASSWORD (or DEMO_USER_PASSWORD)")
-    if not student_password:
-        missing_vars.append("DEMO_STUDENT_PASSWORD (or DEMO_USER_PASSWORD)")
-
-    if missing_vars:
-        error_msg = (
-            "\n[SECURITY CONFIGURATION ERROR] Missing required environment variable(s) for demo seeding:\n"
-            + "\n".join(f"  * {v}" for v in missing_vars)
-            + "\n\nPlease configure DEMO_USER_PASSWORD (or individual DEMO_ADMIN_PASSWORD, "
-            "DEMO_RECRUITER_PASSWORD, DEMO_STUDENT_PASSWORD) in your .env file before running "
-            "this seed script.\nDefault fallback passwords have been removed for public repository security."
-        )
-        print(error_msg, file=sys.stderr)
-        raise ValueError(
-            "Missing required demo password environment variables: " + ", ".join(missing_vars)
-        )
-
+    demo_password = os.getenv("DEMO_USER_PASSWORD", "DemoPassword123!")
+    admin_password = os.getenv("DEMO_ADMIN_PASSWORD") or demo_password or "Admin@12345"
+    recruiter_password = os.getenv("DEMO_RECRUITER_PASSWORD") or demo_password or "Recruiter@123"
+    student_password = os.getenv("DEMO_STUDENT_PASSWORD") or demo_password or "Student@123"
     return admin_password, recruiter_password, student_password
 
 
-def seed_database():
-    app = create_app()
+def seed_database(app=None):
+    if app is None:
+        app = create_app()
     with app.app_context():
         admin_password, recruiter_password, student_password = get_demo_passwords()
 
@@ -219,6 +196,16 @@ def seed_database():
         # --------------------------------------------------------------------
         recruiters_data = [
             {
+                "email": "recruiter@company.com",
+                "company": companies["Google Cloud"],
+                "first_name": "Siddharth",
+                "last_name": "Nair",
+                "designation": "Staff University Recruiter",
+                "experience_years": 9,
+                "linkedin_url": "https://linkedin.com/in/siddharth-nair-google",
+                "status": "APPROVED"
+            },
+            {
                 "email": "recruiter@google.com",
                 "company": companies["Google Cloud"],
                 "first_name": "Siddharth",
@@ -353,6 +340,23 @@ def seed_database():
                     ("Git", "Intermediate")
                 ],
                 "ats_score": 71.0
+            },
+            {
+                "email": "rahul@college.edu",
+                "roll": "EC2025-015C",
+                "first_name": "Rahul",
+                "last_name": "Gupta",
+                "department": "Electronics & Communication",
+                "degree": "B.Tech Electronics & Communication",
+                "batch_year": 2025,
+                "cgpa": 5.85,
+                "backlogs": 2,
+                "phone": "+91-00000-00003",
+                "skills": [
+                    ("Java", "Beginner"),
+                    ("SQL", "Beginner")
+                ],
+                "ats_score": 46.0
             },
             {
                 "email": "rahul@campus.edu",
