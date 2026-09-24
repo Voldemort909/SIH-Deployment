@@ -1,5 +1,4 @@
 import os
-from urllib.parse import quote_plus
 from pathlib import Path
 from dotenv import load_dotenv
 
@@ -30,29 +29,20 @@ class Config:
     @classmethod
     def get_database_uri(cls):
         """
-        Builds the database URI.
-        Prioritizes DATABASE_URL if explicitly set.
-        Otherwise builds standard MySQL URI using individual parameters.
+        Retrieves and formats the database URI from the DATABASE_URL environment variable.
+        Supports Cloud SQL and standard MySQL connection strings.
         """
-        database_url = os.getenv("DATABASE_URL")
-        if database_url:
-            # Accept standard MySQL URLs and use the installed PyMySQL driver.
-            if database_url.startswith("mysql://"):
-                return "mysql+pymysql://" + database_url[len("mysql://"):]
-            if not database_url.startswith("mysql+pymysql://"):
-                raise ValueError("DATABASE_URL must use mysql:// or mysql+pymysql://")
-            return database_url
+        database_url = os.getenv("DATABASE_URL", "").strip()
+        if not database_url:
+            return "mysql+pymysql://root@127.0.0.1:3306/placement_db"
 
-        user = os.getenv("DB_USER", "root")
-        password = quote_plus(os.getenv("DB_PASSWORD", ""))
-        host = os.getenv("DB_HOST", "127.0.0.1")
-        port = os.getenv("DB_PORT", "3306")
-        db_name = os.getenv("DB_NAME", "placement_db")
+        # Standardize MySQL driver URL to pymysql if mysql:// is supplied
+        if database_url.startswith("mysql://"):
+            return "mysql+pymysql://" + database_url[len("mysql://"):]
+        if database_url.startswith("postgres://"):
+            return "postgresql://" + database_url[len("postgres://"):]
 
-        # PyMySQL driver is used: mysql+pymysql://<user>:<password>@<host>:<port>/<db_name>
-        if password:
-            return f"mysql+pymysql://{user}:{password}@{host}:{port}/{db_name}"
-        return f"mysql+pymysql://{user}@{host}:{port}/{db_name}"
+        return database_url
 
 
 class DevelopmentConfig(Config):

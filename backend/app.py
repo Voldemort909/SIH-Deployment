@@ -33,12 +33,10 @@ def create_app(config_name=None):
         if not os.getenv("SECRET_KEY"):
             raise RuntimeError("SECRET_KEY must be set when FLASK_ENV=production")
         database_url = os.getenv("DATABASE_URL", "")
-        if database_url and not database_url.startswith(("mysql://", "mysql+pymysql://")):
+        if not database_url:
+            raise RuntimeError("DATABASE_URL must be set when FLASK_ENV=production")
+        if not database_url.startswith(("mysql://", "mysql+pymysql://")):
             raise RuntimeError("Production DATABASE_URL must use MySQL")
-        if not database_url and not all(os.getenv(key) for key in ("DB_HOST", "DB_NAME", "DB_USER", "DB_PASSWORD")):
-            raise RuntimeError(
-                "Set DATABASE_URL or all of DB_HOST, DB_NAME, DB_USER, and DB_PASSWORD for production MySQL"
-            )
     app.config.from_object(config_class)
     app.config["ENV"] = config_name
 
